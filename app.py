@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 import pystache, os
 
 app = Flask(__name__)
@@ -39,9 +39,9 @@ def config():
 
         protocol = request.files['protocol']
 
-        return conf, protocol
+        return render_template('submit.html')
     else:
-        return "Hello"
+        return render_template('hello.html')
 
 
 if __name__ == "__main__":
