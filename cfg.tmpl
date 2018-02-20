@@ -1,0 +1,22 @@
+pid: &pid {{{PID}}}
+workflow_name: &workflow_name !join [{{{NAME}}}-, *pid]
+
+delimiter: {{{DELIM}}}
+code_path: {{{CODE_PATH}}}
+input_path: {{{INPUT_PATH}}}
+output_path: {{{OUTPUT_PATH}}}
+
+spark:
+    hdfs:
+        node_name: {{{NODE_NAME}}}
+        root: {{{ROOT_PATH}}}
+    master_url: {{{SPARK_MASTER_URL}}}
+
+net:
+    parties:
+        - host: {{{HOST_ONE}}}
+          port: {{{PORT_ONE}}}
+        - host: {{{HOST_TWO}}}
+          port: {{{PORT_TWO}}}
+        - host: {{{HOST_THREE}}}
+          port: {{{PORT_THREE}}}
