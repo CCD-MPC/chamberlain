@@ -7,6 +7,5 @@ setup(
     install_requires = ['pystache', 'flask'],
     license          = 'MIT',
     url              = 'https://github.com/multiparty/WebConclave',
-    description      = 'Web API for OpenShift deployment of Conclave.',
-    long_description = open('README.rst').read()
+    description      = 'Web API for OpenShift deployment of Conclave.'
 )
