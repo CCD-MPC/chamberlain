@@ -1,10 +1,11 @@
 from flask import Flask, request, render_template
-import pystache, os
+import pystache
+import os
 
-app = Flask(__name__)
+application = Flask(__name__)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@application.route('/', methods=['GET', 'POST'])
 def config():
     """
     get config info from user input, populate yml template
@@ -13,11 +14,7 @@ def config():
     if request.method == 'POST':
         cfg = request.form.get('cfg')
 
-        template = \
-            open(
-                '{}/cfg_template.tmpl'
-                    .format(os.path.dirname(os.path.realpath(__file__)))
-            )
+        template = open( '{}/cfg_template.tmpl' .format(os.path.dirname(os.path.realpath(__file__))))
 
         data = {
             'PID': cfg['pid'],
@@ -45,4 +42,4 @@ def config():
 
 
 if __name__ == "__main__":
-    app.run()
+    application.run()
