@@ -14,6 +14,12 @@ app = Flask(__name__)
 def index():
     return render_template('hello.html')
 
+@app.route('/login', methods=['POST'])
+def login():
+    if request.method == 'POST':
+        return render_template('submit.html')
+
+
 
 
 
