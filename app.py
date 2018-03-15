@@ -17,6 +17,9 @@ def index():
 @app.route('/login', methods=['POST'])
 def login():
     if request.method == 'POST':
+        content = request.json
+        print content['mytext']
+        
         return render_template('submit.html')
 
 
