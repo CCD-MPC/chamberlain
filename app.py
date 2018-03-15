@@ -11,7 +11,7 @@ def config():
     get config info from user input, populate yml template
     
     """
-    return render_template('hello.html')
+    return 'this is from flask'
     # if request.method == 'POST':
     #     print 'This is flask'
     #     # cfg = request.form.get('cfg')
