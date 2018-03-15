@@ -12,7 +12,8 @@ def config():
     """
 
     if request.method == 'POST':
-        cfg = request.form.get('cfg')
+        print 'This is flask'
+        # cfg = request.form.get('cfg')
 
         template = open( '{}/cfg_template.tmpl' .format(os.path.dirname(os.path.realpath(__file__))))
 
@@ -32,9 +33,9 @@ def config():
             'PORT_THREE': cfg['port_three']
         }
 
-        conf = pystache.render(template, data)
+        # conf = pystache.render(template, data)
 
-        protocol = request.files['protocol']
+        # protocol = request.files['protocol']
 
         return render_template('submit.html')
     else:
