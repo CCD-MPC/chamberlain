@@ -26,7 +26,7 @@ def login():
         print content['mytext']
         name='conclavepy'
         # image='docker.io/singhp11/pyspark-python3'
-        image='singhp11/python3-hello-world'
+        image='docker.io/singhp11/python3-hello-world'
 
         d_job = {
             "apiVersion": "batch/v1",
