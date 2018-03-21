@@ -74,7 +74,8 @@ def login():
 
         kube_client = k_client.CoreV1Api()
         kube_v1_batch_client = k_client.BatchV1Api()
-        project = os.environ.get('OPENSHIFTMGR_PROJECT') or 'conclave-web'
+        project = os.environ.get('OPENSHIFTMGR_PROJECT') or 'cici'
+        print ('Namespace: ', project)
         job = kube_v1_batch_client.create_namespaced_job(namespace=project, body=d_job)
 
 
