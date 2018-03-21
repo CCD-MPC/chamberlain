@@ -48,10 +48,29 @@ def login():
                             {
                                 "name": name,
                                 "image": image,
+                                "env": [
+                                   
+                                    {
+                                        "name": "KUBECFG_PATH",
+                                        "value": "/tmp/.kube/config"
+                                    },
+                                    {
+                                        "name": "OPENSHIFTMGR_PROJECT",
+                                        "value": "cici"
+                                    }
+                                ],
                                 "command": [
                                     "python",
                                     "/opt/app-root/app.py"
                                 ],
+                                "volumeMounts": [
+
+                                    {
+                                        "name": "kubecfg-volume",
+                                        "mountPath": "/tmp/.kube/",
+                                        "readOnly": True
+                                    },
+                                ]
 
                                 # "volumeMounts": [
                                 #     {
@@ -65,16 +84,15 @@ def login():
                 }
             }
         }
-        # d_job['spec']['template']['spec']['volumes'] = [
-        #     {
-        #         "name": "config-volume",
-        #         "configMap":[
-        #             {
-        #                 "name": "special-config"
-        #             }
-        #         ]
-        #     }
-        # ]
+        d_job['spec']['template']['spec']['volumes'] = [
+
+            {
+                "name": "kubecfg-volume",
+                "secret": {
+                    "secretName": "kubecfg"
+                }
+            }
+        ]
 
         kube_client = k_client.CoreV1Api()
         kube_v1_batch_client = k_client.BatchV1Api()
