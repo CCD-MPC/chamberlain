@@ -48,6 +48,10 @@ def login():
                             {
                                 "name": name,
                                 "image": image,
+                                "command": [
+                                    "python",
+                                    "/opt/app-root/app.py"
+                                ],
 
                                 # "volumeMounts": [
                                 #     {
