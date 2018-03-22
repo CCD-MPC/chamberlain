@@ -23,7 +23,7 @@ def index():
 def login():
     if request.method == 'POST':
         content = request.json
-        print content['mytext']
+        print (content['mytext'])
         name='conclavepy'
         # image='docker.io/singhp11/pyspark-python3'
         image='docker.io/singhp11/python3-hello-world'
@@ -48,17 +48,17 @@ def login():
                             {
                                 "name": name,
                                 "image": image,
-                                "env": [
-                                   
-                                    {
-                                        "name": "KUBECFG_PATH",
-                                        "value": "/tmp/.kube/config"
-                                    },
-                                    {
-                                        "name": "OPENSHIFTMGR_PROJECT",
-                                        "value": "cici"
-                                    }
-                                ],
+                                # "env": [
+                                #
+                                #     {
+                                #         "name": "KUBECFG_PATH",
+                                #         "value": "/tmp/.kube/config"
+                                #     },
+                                #     {
+                                #         "name": "OPENSHIFTMGR_PROJECT",
+                                #         "value": "cici"
+                                #     }
+                                # ],
                                 "command": [
                                     "python",
                                     "/opt/app-root/app.py"
