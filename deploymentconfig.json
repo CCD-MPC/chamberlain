@@ -55,7 +55,7 @@
               "imagePullPolicy": "Always",
               "name": "conclave-web",
               "ports": [{
-                "containerPort": 5010,
+                "containerPort": 8080,
                 "protocol": "TCP"
               }],
               "resources": {
@@ -109,10 +109,10 @@
       },
       "spec": {
         "ports": [{
-          "name": "5010-tcp",
-          "port": 5010,
+          "name": "8080-tcp",
+          "port": 8080,
           "protocol": "TCP",
-          "targetPort": 5010
+          "targetPort": 8080
         }],
         "selector": {
           "app": "conclave-web",
@@ -133,7 +133,7 @@
       },
       "spec": {
         "port": {
-          "targetPort": "5010-tcp"
+          "targetPort": "8080-tcp"
         },
         "to": {
           "kind": "Service",
