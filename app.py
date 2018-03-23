@@ -8,6 +8,8 @@ from openshift import client as o_client
 import yaml
 import json
 import os
+from openshift import config
+from kubernetes.client.rest import ApiException
 
 
 
@@ -21,9 +23,24 @@ def index():
 
 @app.route('/login', methods=['POST'])
 def login():
+    kubecfg_path = os.environ.get('KUBECFG_PATH')
+    config.load_kube_config(config_file='/tmp/.kube/kube-config')
+    # if kubecfg_path is None:
+    #     config.load_kube_config()
+    # else:
+    #     config.load_kube_config(config_file=kubecfg_path)
+    print ('config: ',config)
+    openshift_client = o_client.OapiApi()
+    kube_client = k_client.CoreV1Api()
+    kube_v1_batch_client = k_client.BatchV1Api()
+
+    print ('kube_client: ',kube_client)
+    print ('kube_v1_batch_client: ',kube_v1_batch_client)
+
+
     if request.method == 'POST':
         content = request.json
-        print (content['mytext'])
+        print ('from json:  ',content['mytext'])
         name='conclavepy'
         # image='docker.io/singhp11/pyspark-python3'
         image='docker.io/singhp11/python3-hello-world'
@@ -94,10 +111,14 @@ def login():
             }
         ]
 
-        kube_client = k_client.CoreV1Api()
-        kube_v1_batch_client = k_client.BatchV1Api()
+
         project = os.environ.get('OPENSHIFTMGR_PROJECT') or 'cici'
         print ('Namespace: ', project)
+        try:
+            api_response = kube_client.list_namespaced_pod(project)
+            print('****************: ',api_response)
+        except ApiException as e:
+            print("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
         job = kube_v1_batch_client.create_namespaced_job(namespace=project, body=d_job)
 
 
