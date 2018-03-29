@@ -82,7 +82,7 @@
             "volumes": [{
                 "name": "kubecfg-volume",
                 "secret": {
-                  "secretName": "kubcfg"
+                  "secretName": "kubecfg"
                 }
               }
              

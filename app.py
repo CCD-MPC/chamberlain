@@ -10,6 +10,8 @@ import os
 from openshift import config as o_config
 from openshift import client as o_client
 from kubernetes import client as k_client
+import time
+from kubernetes.client.rest import ApiException
 
 app = Flask(__name__)
 
@@ -21,15 +23,39 @@ def index():
 def login():
 
     print ('THIS IS POST LOGINS')
-    content=''
+
+    data={
+        "protocol.py":  "def protocol(): \
+                            print ('Config Map created') \
+                            exit()",
+        "yaml.yaml" : "This is some yaml"
+    }
+
+        
+
     config=o_config.load_kube_config(config_file='/tmp/.kube/config')
     openshift_client=o_client.OapiApi()
     kube_client=k_client.CoreV1Api()
     kube_batch_client=k_client.BatchV1Api()
 
+    # Creating config map to load protocol and configurations details on conclave job pod.
+    namespace='cici'
+    timestamp=str(int(round(time.time() * 1000)))
+    configmap_name=''.join(['conclaveweb','-',timestamp])
+    configmap_metadata=k_client.V1ObjectMeta(name=configmap_name)
+    configmap_body=k_client.V1ConfigMap(data=data,metadata=configmap_metadata)
+
+    pretty='pretty_example'
+
+    try:
+        api_response=kube_client.create_namespaced_config_map(namespace,configmap_body,pretty=pretty)
+        print("api_response: ",api_response)
+    except ApiException as e:
+        print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
+
     if request.method == 'POST':
         content = request.json
-        name='conclave-web-hw'
+        name=''.join(['conclave-web-hw','-',timestamp])
         image='docker.io/singhp11/python3-hello-world'
 
         d_job = {
@@ -74,6 +100,12 @@ def login():
                                         "mountPath": "/tmp/.kube/",
                                         "readOnly": True
                                     },
+                                    {
+                                        "name": "config-volume",
+                                        "mountPath": "/etc/config",
+                                        "readOnly": True
+        
+                                    }
                                 ]
 
                             }
@@ -82,6 +114,8 @@ def login():
                 }
             }
         }
+
+        
         d_job['spec']['template']['spec']['volumes'] = [
 
             {
@@ -89,12 +123,19 @@ def login():
                 "secret": {
                     "secretName": "kubecfg"
                 }
+            },
+            {
+                "name": "config-volume",
+                "configMap":{
+                    "name": configmap_name
+                }
+            
             }
         ]
-    job = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
+        job = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
 
 
-    return jsonify(content)
+        return jsonify(content)
 
 
 
