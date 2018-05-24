@@ -38,9 +38,9 @@ def login():
 
         # Creating config map to load protocol and configurations details on conclave job pod.
         namespace='cici'
-
+        protocol=jsondata['protocol']
         protocol_string=''
-        for item in jsondata['protocol']:
+        for item in protocol:
             protocol_string+=item+'\n'
 
         print protocol_string
@@ -48,7 +48,7 @@ def login():
 
 
         data={
-            "protocol.py":  protocol_string
+            "protocol.py":  protocol_string,
             "yaml.yaml" : "This is some yaml"
         } 
 
