@@ -33,20 +33,25 @@ def login():
 
     if request.method == 'POST':
         jsondata = request.json
-        protocol=jsondata['protocol']
+        # protocol=jsondata['protocol']
         yaml=jsondata['config']
 
         # Creating config map to load protocol and configurations details on conclave job pod.
         namespace='cici'
 
+        protocol_string=''
+        for item in jsondata['protocol']:
+            protocol_string+=item+'\n'
+
+        print protocol_string
+
+
 
         data={
-            "protocol.py":  "def protocol(): \
-                            print ('Config Map created') \
-                            exit()",
+            "protocol.py":  protocol_string
             "yaml.yaml" : "This is some yaml"
         } 
-        
+
         configmap_name=''.join(['conclaveweb','-',timestamp])
         configmap_metadata=k_client.V1ObjectMeta(name=configmap_name)
         configmap_body=k_client.V1ConfigMap(data=data,metadata=configmap_metadata)
@@ -62,6 +67,7 @@ def login():
 
         name=''.join(['conclave-web-hw','-',timestamp])
         image='docker.io/singhp11/python3-hello-world'
+        # image='docker.io/bengetch/conclave:v3'
 
         d_job = {
             "apiVersion": "batch/v1",
@@ -96,7 +102,7 @@ def login():
                                 ],
                                 "command": [
                                     "python",
-                                    "/opt/app-root/app.py"
+                                    "/app/app.py"
                                 ],
                                 "volumeMounts": [
 
