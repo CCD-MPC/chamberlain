@@ -19,8 +19,8 @@ app = Flask(__name__)
 def index():
     return render_template('hello.html')
 
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/submit', methods=['POST'])
+def submit():
 
     config=o_config.load_kube_config(config_file='/tmp/.kube/config')
     openshift_client=o_client.OapiApi()
@@ -32,18 +32,21 @@ def login():
     
 
     if request.method == 'POST':
-        jsondata = request.json
+        print('This is here', request)
+        jsondata = request.get_json(force=True)
+        print ('Incoming json: ', jsondata)
         # protocol=jsondata['protocol']
         yaml=jsondata['config']
 
         # Creating config map to load protocol and configurations details on conclave job pod.
         namespace='cici'
         protocol=jsondata['protocol']
+       
         protocol_string=''
         for item in protocol:
             protocol_string+=item+'\n'
 
-        print protocol_string
+        print (protocol_string)
 
 
 
@@ -102,7 +105,7 @@ def login():
                                 ],
                                 "command": [
                                     "python",
-                                    "/app/app.py"
+                                    "/opt/app-root/app.py"
                                 ],
                                 "volumeMounts": [
 
