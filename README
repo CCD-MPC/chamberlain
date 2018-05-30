@@ -1,1 +1,10 @@
 Conclave web with kubernetes jobs
+
+Usage:
+
+```
+source backend/venv/bin/activate
+
+(venv) FLASK_APP=app.py FLASK_DEBUG=1 flask run
+
+```
