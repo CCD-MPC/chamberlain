@@ -78,6 +78,8 @@
                               </thead>
                           </table>
                           <button class="button btn-primary is-pulled-left" type="submit">Compute</button>
+                          <button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
+                          <p>Job Status:  {{ jobStatus }} </p>
                       </div>
                   </div>
               </div>
@@ -87,6 +89,8 @@
 </template>
 
 <script type="text/javascript">
+    import axios from 'axios'
+
 	export default {
 		name: 'InputFiles',
 		data() {
@@ -95,17 +99,21 @@
                   partyId: "",
                   sparkURL: ""
                 },
-				dataRows: [{endpoint: "", container: "", dataset: ""}]
+				dataRows: [{endpoint: "", container: "", dataset: ""}],
+                jobStatus: ""
 			}
 		},
 		methods: {
-			handleSubmit() {
+			handleSubmit()
+            {
 				// submit form data
             },
-            removeData(index) {
+            removeData(index)
+            {
               this.dataRows.splice(index, 1);
             },
-			addData() {
+			addData()
+            {
               var elem = document.createElement('tr');
                 this.dataRows.push({
                   endpoint: "",
@@ -113,6 +121,18 @@
                   dataset: ""
                 });
 			},
+            getStatusFromBackend()
+            {
+				const path = 'http://localhost:5000/api/job_status'
+                axios.get(path)
+                  .then(response => {
+                  	this.jobStatus = response.data.status
+                  })
+                  .catch(error => {
+                  	console.log(error)
+                  })
+            }
+
 		}
 	}
 </script>
