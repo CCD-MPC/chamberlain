@@ -33,7 +33,7 @@
                                   <strong>Step 2 - Specify Your Input Datasets.</strong>
                               </td>
                               <td>
-                                  <button class="button btn-primary is-centered" @click="addData">Add A Dataset</button>
+                                  <button class="button is-centered" @click="addData">Add A Dataset</button>
                               </td>
                           </thead>
                           <thead>
@@ -77,7 +77,7 @@
                               </td>
                               </thead>
                           </table>
-                          <button class="button btn-primary is-pulled-left" type="submit">Compute</button>
+                          <button class="button btn-primary is-pulled-left" type="submit" @click="submitData">Compute</button>
                           <button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
                           <p>Job Status:  {{ jobStatus }} </p>
                       </div>
@@ -104,9 +104,21 @@
 			}
 		},
 		methods: {
+			submitData()
+            {
+            	// submit user data
+
+            	const response =
+                  {
+            		"userData": this.userData,
+                    "dataRows": this.dataRows
+                  };
+
+                console.log(response);
+            },
 			handleSubmit()
             {
-				// submit form data
+            	// idk what this is. if i remove it things break
             },
             removeData(index)
             {
@@ -123,7 +135,7 @@
 			},
             getStatusFromBackend()
             {
-				const path = 'http://localhost:5000/api/job_status'
+				const path = 'http://localhost:5000/api/job_status';
                 axios.get(path)
                   .then(response => {
                   	this.jobStatus = response.data.status

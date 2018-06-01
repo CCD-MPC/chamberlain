@@ -1,22 +1,44 @@
 import os
+import time
 
 from flask import Flask
 from flask import request
 from flask import render_template
 from flask import jsonify
-import os
 from openshift import config as o_config
 from openshift import client as o_client
 from kubernetes import client as k_client
-import time
 from kubernetes.client.rest import ApiException
+from flask_cors import CORS
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 
+# CORS to allow status calls from backend to frontend
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-@app.route("/")
-def index():
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def catch_all(path):
     return render_template("index.html")
+
+
+@app.route('/api/job_status')
+def job_status(status=None):
+    """
+    After querying status of Conclave job, send response to frontend.
+    """
+
+    # dummy temp response
+    if status is None:
+        status = 'everything ok'
+
+    response = \
+        {
+            'status': status
+        }
+
+    return jsonify(response)
 
 
 @app.route('/submit', methods=['POST'])
