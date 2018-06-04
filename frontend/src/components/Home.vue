@@ -106,7 +106,7 @@
 		methods: {
 			submitData()
             {
-            	// submit user data
+                // submit user data
 
             	const response =
                   {
@@ -114,7 +114,11 @@
                     "dataRows": this.dataRows
                   };
 
-                console.log(response);
+                const path = "http://localhost:5000/api/job_submit";
+
+                axios.post(path, response)
+                  .then(function(response){console.log(response);})
+                  .catch(function(error){console.log(error);});
             },
 			handleSubmit()
             {

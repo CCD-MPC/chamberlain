@@ -23,6 +23,19 @@ def catch_all(path):
     return render_template("index.html")
 
 
+@app.route('/api/job_submit', methods=['POST'])
+def job_submit():
+    """
+    Receive job data from frontend.
+    """
+
+    data = request.get_json()
+
+    print(data)
+
+    return jsonify(data)
+
+
 @app.route('/api/job_status')
 def job_status(status=None):
     """
