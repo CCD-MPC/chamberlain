@@ -23,19 +23,6 @@ def catch_all(path):
     return render_template("index.html")
 
 
-@app.route('/api/job_submit', methods=['POST'])
-def job_submit():
-    """
-    Receive job data from frontend.
-    """
-
-    data = request.get_json()
-
-    print(data)
-
-    return jsonify(data)
-
-
 @app.route('/api/job_status')
 def job_status(status=None):
     """
@@ -62,13 +49,13 @@ def submit():
     kube_client = k_client.CoreV1Api()
     kube_batch_client = k_client.BatchV1Api()
 
-    timestamp=str(int(round(time.time() * 1000)))
+    timestamp = str(int(round(time.time() * 1000)))
 
     if request.method == 'POST':
         print('This is here', request)
         jsondata = request.get_json(force=True)
         print('Incoming json: ', jsondata)
-        # protocol=jsondata['protocol']
+
         yaml = jsondata['config']
 
         # Creating config map to load protocol and configurations details on conclave job pod.
@@ -155,28 +142,25 @@ def submit():
                                     ]
 
                                 }
+                            ],
+                            "volumes": [
+                                {
+                                    "name": "kubecfg-volume",
+                                    "secret": {
+                                        "secretName": "kubecfg"
+                                    }
+                                },
+                                {
+                                    "name": "config-volume",
+                                    "configMap": {
+                                        "name": configmap_name
+                                    }
+                                }
                             ]
                         }
                     }
                 }
             }
-
-        d_job['spec']['template']['spec']['volumes'] = [
-
-            {
-                "name": "kubecfg-volume",
-                "secret": {
-                    "secretName": "kubecfg"
-                }
-            },
-            {
-                "name": "config-volume",
-                "configMap": {
-                    "name": configmap_name
-                }
-            
-            }
-        ]
 
         job = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
 
