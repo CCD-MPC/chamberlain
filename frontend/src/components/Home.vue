@@ -114,7 +114,7 @@
                     "dataRows": this.dataRows
                   };
 
-                const path = "http://localhost:5000/api/job_submit";
+                const path = "/api/submit";
 
                 axios.post(path, response)
                   .then(function(response){console.log(response);})
@@ -139,7 +139,7 @@
 			},
             getStatusFromBackend()
             {
-				const path = 'http://localhost:5000/api/job_status';
+				const path = '/api/job_status';
                 axios.get(path)
                   .then(response => {
                   	this.jobStatus = response.data.status
