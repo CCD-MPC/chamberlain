@@ -7,15 +7,9 @@
                   <table class="table is-bordered">
                       <thead>
                         <td>
-                            <strong>Step 1 - Input Party ID and Spark Master URL.</strong>
+                            <strong>Step 1 - Spark Master URL.</strong>
                         </td>
                       </thead>
-                      <tr>
-                          <td>
-                              <strong>Your Party ID</strong>
-                              <input type="text" v-model="userData.partyId">
-                          </td>
-                      </tr>
                       <tr>
                           <td>
                               <strong>Spark Master URL</strong>
@@ -96,7 +90,6 @@
 		data() {
 			return {
 				userData: {
-                  partyId: "",
                   sparkURL: ""
                 },
 				dataRows: [{endpoint: "", container: "", dataset: ""}],
@@ -110,8 +103,13 @@
 
             	const response =
                   {
-            		"userData": this.userData,
-                    "dataRows": this.dataRows
+                  	// TODO: add functionality to upload protocol
+                  	"protocol": {},
+                    "config":
+                      {
+                      	"userData": this.userData,
+                        "dataRows": this.dataRows
+                      }
                   };
 
                 const path = "/api/submit";
