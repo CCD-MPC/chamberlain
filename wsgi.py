@@ -41,7 +41,7 @@ def job_status(status=None):
     return jsonify(response)
 
 
-@app.route('/submit', methods=['POST'])
+@app.route('/api/submit', methods=['POST'])
 def submit():
 
     config = o_config.load_kube_config(config_file='/tmp/.kube/config')
@@ -52,6 +52,10 @@ def submit():
     timestamp = str(int(round(time.time() * 1000)))
 
     if request.method == 'POST':
+
+        """
+        TODO - need to modify structure of incoming JSON from frontend & add protocol to it.
+        """
         print('This is here', request)
         jsondata = request.get_json(force=True)
         print('Incoming json: ', jsondata)
