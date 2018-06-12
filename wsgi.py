@@ -58,6 +58,7 @@ def submit():
         """
         print('This is here', request)
         jsondata = request.get_json(force=True)
+        print(jsondata)
         print('Incoming json: ', jsondata)
 
         yaml = jsondata['config']
@@ -172,5 +173,5 @@ def submit():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 8000))
     app.run(host='0.0.0.0', port=port)
