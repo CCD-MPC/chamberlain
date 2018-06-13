@@ -1,10 +1,15 @@
-# conclave-web image for openshift
-
-FROM registry.access.redhat.com/rhel
+FROM rhel7
 
 WORKDIR /app
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
+
+
+RUN echo '[centos]
+          name=CentOS $releasever - $basearch
+          baseurl=http://ftp.heanet.ie/pub/centos/5/os/$basearch/
+          enabled=1
+          gpgcheck=0'  > /etc/yum.repos.d/centos.repo
 
 RUN yum -y update \
     && yum -y install git \
@@ -32,7 +37,15 @@ RUN cd /app/conclave-web \
 RUN cd /app/conclave-web/frontend \
     && npm run build
 
-RUN cd /app/conclave-web
+RUN groupadd -g 666 appuser && \
+    useradd -r -u 666 -g appuser appuser
+
+RUN chown appuser:appuser -R /app
+
+USER appuser
+
+RUN cd /app/conclave-web \
+    && source backend/venv/bin/activate
 
 CMD ["gunicorn", "wsgi:app"]
 
