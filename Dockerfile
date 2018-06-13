@@ -37,9 +37,9 @@ RUN chown appuser:appuser -R /app
 
 USER appuser
 
-RUN cd /app/conclave-web \
-    && source backend/venv/bin/activate
+CMD cd /app/conclave-web \
+    && source backend/venv/bin/activate \
+    && gunicorn wsgi:app
 
-CMD ["gunicorn", "wsgi:app"]
 
 
