@@ -23,7 +23,8 @@ RUN cd /app \
     && git clone https://github.com/multiparty/conclave-web.git
 
 RUN cd /app/conclave-web \
-    && source backend/venv/bin/activate
+    && source backend/venv/bin/activate \
+    && pip install -r requirements.txt
 
 RUN cd /app/conclave-web/frontend \
     && npm run build
