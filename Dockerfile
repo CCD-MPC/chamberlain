@@ -4,13 +4,6 @@ WORKDIR /app
 
 RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
 
-
-RUN echo '[centos]
-          name=CentOS $releasever - $basearch
-          baseurl=http://ftp.heanet.ie/pub/centos/5/os/$basearch/
-          enabled=1
-          gpgcheck=0'  > /etc/yum.repos.d/centos.repo
-
 RUN yum -y update \
     && yum -y install git \
     && yum -y install nodejs \
