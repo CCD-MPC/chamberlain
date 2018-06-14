@@ -33,13 +33,13 @@ RUN cd /app/conclave-web/frontend \
 RUN groupadd -g 666 appuser && \
     useradd -r -u 666 -g appuser appuser
 
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 RUN chown appuser:appuser -R /app
 
 USER appuser
 
-CMD cd /app/conclave-web \
-    && source backend/venv/bin/activate \
-    && gunicorn wsgi:app
+CMD ./start.sh
 
 
 
