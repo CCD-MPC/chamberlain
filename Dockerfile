@@ -16,7 +16,6 @@ RUN yum -y install epel-release \
     && yum -y install https://centos7.iuscommunity.org/ius-release.rpm \
     && yum -y install python35u python35u-pip
 
-
 RUN pip3.5 install virtualenv
 
 RUN cd /app \
