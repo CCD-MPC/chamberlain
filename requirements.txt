@@ -23,7 +23,6 @@ PyYAML==3.12
 requests==2.18.4
 requests-oauthlib==0.8.0
 rsa==3.4.2
-ruamel.yaml==0.15.37
 six==1.11.0
 urllib3==1.22
 websocket-client==0.48.0
