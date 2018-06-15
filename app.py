@@ -129,7 +129,7 @@ def submit():
                                     ],
                                     "command": [
                                         "python",
-                                        "/opt/app-root/wsgi.py"
+                                        "/opt/app-root/app.py"
                                     ],
                                     "volumeMounts": [
 

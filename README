@@ -9,6 +9,6 @@ cd ..
 
 source backend/venv/bin/activate
 
-(venv) gunicorn wsgi:app
+(venv) gunicorn -c config.py wsgi:app
 
 ```
