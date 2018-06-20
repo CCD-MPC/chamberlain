@@ -53,41 +53,22 @@ def submit():
 
     if request.method == 'POST':
 
-        """
-        TODO - need to modify structure of incoming JSON from frontend & add protocol to it.
-        """
-        print('This is here', request)
         jsondata = request.get_json(force=True)
-        print(jsondata)
-        print('Incoming json: ', jsondata)
-
-        yaml = jsondata['config']
-
-        # Creating config map to load protocol and configurations details on conclave job pod.
-        namespace = 'cici'
-        protocol = jsondata['protocol']
-       
-        protocol_string = ''
-
-        for item in protocol:
-            protocol_string += "{}\n".format(item)
-
-        print(protocol_string)
+        config_data = jsondata['config']
+        protocol = ["{}\n".format(item) for item in jsondata['protocol']]
 
         data = \
             {
-                "protocol.py":  protocol_string,
-                "yaml.yaml": "This is some yaml"
+                "protocol.py":  protocol,
+                "config_data": config_data
             }
 
         configmap_name = ''.join(['conclaveweb', '-', timestamp])
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
 
-        pretty = 'pretty_example'
-
         try:
-            api_response = kube_client.create_namespaced_config_map(namespace, configmap_body, pretty=pretty)
+            api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
             print("api_response: ", api_response)
         except ApiException as e:
             print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
