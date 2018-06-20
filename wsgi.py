@@ -43,10 +43,13 @@ def job_status(status=None):
 
 @app.route('/api/submit', methods=['POST'])
 def submit():
+    """
+    TODO: will need to resolve namespaces to run config maps on from datasets selected
+    by the user -- rob said service accounts are able to do this.
+    """
 
-    config = o_config.load_kube_config(config_file='/tmp/.kube/config')
-    openshift_client = o_client.OapiApi()
-    kube_client = k_client.CoreV1Api()
+    o_config.load_kube_config(config_file='/tmp/.kube/config')
+    api = k_client.CoreV1Api()
     kube_batch_client = k_client.BatchV1Api()
 
     timestamp = str(int(round(time.time() * 1000)))
@@ -68,7 +71,7 @@ def submit():
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
 
         try:
-            api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
+            api_response = api.create_namespaced_config_map('cici', configmap_body, pretty='true')
             print("api_response: ", api_response)
         except ApiException as e:
             print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
@@ -148,7 +151,11 @@ def submit():
                 }
             }
 
-        job = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
+        try:
+            api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
+            print(api_response)
+        except ApiException as e:
+            print("Exception when calling BatchV1Api->create_namespaced_job: %s\n" % e)
 
         return jsonify(protocol)
 
