@@ -72,9 +72,9 @@ def submit():
 
         try:
             api_response = api.create_namespaced_config_map('cici', configmap_body, pretty='true')
-            print("api_response: ", api_response)
+            app.logger.info("Namespace created successfully with response {}\n".format(api_response))
         except ApiException as e:
-            print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
+            app.logger.error("Error creating config map: {}\n".format(e))
 
         name = ''.join(['conclave-web-hw', '-', timestamp])
         image = 'docker.io/singhp11/python3-hello-world'
@@ -153,9 +153,9 @@ def submit():
 
         try:
             api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
-            print(api_response)
+            app.logger.info("Job created with response: {}".format(api_response))
         except ApiException as e:
-            print("Exception when calling BatchV1Api->create_namespaced_job: %s\n" % e)
+            app.logger.error("Exception when calling BatchV1Api->create_namespaced_job: {}\n".format(e))
 
         return jsonify(protocol)
 
@@ -163,4 +163,4 @@ def submit():
 if __name__ == "__main__":
 
     port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
