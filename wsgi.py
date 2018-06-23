@@ -54,26 +54,6 @@ def submit():
     TODO: how to bind service account credentials to this?
     """
 
-    '''
-        # Configure API key authorization: BearerToken
-        configuration = kubernetes.client.Configuration()
-        configuration.api_key['authorization'] = 'YOUR_API_KEY'
-        # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-        # configuration.api_key_prefix['authorization'] = 'Bearer'
-        
-        # create an instance of the API class
-        api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
-        namespace = 'namespace_example' # str | object name and auth scope, such as for teams and projects
-        body = kubernetes.client.V1ConfigMap() # V1ConfigMap | 
-        pretty = 'pretty_example' # str | If 'true', then the output is pretty printed. (optional)
-        
-        try: 
-            api_response = api_instance.create_namespaced_config_map(namespace, body, pretty=pretty)
-            pprint(api_response)
-        except ApiException as e:
-            print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
-    '''
-
     k_cfg = k_client.Configuration()
     k_cfg.api_key['authorization'] = open('/var/run/secrets/kubernetes.io/serviceaccount/token').read()
 
@@ -164,26 +144,6 @@ def submit():
     TODO: how to bind service account credentials to this?
     """
 
-    '''
-        # Configure API key authorization: BearerToken
-        configuration = kubernetes.client.Configuration()
-        configuration.api_key['authorization'] = 'YOUR_API_KEY'
-        # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
-        # configuration.api_key_prefix['authorization'] = 'Bearer'
-        
-        # create an instance of the API class
-        api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
-        namespace = 'namespace_example' # str | object name and auth scope, such as for teams and projects
-        body = kubernetes.client.V1ConfigMap() # V1ConfigMap | 
-        pretty = 'pretty_example' # str | If 'true', then the output is pretty printed. (optional)
-        
-        try: 
-            api_response = api_instance.create_namespaced_config_map(namespace, body, pretty=pretty)
-            pprint(api_response)
-        except ApiException as e:
-            print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
-    '''
-
     config=o_config.load_kube_config(config_file='/tmp/.kube/config')
     openshift_client=o_client.OapiApi()
     kube_client=k_client.CoreV1Api()
@@ -208,7 +168,7 @@ def submit():
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
 
         try:
-            api_response = api.create_namespaced_config_map('cici', configmap_body, pretty='true')
+            api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
             app.logger.info("Namespace created successfully with response {}\n".format(api_response))
         except ApiException as e:
             app.logger.error("Error creating config map: {}\n".format(e))
@@ -289,21 +249,6 @@ def submit():
             }
 
         try:
-            api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
-            app.logger.info("Job created with response: {}".format(api_response))
-        except ApiException as e:
-            app.logger.error("Exception when calling BatchV1Api->create_namespaced_job: {}\n".format(e))
-
-        return jsonify(protocol)
-
-
-if __name__ == "__main__":
-
-    port = int(os.environ.get("PORT", 8080))
-    app.run(host='0.0.0.0', port=port, debug=True)
-
-
-    try:
             api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
             app.logger.info("Job created with response: {}".format(api_response))
         except ApiException as e:
