@@ -1,5 +1,6 @@
 import os
 import time
+import logging
 
 from flask import Flask
 from flask import request
@@ -15,6 +16,12 @@ app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 
 # CORS to allow status calls from backend to frontend
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+
+if __name__ != "__main__":
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
 
 
 @app.route('/', defaults={'path': ''})
@@ -44,12 +51,34 @@ def job_status(status=None):
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
-    TODO: will need to resolve namespaces to run config maps on from datasets selected
-    by the user -- rob said service accounts are able to do this.
+    TODO: how to bind service account credentials to this?
     """
 
-    o_config.load_kube_config(config_file='/tmp/.kube/config')
-    api = k_client.CoreV1Api()
+    '''
+        # Configure API key authorization: BearerToken
+        configuration = kubernetes.client.Configuration()
+        configuration.api_key['authorization'] = 'YOUR_API_KEY'
+        # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
+        # configuration.api_key_prefix['authorization'] = 'Bearer'
+        
+        # create an instance of the API class
+        api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
+        namespace = 'namespace_example' # str | object name and auth scope, such as for teams and projects
+        body = kubernetes.client.V1ConfigMap() # V1ConfigMap | 
+        pretty = 'pretty_example' # str | If 'true', then the output is pretty printed. (optional)
+        
+        try: 
+            api_response = api_instance.create_namespaced_config_map(namespace, body, pretty=pretty)
+            pprint(api_response)
+        except ApiException as e:
+            print("Exception when calling CoreV1Api->create_namespaced_config_map: %s\n" % e)
+    '''
+
+    k_cfg = k_client.Configuration()
+    k_cfg.api_key['authorization'] = open('/var/run/secrets/kubernetes.io/serviceaccount/token').read()
+
+    # o_config.load_kube_config(config_file='/tmp/.kube/config')
+    api = k_client.CoreV1Api(k_client.ApiClient(k_cfg))
     kube_batch_client = k_client.BatchV1Api()
 
     timestamp = str(int(round(time.time() * 1000)))
