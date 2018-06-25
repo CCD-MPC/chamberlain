@@ -201,7 +201,7 @@ def submit():
 
                                         {
                                             "name": "KUBECFG_PATH",
-                                            "value": "/tmp/.kube/config"
+                                            "value": "/tmp/.kube/token"
                                         },
                                         {
                                             "name": "OPENSHIFTMGR_PROJECT",
@@ -213,7 +213,6 @@ def submit():
                                         "/opt/app-root/wsgi.py"
                                     ],
                                     "volumeMounts": [
-
                                         {
                                             "name": "kubecfg-volume",
                                             "mountPath": "/tmp/.kube/",
@@ -223,10 +222,8 @@ def submit():
                                             "name": "config-volume",
                                             "mountPath": "/etc/config",
                                             "readOnly": True
-
                                         }
                                     ]
-
                                 }
                             ],
                             "volumes": [
