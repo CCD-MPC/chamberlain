@@ -144,7 +144,7 @@ def submit():
     TODO: how to bind service account credentials to this?
     """
 
-    config=o_config.load_kube_config(config_file='/tmp/.kube/token')
+    config=o_config.load_kube_config(config_file='/tmp/.kube/config')
     openshift_client=o_client.OapiApi()
     kube_client=k_client.CoreV1Api()
     kube_batch_client=k_client.BatchV1Api()
@@ -201,7 +201,7 @@ def submit():
 
                                         {
                                             "name": "KUBECFG_PATH",
-                                            "value": "/tmp/.kube/token"
+                                            "value": "/tmp/.kube/config"
                                         },
                                         {
                                             "name": "OPENSHIFTMGR_PROJECT",
