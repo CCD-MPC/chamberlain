@@ -6,8 +6,6 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import jsonify
-from openshift import config as o_config
-from openshift import client as o_client
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
@@ -55,7 +53,7 @@ def submit():
     TODO: how to bind service account credentials to this?
     """
 
-    k_config.load_kube_config(config_file='/tmp/.kube/config')
+    k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
     kube_batch_client = k_client.BatchV1Api()
 
@@ -113,7 +111,7 @@ def submit():
 
                                         {
                                             "name": "KUBECFG_PATH",
-                                            "value": "/tmp/.kube/token"
+                                            "value": "/tmp/.kube/config"
                                         },
                                         {
                                             "name": "OPENSHIFTMGR_PROJECT",
