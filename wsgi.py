@@ -77,6 +77,8 @@ def submit():
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
 
+        app.logger.info("ConfigMap: {}".format(configmap_body))
+
         try:
             api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
             app.logger.info("Namespace created successfully with response {}\n".format(api_response))
