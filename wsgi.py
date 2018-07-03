@@ -1,6 +1,7 @@
 import time
 import logging
 import os
+import pystache
 
 from flask import Flask
 from flask import request
@@ -18,6 +19,9 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
 if __name__ != "__main__":
+    """
+    Bind Python logs to gunicorn logger.
+    """
     gunicorn_logger = logging.getLogger("gunicorn.error")
     app.logger.handlers = gunicorn_logger.handlers
     app.logger.setLevel(gunicorn_logger.level)
@@ -26,6 +30,9 @@ if __name__ != "__main__":
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def catch_all(path):
+    """
+    Redirect arbitrary pages to homepage.
+    """
     return render_template("index.html")
 
 
@@ -33,9 +40,9 @@ def catch_all(path):
 def job_status(status=None):
     """
     After querying status of Conclave job, send response to frontend.
+    TODO: make status response meaningful
     """
 
-    # dummy temp response
     if status is None:
         status = 'everything ok'
 
@@ -47,33 +54,61 @@ def job_status(status=None):
     return jsonify(response)
 
 
+def build_config_map_data(protocol, template_directory):
+    """
+    Construct ConfigMap JSON from protocol & config.
+    """
+
+    data_template = open("{}/configmap_data.tmpl".format(template_directory)).read()
+
+    data_params = \
+        {
+            "PROTOCOL": protocol
+        }
+
+    return pystache.render(data_template, data_params)
+
+
+def build_job_data(name, configmap_name, template_directory):
+    """
+    Construct JSON for Job with config.
+    """
+
+    job_template = open("{}/job.tmpl".format(template_directory), 'r').read()
+
+    image = 'docker.io/singhp11/python3-hello-world'
+
+    job_params = \
+        {
+            "NAME": name,
+            "IMAGE_NAME": image,
+            "CONFIGMAP_NAME": configmap_name
+        }
+
+    return pystache.render(job_template, job_params)
+
+
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
-    TODO: how to bind service account credentials to this?
+    On Compute, construct ConfigMap and Job objects and dispatch.
     """
+
+    template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
+    timestamp = str(int(round(time.time() * 1000)))
 
     k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
     kube_batch_client = k_client.BatchV1Api()
 
-    timestamp = str(int(round(time.time() * 1000)))
-
     if request.method == 'POST':
 
         jsondata = request.get_json(force=True)
-        config_data = jsondata['config']
         protocol = ["{}\n".format(item) for item in jsondata['protocol']]
-
-        data = \
-            {
-                "protocol.py":  "This is a protocol",
-            }
-
+        data = build_config_map_data(jsondata, template_directory)
         configmap_name = ''.join(['conclaveweb', '-', timestamp])
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
-
         app.logger.info("ConfigMap: {}".format(configmap_body))
 
         try:
@@ -83,76 +118,7 @@ def submit():
             app.logger.error("Error creating config map: {}\n".format(e))
 
         name = ''.join(['conclave-web-hw', '-', timestamp])
-        image = 'docker.io/singhp11/python3-hello-world'
-
-        d_job = \
-            {
-                "apiVersion": "batch/v1",
-                "kind": "Job",
-                "metadata": {
-                    "name": name
-                },
-                "spec": {
-                    "parallelism": 1,
-                    "completions": 1,
-                    "activeDeadlineSeconds": 3600,
-                    "template": {
-                        "metadata": {
-                            "name": name
-                        },
-                        "spec": {
-                            "restartPolicy": "Never",
-                            "containers": [
-                                {
-                                    "name": name,
-                                    "image": image,
-                                    "env": [
-
-                                        {
-                                            "name": "KUBECFG_PATH",
-                                            "value": "/tmp/.kube/config"
-                                        },
-                                        {
-                                            "name": "OPENSHIFTMGR_PROJECT",
-                                            "value": "cici"
-                                        }
-                                    ],
-                                    "command": [
-                                        "python",
-                                        "/opt/app-root/wsgi.py"
-                                    ],
-                                    "volumeMounts": [
-                                        {
-                                            "name": "kubecfg-volume",
-                                            "mountPath": "/tmp/.kube/",
-                                            "readOnly": True
-                                        },
-                                        {
-                                            "name": "config-volume",
-                                            "mountPath": "/etc/config",
-                                            "readOnly": True
-                                        }
-                                    ]
-                                }
-                            ],
-                            "volumes": [
-                                {
-                                    "name": "kubecfg-volume",
-                                    "secret": {
-                                        "secretName": "kubecfg"
-                                    }
-                                },
-                                {
-                                    "name": "config-volume",
-                                    "configMap": {
-                                        "name": configmap_name
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
+        d_job = build_job_data(name, configmap_name, template_directory)
 
         try:
             api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)

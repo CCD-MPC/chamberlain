@@ -1,4 +1,4 @@
-Conclave web with kubernetes jobs
+This library provides a simple web interface to launch Conclave containers on OpenShift.
 
 Usage:
 
