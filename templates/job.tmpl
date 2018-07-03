@@ -1,67 +1,78 @@
 {
-                "apiVersion": "batch/v1",
-                "kind": "Job",
-                "metadata": {
-                    "name": {{{NAME}}}
-                },
-                "spec": {
-                    "parallelism": 1,
-                    "completions": 1,
-                    "activeDeadlineSeconds": 3600,
-                    "template": {
-                        "metadata": {
-                            "name": {{{NAME}}}
-                        },
-                        "spec": {
-                            "restartPolicy": "Never",
-                            "containers": [
-                                {
-                                    "name": {{{NAME}}},
-                                    "image": {{{IMAGE_NAME}}},
-                                    "env": [
-
-                                        {
-                                            "name": "KUBECFG_PATH",
-                                            "value": "/tmp/.kube/config"
-                                        },
-                                        {
-                                            "name": "OPENSHIFTMGR_PROJECT",
-                                            "value": "cici"
-                                        }
-                                    ],
-                                    "command": [
-                                        "python",
-                                        "/opt/app-root/wsgi.py"
-                                    ],
-                                    "volumeMounts": [
-                                        {
-                                            "name": "kubecfg-volume",
-                                            "mountPath": "/tmp/.kube/",
-                                            "readOnly": True
-                                        },
-                                        {
-                                            "name": "config-volume",
-                                            "mountPath": "/etc/config",
-                                            "readOnly": True
-                                        }
-                                    ]
-                                }
-                            ],
-                            "volumes": [
-                                {
-                                    "name": "kubecfg-volume",
-                                    "secret": {
-                                        "secretName": "kubecfg"
-                                    }
-                                },
-                                {
-                                    "name": "config-volume",
-                                    "configMap": {
-                                        "name": {{{CONFIGMAP_NAME}}}
-                                    }
-                                }
-                            ]
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata":
+    {
+        "name": "{{{NAME}}}"
+    },
+    "spec":
+    {
+        "parallelism": 1,
+        "completions": 1,
+        "activeDeadlineSeconds": 3600,
+        "template":
+        {
+            "metadata":
+            {
+                "name": "{{{NAME}}}"
+            },
+            "spec":
+            {
+                "restartPolicy": "Never",
+                "containers":
+                [
+                    {
+                        "name": "{{{NAME}}}",
+                        "image": "{{{IMAGE_NAME}}}",
+                        "env":
+                        [
+                            {
+                                "name": "KUBECFG_PATH",
+                                "value": "/tmp/.kube/config"
+                            },
+                            {
+                                "name": "OPENSHIFTMGR_PROJECT",
+                                "value": "cici"
+                            }
+                        ],
+                        "command":
+                        [
+                            "python",
+                            "/opt/app-root/wsgi.py"
+                        ],
+                        "volumeMounts":
+                        [
+                            {
+                                "name": "kubecfg-volume",
+                                "mountPath": "/tmp/.kube/",
+                                "readOnly": True
+                            },
+                            {
+                                "name": "config-volume",
+                                "mountPath": "/etc/config",
+                                "readOnly": True
+                            }
+                        ]
+                    }
+                ],
+                "volumes":
+                [
+                    {
+                        "name": "kubecfg-volume",
+                        "secret":
+                        {
+                            "secretName": "kubecfg"
+                        }
+                    },
+                    {
+                        "name": "config-volume",
+                        "configMap":
+                        {
+                            "name": "{{{CONFIGMAP_NAME}}}"
                         }
                     }
-                }
+                ]
             }
+        }
+    }
+}
