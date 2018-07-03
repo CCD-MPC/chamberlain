@@ -67,8 +67,7 @@ def submit():
 
         data = \
             {
-                "protocol.py":  protocol,
-                "config_data": config_data
+                "protocol.py":  "This is a protocol",
             }
 
         configmap_name = ''.join(['conclaveweb', '-', timestamp])
