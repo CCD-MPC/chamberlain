@@ -108,7 +108,7 @@ def submit():
         # protocol = ["{}\n".format(item) for item in jsondata['protocol']]
         protocol = "Hello yes this is a protocol"
         data = build_config_map_data(protocol, template_directory)
-        configmap_name = ''.join(['conclaveweb', '-', timestamp])
+        configmap_name = "conclaveweb-{}".format(timestamp)
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
         app.logger.info("ConfigMap: {}".format(configmap_body))
