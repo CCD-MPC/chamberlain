@@ -105,7 +105,8 @@ def submit():
     if request.method == 'POST':
 
         jsondata = request.get_json(force=True)
-        protocol = ["{}\n".format(item) for item in jsondata['protocol']]
+        # protocol = ["{}\n".format(item) for item in jsondata['protocol']]
+        protocol = "Hello yes this is a protocol"
         data = build_config_map_data(jsondata, template_directory)
         configmap_name = ''.join(['conclaveweb', '-', timestamp])
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
