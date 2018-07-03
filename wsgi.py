@@ -66,7 +66,7 @@ def build_config_map_data(protocol, template_directory):
             "PROTOCOL": protocol
         }
 
-    return pystache.render(data_template, data_params)
+    return jsonify(pystache.render(data_template, data_params))
 
 
 def build_job_data(name, configmap_name, template_directory):
@@ -85,7 +85,7 @@ def build_job_data(name, configmap_name, template_directory):
             "CONFIGMAP_NAME": configmap_name
         }
 
-    return pystache.render(job_template, job_params)
+    return jsonify(pystache.render(job_template, job_params))
 
 
 @app.route('/api/submit', methods=['POST'])
