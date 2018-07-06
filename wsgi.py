@@ -55,16 +55,24 @@ def job_status(status=None):
     return jsonify(response)
 
 
-def build_config_map_data(protocol, template_directory):
+def build_config_map_data(protocol, input_data, conf, template_directory):
     """
     Construct ConfigMap JSON from protocol & config.
     """
 
     data_template = open("{}/configmap_data.tmpl".format(template_directory)).read()
 
+    # these two values will be populated from user input in the future
+    conf_filename = "conf-one.yaml"
+    input_filename = "in1.csv"
+
     data_params = \
         {
-            "PROTOCOL": protocol
+            "PROTOCOL": protocol,
+            "INPUT_DATA": input_data,
+            "CONF": conf,
+            "IN_FILE": input_filename,
+            "CONF_FILE": conf_filename
         }
 
     return ast.literal_eval(pystache.render(data_template, data_params))
@@ -96,6 +104,7 @@ def submit():
     """
 
     template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
+    mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
     timestamp = str(int(round(time.time() * 1000)))
 
     k_config.load_incluster_config()
@@ -104,10 +113,13 @@ def submit():
 
     if request.method == 'POST':
 
-        # jsondata = request.get_json(force=True)
-        # protocol = ["{}\n".format(item) for item in jsondata['protocol']]
-        protocol = "Hello yes this is a protocol"
-        data = build_config_map_data(protocol, template_directory)
+        # these three values will be populated by user data
+        protocol = open("{}/protocol.py".format(mock_data_directory)).read()
+        data = open("{}/in1.csv".format(mock_data_directory)).read()
+        conf = open("{}/conf-one.yaml".format(mock_data_directory)).read()
+
+        data = build_config_map_data(protocol, data, conf, template_directory)
+
         configmap_name = "conclaveweb-{}".format(timestamp)
         configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
         configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
