@@ -77,7 +77,7 @@ def build_job_data(name, configmap_name, template_directory):
 
     job_template = open("{}/job.tmpl".format(template_directory), 'r').read()
 
-    image = 'docker.io/singhp11/python3-hello-world'
+    image = 'docker.io/bengetch/conclave:latest'
 
     job_params = \
         {
