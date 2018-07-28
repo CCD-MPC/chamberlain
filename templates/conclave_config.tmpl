@@ -1,0 +1,56 @@
+# GENERAL
+pid: {{{PID}}}
+all_pids: [{{{ALL_PIDS}}}]
+workflow_name: {{{WORKFLOW_NAME}}}
+use_swift: true
+
+input_path: /app/input_data/
+output_path: /app/output_data/
+code_path: /app/code/
+
+# SPARK
+spark:
+  master_url: {{{SPARK_URL}}}:{{{SPARK_PORT}}}
+
+# OBLIV-C
+oblivc:
+  oc_path: /app/obliv-c/bin/oblivcc
+  ip_port: {{{CONTAINER_IP}}}:{{{OC_PORT}}}
+
+# JIFF
+jiff:
+  jiff_path: /app/jiff/
+  party_count: {{{NUM_PARTIES}}}
+  server_pid: {{{JIFF_SERVER_ID}}}
+  server_ip: {{{JIFF_SERVER_IP}}}
+  server_port: {{{JIFF_SERVER_PORT}}}
+
+# NET
+net:
+  parties:
+{{{CONCLAVE_NET_CONFIG}}}
+
+# SWIFT [TODO]
+swift:
+  source:
+    AUTHORIZATION:
+      osAuthUrl: <str>
+      username: <str>
+      password: <str>
+    PROJECT:
+      osProjectDomain: <str>
+      osProjectName: <str>
+    DATA:
+      container_name: <str>
+      files: <list>
+  dest:
+    AUTHORIZATION:
+      osAuthUrl: <str>
+      username: <str>
+      password: <str>
+    PROJECT:
+      osProjectDomain: <str>
+      osProjectName: <str>
+    DATA:
+      container_name: <str>
+      files: <list>
