@@ -1,6 +1,6 @@
 # GENERAL
 all_pids: [1,2]
-pid: 1
+pid: 2
 workflow_name: test-workflow
 name: test
 delimiter: ','
@@ -28,9 +28,9 @@ jiff:
 # NET
 net:
   parties:
-    - host: 0.0.0.0
+    - host: conclave-test-0
       port: 5000
-    - host: conclave-test-1
+    - host: 0.0.0.0
       port: 5001
 
 # INPUT & OUTPUT
