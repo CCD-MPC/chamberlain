@@ -55,6 +55,23 @@ def job_status(status=None):
     return jsonify(response)
 
 
+def build_conclave_config_template(conf):
+    '''
+    After Conclave pods are defined, generate configuration data
+    for each pod.
+    '''
+
+    data = {
+        "PID": conf["pid"],
+        "ALL_PIDS": (pid for pid in conf["all_pids"]),
+        "WORKFLOW_NAME": conf["workflow_name"],
+
+
+    }
+
+    return
+
+
 def build_config_map_data(protocol, input_data, conf, template_directory):
     """
     Construct ConfigMap JSON from protocol & config.
@@ -78,23 +95,35 @@ def build_config_map_data(protocol, input_data, conf, template_directory):
     return ast.literal_eval(pystache.render(data_template, data_params))
 
 
-def build_job_data(name, configmap_name, template_directory):
+def build_pod_json(name, configmap_name, template_directory):
     """
-    Construct JSON for Job with config.
+    Construct JSON for CC Pod with configMap.
     """
 
-    job_template = open("{}/job.tmpl".format(template_directory), 'r').read()
+    pod_template = open("{}/pod.tmpl".format(template_directory), 'r').read()
 
-    image = 'docker.io/bengetch/conclave:latest'
-
-    job_params = \
+    params = \
         {
-            "NAME": name,
-            "IMAGE_NAME": image,
+            "POD_NAME": name,
             "CONFIGMAP_NAME": configmap_name
         }
 
-    return ast.literal_eval(pystache.render(job_template, job_params))
+    return ast.literal_eval(pystache.render(pod_template, params))
+
+
+def build_service_json(name, template_directory):
+    """
+    Construct JSON for CC Service
+    """
+
+    svc_template = open("{}/service.tmpl".format(template_directory), 'r').read()
+
+    params = \
+        {
+            "SERVICE_NAME": name
+        }
+
+    return ast.literal_eval(pystache.render(svc_template, params))
 
 
 @app.route('/api/submit', methods=['POST'])
