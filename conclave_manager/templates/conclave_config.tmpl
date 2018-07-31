@@ -10,25 +10,25 @@ code_path: /app/code/
 
 # SPARK
 spark:
-  master_url: {{{SPARK_URL}}}:{{{SPARK_PORT}}}
+  master_url: <ip>:<port>
 
 # OBLIV-C
 oblivc:
   oc_path: /app/obliv-c/bin/oblivcc
-  ip_port: {{{CONTAINER_IP}}}:{{{OC_PORT}}}
+  ip_port: <str>:<str>
 
 # JIFF
 jiff:
   jiff_path: /app/jiff/
-  party_count: {{{NUM_PARTIES}}}
-  server_pid: {{{JIFF_SERVER_ID}}}
-  server_ip: {{{JIFF_SERVER_IP}}}
-  server_port: {{{JIFF_SERVER_PORT}}}
+  party_count: <int>
+  server_pid: 1
+  server_ip: <str>
+  server_port: <int>
 
 # NET
 net:
   parties:
-{{{CONCLAVE_NET_CONFIG}}}
+{{{NET_CONFIG}}}
 
 # SWIFT [TODO]
 swift:
