@@ -1,8 +1,8 @@
 import time
 import logging
 import os
-import pystache
-import ast
+
+import conclave_manager
 
 from flask import Flask
 from flask import request
@@ -55,75 +55,6 @@ def job_status(status=None):
     return jsonify(response)
 
 
-def build_conclave_config_template(conf):
-    """
-    After Conclave pods are defined, generate configuration data for each pod.
-    """
-
-    data = \
-        {
-            "PID": conf["pid"],
-            "ALL_PIDS": (pid for pid in conf["all_pids"]),
-            "WORKFLOW_NAME": conf["workflow_name"],
-        }
-
-    return
-
-
-def build_config_map_data(protocol, input_data, conf, template_directory):
-    """
-    Construct ConfigMap JSON from protocol & config.
-    """
-
-    data_template = open("{}/configmap_data.tmpl".format(template_directory)).read()
-
-    # these two values will be populated from user input in the future
-    conf_filename = "conf-one.yaml"
-    input_filename = "in1.csv"
-
-    data_params = \
-        {
-            "PROTOCOL": protocol,
-            "INPUT_DATA": input_data,
-            "CONF": conf,
-            "IN_FILE": input_filename,
-            "CONF_FILE": conf_filename
-        }
-
-    return ast.literal_eval(pystache.render(data_template, data_params))
-
-
-def build_pod_json(name, configmap_name, template_directory):
-    """
-    Construct JSON for CC Pod with configMap.
-    """
-
-    pod_template = open("{}/pod.tmpl".format(template_directory), 'r').read()
-
-    params = \
-        {
-            "POD_NAME": name,
-            "CONFIGMAP_NAME": configmap_name
-        }
-
-    return ast.literal_eval(pystache.render(pod_template, params))
-
-
-def build_service_json(name, template_directory):
-    """
-    Construct JSON for CC Service
-    """
-
-    svc_template = open("{}/service.tmpl".format(template_directory), 'r').read()
-
-    params = \
-        {
-            "SERVICE_NAME": name
-        }
-
-    return ast.literal_eval(pystache.render(svc_template, params))
-
-
 def create_config_map(kube_client, config_data):
     """
     Construct ConfigMap
@@ -143,14 +74,6 @@ def create_config_map(kube_client, config_data):
         app.logger.error("Error creating config map: {}\n".format(e))
 
     return configmap_name
-
-
-def create_service_and_pod(kube_client, template_directory, name):
-
-    tag_name = "{}-pod".format(name)
-
-    svc = build_service_json(tag_name, template_directory)
-    pod = build_pod_json(tag_name, name, template_directory)
 
 
 @app.route('/api/submit', methods=['POST'])
@@ -177,8 +100,6 @@ def submit():
         data_two = open("{}/in2.csv".format(mock_data_directory)).read()
         conf_two = open("{}/conf-two.yaml".format(mock_data_directory)).read()
 
-        config_data_one = build_config_map_data(protocol, data_one, conf_one, template_directory)
-        config_data_two = build_config_map_data(protocol, data_two, conf_two, template_directory)
 
         config_map_one = create_config_map(kube_client, config_data_one)
         config_map_two = create_config_map(kube_client, config_data_two)
