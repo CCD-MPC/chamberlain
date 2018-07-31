@@ -56,18 +56,16 @@ def job_status(status=None):
 
 
 def build_conclave_config_template(conf):
-    '''
-    After Conclave pods are defined, generate configuration data
-    for each pod.
-    '''
+    """
+    After Conclave pods are defined, generate configuration data for each pod.
+    """
 
-    data = {
-        "PID": conf["pid"],
-        "ALL_PIDS": (pid for pid in conf["all_pids"]),
-        "WORKFLOW_NAME": conf["workflow_name"],
-
-
-    }
+    data = \
+        {
+            "PID": conf["pid"],
+            "ALL_PIDS": (pid for pid in conf["all_pids"]),
+            "WORKFLOW_NAME": conf["workflow_name"],
+        }
 
     return
 
@@ -126,6 +124,35 @@ def build_service_json(name, template_directory):
     return ast.literal_eval(pystache.render(svc_template, params))
 
 
+def create_config_map(kube_client, config_data):
+    """
+    Construct ConfigMap
+    """
+
+    timestamp = str(int(round(time.time() * 1000)))
+
+    configmap_name = "conclaveweb-{}".format(timestamp)
+    configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
+    configmap_body = k_client.V1ConfigMap(data=config_data, metadata=configmap_metadata)
+    app.logger.info("ConfigMap: {}".format(configmap_body))
+
+    try:
+        api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
+        app.logger.info("Namespace created successfully with response {}\n".format(api_response))
+    except ApiException as e:
+        app.logger.error("Error creating config map: {}\n".format(e))
+
+    return configmap_name
+
+
+def create_service_and_pod(kube_client, template_directory, name):
+
+    tag_name = "{}-pod".format(name)
+
+    svc = build_service_json(tag_name, template_directory)
+    pod = build_pod_json(tag_name, name, template_directory)
+
+
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
@@ -134,7 +161,6 @@ def submit():
 
     template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
     mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
-    timestamp = str(int(round(time.time() * 1000)))
 
     k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
@@ -142,26 +168,22 @@ def submit():
 
     if request.method == 'POST':
 
-        # these three values will be populated by user data
+        # will replace this hardcoding with request.response.dataRows && request.response.protocol
         protocol = open("{}/protocol.py".format(mock_data_directory)).read()
-        data = open("{}/in1.csv".format(mock_data_directory)).read()
-        conf = open("{}/conf-one.yaml".format(mock_data_directory)).read()
 
-        data = build_config_map_data(protocol, data, conf, template_directory)
+        data_one = open("{}/in1.csv".format(mock_data_directory)).read()
+        conf_one = open("{}/conf-one.yaml".format(mock_data_directory)).read()
 
-        configmap_name = "conclaveweb-{}".format(timestamp)
-        configmap_metadata = k_client.V1ObjectMeta(name=configmap_name)
-        configmap_body = k_client.V1ConfigMap(data=data, metadata=configmap_metadata)
-        app.logger.info("ConfigMap: {}".format(configmap_body))
+        data_two = open("{}/in2.csv".format(mock_data_directory)).read()
+        conf_two = open("{}/conf-two.yaml".format(mock_data_directory)).read()
 
-        try:
-            api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
-            app.logger.info("Namespace created successfully with response {}\n".format(api_response))
-        except ApiException as e:
-            app.logger.error("Error creating config map: {}\n".format(e))
+        config_data_one = build_config_map_data(protocol, data_one, conf_one, template_directory)
+        config_data_two = build_config_map_data(protocol, data_two, conf_two, template_directory)
 
-        name = ''.join(['conclave-web-hw', '-', timestamp])
-        d_job = build_job_data(name, configmap_name, template_directory)
+        config_map_one = create_config_map(kube_client, config_data_one)
+        config_map_two = create_config_map(kube_client, config_data_two)
+
+        name = "{}-pod".format(config_map_one)
 
         try:
             api_response = kube_batch_client.create_namespaced_job(namespace='cici', body=d_job)
