@@ -1,4 +1,3 @@
-import time
 import logging
 import os
 
@@ -8,9 +7,6 @@ from flask import Flask
 from flask import request
 from flask import render_template
 from flask import jsonify
-from kubernetes import client as k_client
-from kubernetes import config as k_config
-from kubernetes.client.rest import ApiException
 from flask_cors import CORS
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
