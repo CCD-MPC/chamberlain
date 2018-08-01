@@ -10,12 +10,13 @@ from kubernetes.client.rest import ApiException
 
 class ComputeParty:
 
-    def __init__(self, pid, all_pids, timestamp, protocol):
+    def __init__(self, pid, all_pids, timestamp, protocol, app):
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.pid = pid
         self.all_pids = all_pids
         self.timestamp = timestamp
+        self.app = app
 
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
@@ -27,6 +28,9 @@ class ComputeParty:
         self.service_body = self.define_service()
 
     def gen_conclave_config(self):
+        """
+        Generate CC Config yaml.
+        """
 
         net_str = self.gen_net_config()
 
@@ -43,6 +47,9 @@ class ComputeParty:
         return pystache.render(data_template, params)
 
     def gen_net_config(self):
+        """
+        Generate CC Net Config string that gets inserted into CC Concfig yaml.
+        """
 
         net_str = ""
 
@@ -55,6 +62,9 @@ class ComputeParty:
         return net_str
 
     def define_config_map(self):
+        """
+        Populate ConfigMap template.
+        """
 
         data_params = \
             {
@@ -67,6 +77,9 @@ class ComputeParty:
         return ast.literal_eval(pystache.render(data_template, data_params))
 
     def define_pod(self):
+        """
+        Populate Pod template.
+        """
 
         params = \
             {
@@ -81,6 +94,9 @@ class ComputeParty:
         return self
 
     def define_service(self):
+        """
+        Populate Service template.
+        """
 
         params = \
             {
@@ -94,39 +110,51 @@ class ComputeParty:
         return self
 
     def launch(self):
+        """
+        Launch all Kubernetes objects.
+        """
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
-        kube_batch_client = k_client.BatchV1Api()
 
         configmap_metadata = k_client.V1ObjectMeta(name=self.config_map_name)
         configmap_body = k_client.V1ConfigMap(data=self.config_map_body, metadata=configmap_metadata)
-        print("ConfigMap: {}".format(configmap_body))
 
         try:
             api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
-            print("Namespace created successfully with response {}\n".format(api_response))
+            self.app.logger.info("ConfigMap created successfully with response: \n{}\n".format(api_response))
         except ApiException as e:
-            print("Exception: {}".format(e))
+            self.app.logger.error("Error creating ConfigMap: \n{}\n".format(e))
 
-        # TODO: launch service & pod
+        try:
+            api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
+            self.app.logger.info("Service created successfully with response: \n{}\n".format(api_response))
+        except ApiException as e:
+            self.app.logger.error("Error creating Service: \n{}\n".format(e))
+
+        try:
+            api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
+            self.app.logger.info("Pod created successfully with response: \n{}\n".format(api_response))
+        except ApiException as e:
+            self.app.logger.error("Error creating Pod: \n{}\n".format(e))
 
         return
 
 
 class ConclaveManager:
 
-    def __init__(self, json_data):
+    def __init__(self, json_data, app):
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
-        self.protocol_config = json_data  # request.get_json(force=True)
+        self.protocol_config = json_data
 
         self.protocol = self.load_protocol()
         self.compute_parties = None
+        self.app = app
 
     def load_protocol(self):
         """
-        Will later load this from self.protocol_config.protocol
+        TODO: Will later load this from self.protocol_config.protocol
         """
 
         mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
@@ -136,7 +164,7 @@ class ConclaveManager:
 
     def create_compute_parties(self):
         """
-        
+        Init all compute parties.
         """
 
         timestamp = str(int(round(time.time() * 1000)))
@@ -152,7 +180,7 @@ class ConclaveManager:
 
     def launch_all_parties(self):
         """
-        Create ConfigMap, Services, and Pod for each compute party & launch
+        Create ConfigMap, Services, and Pod for each compute party & launch.
         """
 
         if self.compute_parties is None:
@@ -161,6 +189,13 @@ class ConclaveManager:
         for party in self.compute_parties:
             party.launch()
 
+    def run(self):
+        """
+        Wraps main class methods.
+        """
+
+        self.create_compute_parties()
+        self.launch_all_parties()
 
 
 
