@@ -56,6 +56,8 @@ def submit():
 
     if request.method == 'POST':
 
+        app.logger.info("JSON received: {}".format(request.get_json(force=True)))
+
         cc_manager = conclave_manager.ConclaveManager(request.get_json(force=True), app)
         cc_manager.run()
 
