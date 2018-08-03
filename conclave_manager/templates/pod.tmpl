@@ -42,7 +42,7 @@
                 "command":
                 [
                     "python3.5",
-                    "/app/workflow.py",
+                    "/app/protocol.py",
                     "--conf",
                     "/app/conf.yaml"
                 ],
@@ -55,21 +55,23 @@
         ],
         "volumes":
         [
-            "name": "config-volume",
-            "configMap":
             {
-                "name": "{{{CONFIGMAP_NAME}}}"
-                "items":
-                [
-                    {
-                        "key": "protocol",
-                        "path": "protocol.py"
-                    },
-                    {
-                        "key": "conf",
-                        "path": "conf.yaml"
-                    }
-                ]
+                "name": "config-volume",
+                "configMap":
+                {
+                    "name": "{{{CONFIGMAP_NAME}}}"
+                    "items":
+                    [
+                        {
+                            "key": "protocol",
+                            "path": "protocol.py"
+                        },
+                        {
+                            "key": "conf",
+                            "path": "conf.yaml"
+                        }
+                    ]
+                }
             }
         ]
     }
