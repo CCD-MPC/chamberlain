@@ -46,18 +46,30 @@
                     "--conf",
                     "/app/conf.yaml"
                 ],
-                "volumes":
-                {
-                    "name": "local-volume",
-                    "emptyDir": {}
-                },
+                "volumeMounts":
                 {
                     "name": "config-volume",
-                    "configMap":
-                    {
-                        "name": "{{{CONFIGMAP_NAME}}}"
-                    }
+                    "mountPath": "/app"
                 }
+            }
+        ],
+        "volumes":
+        [
+            "name": "config-volume",
+            "configMap":
+            {
+                "name": "{{{CONFIGMAP_NAME}}}"
+                "items":
+                [
+                    {
+                        "key": "protocol",
+                        "path": "protocol.py"
+                    },
+                    {
+                        "key": "conf",
+                        "path": "conf.yaml"
+                    }
+                ]
             }
         ]
     }
