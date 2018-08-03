@@ -151,7 +151,7 @@ class ConclaveManager:
         self.protocol_config = json_data
 
         self.protocol = self.load_protocol()
-        self.compute_parties = None
+        self.compute_parties = self.create_compute_parties()
         self.app = app
 
     def load_protocol(self):
@@ -170,15 +170,13 @@ class ConclaveManager:
         """
 
         timestamp = str(int(round(time.time() * 1000)))
-        all_pids = list(range(1, len(self.protocol_config.dataRows) + 1))
+        all_pids = list(range(1, len(self.protocol_config.config.dataRows) + 1))
         compute_parties = []
 
         for i in all_pids:
-            compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol))
+            compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol, self.app))
 
-        self.compute_parties = compute_parties
-
-        return self
+        return compute_parties
 
     def launch_all_parties(self):
         """
