@@ -63,16 +63,21 @@ class ComputeParty:
 
     def define_config_map(self):
         """
-        Populate ConfigMap template.
+        Populate ConfigMap template. TODO: i changed stuff in templates, update this (NAME / NAMESPACE)
         """
+
+        name = "conclave-{0}-{1}-map".format(self.timestamp, str(self.pid))
+        namespace = "cici"
 
         data_params = \
             {
+                "NAME": name,
+                "NAMESPACE": namespace,
                 "PROTOCOL": self.protocol,
                 "CONF": self.conclave_config
             }
 
-        data_template = "{}/configmap_data.tmpl".format(self.template_directory)
+        data_template = "{}/configmap.tmpl".format(self.template_directory)
 
         return ast.literal_eval(pystache.render(data_template, data_params))
 
@@ -117,11 +122,8 @@ class ComputeParty:
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
 
-        configmap_metadata = k_client.V1ObjectMeta(name=self.config_map_name)
-        configmap_body = k_client.V1ConfigMap(data=self.config_map_body, metadata=configmap_metadata)
-
         try:
-            api_response = kube_client.create_namespaced_config_map('cici', configmap_body, pretty='true')
+            api_response = kube_client.create_namespaced_config_map('cici', self.config_map_body, pretty='true')
             self.app.logger.info("ConfigMap created successfully with response: \n{}\n".format(api_response))
         except ApiException as e:
             self.app.logger.error("Error creating ConfigMap: \n{}\n".format(e))
