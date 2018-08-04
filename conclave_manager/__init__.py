@@ -63,7 +63,7 @@ class ComputeParty:
 
     def define_config_map(self):
         """
-        Populate ConfigMap template. TODO: i changed stuff in templates, update this (NAME / NAMESPACE)
+        Populate ConfigMap template.
         """
 
         name = "conclave-{0}-{1}-map".format(self.timestamp, str(self.pid))
@@ -124,21 +124,33 @@ class ComputeParty:
 
         try:
             api_response = kube_client.create_namespaced_config_map('cici', self.config_map_body, pretty='true')
-            self.app.logger.info("ConfigMap created successfully with response: \n{}\n".format(api_response))
+            self.app.logger.info(
+                "ConfigMap created successfully with response: \n{}\n"
+                    .format(api_response))
         except ApiException as e:
-            self.app.logger.error("Error creating ConfigMap: \n{}\n".format(e))
+            self.app.logger.error(
+                "Error creating ConfigMap: \n{}\n"
+                    .format(e))
 
         try:
             api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
-            self.app.logger.info("Service created successfully with response: \n{}\n".format(api_response))
+            self.app.logger.info(
+                "Service created successfully with response: \n{}\n"
+                    .format(api_response))
         except ApiException as e:
-            self.app.logger.error("Error creating Service: \n{}\n".format(e))
+            self.app.logger.error(
+                "Error creating Service: \n{}\n"
+                    .format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
-            self.app.logger.info("Pod created successfully with response: \n{}\n".format(api_response))
+            self.app.logger.info(
+                "Pod created successfully with response: \n{}\n"
+                    .format(api_response))
         except ApiException as e:
-            self.app.logger.error("Error creating Pod: \n{}\n".format(e))
+            self.app.logger.error(
+                "Error creating Pod: \n{}\n"
+                    .format(e))
 
         return
 
@@ -173,6 +185,11 @@ class ConclaveManager:
         all_pids = list(range(1, len(self.protocol_config.config.dataRows) + 1))
         compute_parties = []
 
+        self.app.logger.info(
+            "Creating Conclave job templates for {} parties"
+                .format(str(len(all_pids))))
+
+        # TODO: will need to pass swift endpoints here
         for i in all_pids:
             compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol, self.app))
 
@@ -185,6 +202,10 @@ class ConclaveManager:
 
         if self.compute_parties is None:
             self.create_compute_parties()
+
+        self.app.logger.info(
+            "Launching Conclave pods for the following compute parties:\n{}"
+                .format("\n".join(job.name for job in self.compute_parties)))
 
         for party in self.compute_parties:
             party.launch()
