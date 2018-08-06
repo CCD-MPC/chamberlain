@@ -160,12 +160,12 @@ class ConclaveManager:
 
     def __init__(self, json_data, app):
 
+        self.app = app
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.protocol_config = json_data
 
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
-        self.app = app
 
     def load_protocol(self):
         """
