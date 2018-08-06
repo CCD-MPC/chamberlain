@@ -1,6 +1,3 @@
-"""
-Simple example workflow for MOC deployment of Conclave
-"""
 import sys
 sys.path.append("/app/conclave/")
 
@@ -43,4 +40,5 @@ def protocol():
 if __name__ == "__main__":
 
     workflow.run(protocol)
+
 

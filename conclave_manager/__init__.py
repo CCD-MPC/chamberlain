@@ -22,7 +22,7 @@ class ComputeParty:
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
         self.protocol = protocol
-        self.conclave_config = self.gen_net_config()
+        self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
@@ -37,7 +37,7 @@ class ComputeParty:
         params = \
             {
                 "PID": self.pid,
-                "ALL_PIDS": ", ".join(i for i in self.all_pids),
+                "ALL_PIDS": ", ".join(str(i) for i in self.all_pids),
                 "WORKFLOW_NAME": "conclave-{}".format(self.timestamp),
                 "NET_CONFIG": net_str
             }
@@ -74,13 +74,15 @@ class ComputeParty:
             {
                 "NAME": name,
                 "NAMESPACE": namespace,
-                "PROTOCOL": self.protocol,
+                "PROTOCOL": str(self.protocol),
                 "CONF": self.conclave_config
             }
 
-        data_template = "{}/configmap.tmpl".format(self.template_directory)
+        data_template = open("{}configmap.tmpl".format(self.template_directory), 'r').read()
 
-        return ast.literal_eval(pystache.render(data_template, data_params))
+        rendered = pystache.render(data_template, data_params)
+
+        return ast.literal_eval(rendered)
 
     def define_pod(self):
         """
@@ -173,9 +175,9 @@ class ConclaveManager:
         """
 
         mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
-        self.protocol = open("{}/protocol.py".format(mock_data_directory)).read()
+        protocol = open("{}/protocol.py".format(mock_data_directory)).read()
 
-        return self
+        return protocol
 
     def create_compute_parties(self):
         """
