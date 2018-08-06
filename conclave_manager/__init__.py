@@ -57,7 +57,8 @@ class ComputeParty:
             if i == self.pid:
                 net_str += "\t\t-host: 0.0.0.0\n\t\tport: 5000\n"
             else:
-                net_str += "\t\t-host: {0}-{1}\n\t\tport: 5000\n".format(self.timestamp, str(i))
+                net_str += "\t\t-host: {0}-{1}\n\t\tport: 5000\n"\
+                    .format(self.timestamp, str(i))
 
         return net_str
 
@@ -182,7 +183,7 @@ class ConclaveManager:
         """
 
         timestamp = str(int(round(time.time() * 1000)))
-        all_pids = list(range(1, len(self.protocol_config.config.dataRows) + 1))
+        all_pids = list(range(1, len(self.protocol_config['config']['dataRows'] + 1)))
         compute_parties = []
 
         self.app.logger.info(
