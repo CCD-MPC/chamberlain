@@ -183,7 +183,7 @@ class ConclaveManager:
         """
 
         timestamp = str(int(round(time.time() * 1000)))
-        all_pids = list(range(1, len(self.protocol_config['config']['dataRows'] + 1)))
+        all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
         compute_parties = []
 
         self.app.logger.info(
