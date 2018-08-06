@@ -6,6 +6,7 @@ import pystache
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
+from base64 import b64encode, encode
 
 
 class ComputeParty:
@@ -21,7 +22,7 @@ class ComputeParty:
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
-        self.protocol = protocol
+        self.protocol = b64encode(protocol.encode())
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
@@ -44,7 +45,7 @@ class ComputeParty:
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
 
-        return pystache.render(data_template, params)
+        return b64encode(pystache.render(data_template, params).encode())
 
     def gen_net_config(self):
         """
@@ -97,7 +98,9 @@ class ComputeParty:
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
 
-        self.pod_body = ast.literal_eval(pystache.render(data_template, params))
+        rendered = pystache.render(data_template, params)
+
+        self.pod_body = ast.literal_eval(rendered)
 
         return self
 
@@ -169,7 +172,8 @@ class ConclaveManager:
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
 
-    def load_protocol(self):
+    @staticmethod
+    def load_protocol():
         """
         TODO: Will later load this from self.protocol_config.protocol
         """
@@ -203,9 +207,6 @@ class ConclaveManager:
         Create ConfigMap, Services, and Pod for each compute party & launch.
         """
 
-        if self.compute_parties is None:
-            self.create_compute_parties()
-
         self.app.logger.info(
             "Launching Conclave pods for the following compute parties:\n{}"
                 .format("\n".join(job.name for job in self.compute_parties)))
@@ -218,7 +219,6 @@ class ConclaveManager:
         Wraps main class methods.
         """
 
-        self.create_compute_parties()
         self.launch_all_parties()
 
 
