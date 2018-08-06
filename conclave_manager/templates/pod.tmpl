@@ -41,10 +41,8 @@
                 ],
                 "command":
                 [
-                    "python3.5",
-                    "/app/protocol.py",
-                    "--conf",
-                    "/app/conf.yaml"
+                    "/bin/bash",
+                    "run.sh"
                 ],
                 "volumeMounts":
                 {
@@ -63,12 +61,12 @@
                     "items":
                     [
                         {
-                            "key": "protocol",
-                            "path": "protocol.py"
+                            "key": "protocol_encoded",
+                            "path": "protocol"
                         },
                         {
-                            "key": "conf",
-                            "path": "conf.yaml"
+                            "key": "conf_encoded",
+                            "path": "conf"
                         }
                     ]
                 }
