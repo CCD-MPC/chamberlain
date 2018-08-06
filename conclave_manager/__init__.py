@@ -6,7 +6,7 @@ import pystache
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
-from base64 import b64encode, encode
+from base64 import b64encode
 
 
 class ComputeParty:
@@ -100,9 +100,7 @@ class ComputeParty:
 
         rendered = pystache.render(data_template, params)
 
-        self.pod_body = ast.literal_eval(rendered)
-
-        return self
+        return ast.literal_eval(rendered)
 
     def define_service(self):
         """
@@ -116,9 +114,9 @@ class ComputeParty:
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
 
-        self.service_body = ast.literal_eval(pystache.render(data_template, params))
+        rendered = pystache.render(data_template, params)
 
-        return self
+        return ast.literal_eval(rendered)
 
     def launch(self):
         """
