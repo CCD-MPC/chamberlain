@@ -3,3 +3,5 @@
 backend/venv
 frontend/node_modules
 dist/node_modules
+.vscode
+dist/

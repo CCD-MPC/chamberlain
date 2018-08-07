@@ -1,167 +1,334 @@
 <!DOCTYPE html>
+
+
 <template>
   <div id="home">
-      <form @submit.prevent="handleSubmit">
-          <div class="columns">
-              <div class="column">
-                  <table class="table is-bordered">
-                      <thead>
-                        <td>
-                            <strong>Step 1 - Spark Master URL.</strong>
-                        </td>
-                      </thead>
-                      <tr>
-                          <td>
-                              <strong>Spark Master URL</strong>
-                              <input type="text" v-model="userData.sparkURL">
-                          </td>
-                      </tr>
-                  </table>
-              </div>
-          </div>
-          <div class="columns">
-              <div class="column">
-                      <table class="table is-bordered">
-                          <thead>
-                              <td>
-                                  <strong>Step 2 - Specify Your Input Datasets.</strong>
-                              </td>
-                              <td>
-                                  <button class="button is-centered" @click="addData">Add A Dataset</button>
-                              </td>
-                          </thead>
-                          <thead>
-                          <tr>
-                              <td>
-                                  <strong>Endpoint</strong>
-                              </td>
-                              <td>
-                                  <strong>Container</strong>
-                              </td>
-                              <td>
-                                  <strong>Dataset</strong>
-                              </td>
-                              <td></td>
-                          </tr>
-                          </thead>
-                          <tbody>
-                          <tr v-for="(row, index) in dataRows">
-                              <td>
-                                  <input type="text" v-model="row.endpoint">
-                              </td>
-                              <td>
-                                  <input type="text" v-model="row.container">
-                              </td>
-                              <td>
-                                  <input type="text" v-model="row.dataset">
-                              </td>
-                              <td>
-                                  <a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
-                              </td>
-                          </tr>
-                          </tbody>
-                      </table>
-
-                  <div class="columns">
-                      <div class="column">
-                          <table class="table is-bordered">
-                              <thead>
-                              <td>
-                                  <strong>Step 3- Submit!</strong>
-                              </td>
-                              </thead>
-                          </table>
-                          <button class="button btn-primary is-pulled-left" type="submit" @click="submitData">Compute</button>
-                          <button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
-                          <p>Job Status:  {{ jobStatus }} </p>
-                      </div>
-                  </div>
-              </div>
-          </div>
-      </form>
+	  <form id = 'form' @submit.prevent="handleSubmit">
+		  <div id = 'formWrapper'>
+				<div id="formHeader">
+					<h1>Get Started</h1>
+				</div>
+				
+			
+			<!-- Step 2 - specify your input datasets. -->
+			<!-- <button class="button is-centered" @click="addData">Add A Dataset</button> -->
+			<!-- Endpoint, Container, Dataset ... inputs -->
+			<!-- <tr v-for="(row, index) in dataRows">
+								<td>
+									<input type="text" v-model="row.endpoint">
+								</td>
+								<td>
+									<input type="text" v-model="row.container">
+								</td>
+								<td>
+									<input type="text" v-model="row.dataset">
+								</td>
+								<td>
+									<a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
+								</td>
+							</tr>
+				-->
+				
+				<div class = 'FormStep' id="dataInput">
+					<div id = 'dataInput-top'>
+						<div class = 'formTitle' id="dataInput-title">
+							<h1>Step 1: Specify Your Input Datasets</h1>
+						</div>
+						<div id="dataInput-addSet">
+							<button id = 'addInput' class="button" @click="addData">Add A Dataset</button>
+						</div>
+					</div>
+					<div id="tableWrapper">
+						<table class="table">
+							<tr v-for="(row, index) in dataRows" v-bind:key="row.id">
+								<td class = 'formInput' id = 'endpointFile'>
+									<input class = 'fileInput' id = 'Endpoint' type="file" @change='onFileChange'>
+									<label for="file">Choose Endpoint</label>
+								</td>
+								<td class = 'formInput' id = 'containerFile'>
+									<input class = 'fileInput' id = 'Container' type="file" @change='onFileChange'>
+									<label for="file">Choose Container</label>
+								</td>
+								<td class = 'formInput' id = 'datasetFile'>
+									<input class = 'fileInput' id = 'Dataset' type="file" @change='onFileChange'>
+									<label for="file">Choose Dataset</label>
+								</td>
+								<td>
+									<a @click="removeData(row.id)" style="cursor: pointer">Remove</a>
+								</td>
+							</tr>
+						</table>
+					</div>	
+				</div>
+				<div class="FormStep">
+					<div class="formTitle">
+						<h1>Step 2: Submit!</h1>
+					</div>
+					<div id = 'submitButton'>
+						<button style = 'margin-left: 10px' class="button btn-primary is-pulled-left" type="submit" @click="submitData">Compute</button>
+					</div>
+					
+				</div>
+				<div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
+					<button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
+					<p>Job Status: {{ jobStatus }} </p>
+				</div>
+		  </div>	
+	  </form>
   </div>
 </template>
 
+<style lang='css'>
+	@import '../../node_modules/bulma/css/bulma.css';
+
+	.fileInput {
+		width: 0.1px;
+		height: 0.1px;
+		opacity: 0;
+		
+		overflow: hidden;
+		text-overflow: ellipsis;
+		position: absolute;
+
+		
+	}
+	.fileInput + label {
+		border: 1px solid lightgray;
+		background-color: white;
+		border-radius: 3px;
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+    display: inline-block;
+	}
+
+	.fileInput:hover + label,
+	.fileInput + label:hover {
+			background-color: lightgray;
+	}
+	.fileInput + label {
+		cursor: pointer; /* "hand" cursor */
+	}
+
+	html, body {
+		background: #fafafa;
+		margin: 0; 
+		height: 100%; 
+		overflow: hidden;
+	}
+	#formWrapper {
+		/* Positioning */
+		position: absolute;
+		left: 15vw;
+		right:15vw;
+		top:15vh;
+		bottom:15vh;
+
+		/* format */
+		border-radius: 2px;
+		border: darkgray 2px;
+		/*background-color: white;*/ 
+		color: #030303;
+		/*box-shadow: 0 0.1em 1em 0 #bbb;*/
+	}
+	#home {
+		font-family: 'Avenir', Helvetica, Arial, sans-serif;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		text-align: left;
+		margin-top: 0px;
+		padding-top: 50px;
+
+		width: 100vw;
+		height: 100vh;
+
+	}
+
+	#tableWrapper{
+		max-height: 125px;
+		overflow-y: scroll;
+	}
+	
+	.table {
+		background: transparent;
+		border: none;
+		
+	}
+	.table, tr, td {
+		border:none !important;
+		padding-bottom: 0px;
+		margin-bottom: 0px;
+	}
+
+
+	#formHeader {
+		font-family: 'overpass-bold', serif;
+		font-size: 30px;
+		font-weight: 300;
+		
+		margin-top: 10px;
+		padding-left: 5%;
+		padding-bottom: 20px;
+	}
+
+	.FormStep {
+		margin-left: 5%;
+		margin-right: 5%;
+		padding-bottom: 20px;
+		border-bottom: solid darkgray 1px;
+	}
+	.formTitle {
+		padding-top: 10px;
+		padding-bottom: 10px;
+		margin-bottom: 10px;
+		font-family: 'overpass-bold';
+		font-size: 20px;
+	
+	}
+	#dataInput-top {
+		display:flex;
+	}
+	#dataInput-title {
+		margin: none;
+		flex:1;
+	}
+	.formInput {
+		position: relative;
+		width: auto;
+		padding-left: 10px;
+		padding-right: 10px;
+		
+		background:none;
+		border: 2px gray;
+	}
+	input[type="text"], textarea, input[type="file"] {
+		outline: none;
+		background:transparent;
+
+		font-size: 14px;
+		border: 1px solid gray;
+		border-radius: 3px;
+
+		padding-left: 10px;
+
+		width: 100%;
+		height:35px;
+
+	} 
+	#dataInput-addSet{
+		padding: 10px;
+	}
+	#dataInput-inputs{
+		display: flex;
+		justify-content: left;
+
+		width: 100%;
+		height: auto;
+	}
+
+	.dataInput-input{
+		width: 30%;
+		height: auto;
+		margin: 0px auto;
+
+		position: relative;
+		
+	}
+	#submitButton {
+		display:flex;
+		justify-content: left;
+		
+	}
+</style>
+
+
+
 <script type="text/javascript">
-    import axios from 'axios'
+	import axios from 'axios'
+
+	
 
 	export default {
 		name: 'InputFiles',
 		data() {
 			return {
 				userData: {
-                  sparkURL: ""
-                },
+				  sparkURL: ""
+				},
 				dataRows: [{endpoint: "", container: "", dataset: ""}],
-                jobStatus: ""
+				jobStatus: ""
 			}
 		},
 		methods: {
-			submitData()
-            {
-                // submit user data
+			onFileChange(e){
+				var files = e.target.files || e.dataTransfer.files;
+				var label = e.target.nextElementSibling;
+			
+				if (files.length != undefined && files.length != 0)
+					if (files.length > 1) 
+						label.textContent = 'Uploaded ' + files.length + ' files'
+					else 
+						label.textContent = files[0].name;
 
-            	const response =
-                  {
-                  	// TODO: add functionality to upload protocol
-                  	"protocol": {},
-                    "config":
-                      {
-                      	"userData": this.userData,
-                        "dataRows": this.dataRows
-                      }
-                  };
 
-                const path = "/api/submit";
+				
 
-                axios.post(path, response)
-                  .then(function(response){console.log(response);})
-                  .catch(function(error){console.log(error);});
-            },
-			handleSubmit()
-            {
-            	// idk what this is. if i remove it things break
-            },
-            removeData(index)
-            {
-              this.dataRows.splice(index, 1);
-            },
-			addData()
-            {
-              var elem = document.createElement('tr');
-                this.dataRows.push({
-                  endpoint: "",
-                  container: "",
-                  dataset: ""
-                });
 			},
-            getStatusFromBackend()
-            {
-				const path = '/api/job_status';
-                axios.get(path)
-                  .then(response => {
-                  	this.jobStatus = response.data.status
-                  })
-                  .catch(error => {
-                  	console.log(error)
-                  })
-            }
+			submitData()
+			{
+				// submit user data
 
+				const response =
+				  {
+				  	// TODO: add functionality to upload protocol
+				  	"protocol": {},
+					"config":
+					  {
+					  	"userData": this.userData,
+							"dataRows": this.dataRows
+					  }
+				  };
+
+				const path = "/api/submit";
+
+				axios.post(path, response)
+				  .then(function(response){console.log(response);})
+				  .catch(function(error){console.log(error);});
+			},
+			handleSubmit()
+			{
+				// idk what this is. if i remove it things break
+			},
+			removeData(id)
+			{
+				const index = this.dataRows.findIndex(item => item.id === id);
+				this.dataRows.splice(index, 1);
+			},
+			addData()
+			{
+				var elem = document.createElement('tr');
+				this.dataRows.push({
+					id: Math.random().toString(32).slice(2, 10), // replace me
+				  endpoint: "",
+				  container: "",
+				  dataset: ""
+				});
+			}, 
+			getStatusFromBackend()
+			{
+				const path = '/api/job_status';
+				axios.get(path)
+				  .then(response => {
+				  	this.jobStatus = response.data.status
+				  })
+				  .catch(error => {
+				  	console.log(error)
+					})
+					
+			}
 		}
 	}
 </script>
 
-<style lang='css'>
-    @import '../../node_modules/bulma/css/bulma.css';
-    #home {
-        font-family: 'Avenir', Helvetica, Arial, sans-serif;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        text-align: center;
-        margin-top: 50px;
-    }
-    .table thead {
-        -moz-border-radius: 10px;
-        background-color: rgba(255, 39, 37, 0.14);
-    }
-</style>
+
