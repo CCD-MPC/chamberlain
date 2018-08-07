@@ -37,6 +37,7 @@ export default {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
+    overflow-y: scroll;
   }
   #icon {
     height:40px;

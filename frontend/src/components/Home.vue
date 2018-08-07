@@ -40,7 +40,7 @@
 					</div>
 					<div id="tableWrapper">
 						<table class="table">
-							<tr v-for="(row, index) in dataRows" v-bind:key="row.id">
+							<tr v-for="(row) in dataRows" v-bind:key="row.id">
 								<td class = 'formInput' id = 'endpointFile'>
 									<input class = 'fileInput' id = 'Endpoint' type="file" @change='onFileChange'>
 									<label for="file">Choose Endpoint</label>
