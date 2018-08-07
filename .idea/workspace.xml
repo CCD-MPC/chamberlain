@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="fd62d9ff-9bce-45f4-9737-f86ab8c765bf" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/conclave_manager/templates/pod.tmpl" afterPath="$PROJECT_DIR$/conclave_manager/templates/pod.tmpl" />
-      <change beforePath="$PROJECT_DIR$/dist/static/js/manifest.2ae2e69a05c33dfc65f8.js.map" afterPath="$PROJECT_DIR$/dist/static/js/manifest.2ae2e69a05c33dfc65f8.js.map" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -109,8 +107,8 @@
       <file leaf-file-name="pod.tmpl" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/conclave_manager/templates/pod.tmpl">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
+            <state relative-caret-position="327">
+              <caret line="25" column="21" lean-forward="true" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
               <folding />
             </state>
           </provider>
@@ -439,12 +437,12 @@
       <workItem from="1533325556069" duration="6033000" />
       <workItem from="1533395728469" duration="19174000" />
       <workItem from="1533608291990" duration="6034000" />
-      <workItem from="1533675459469" duration="144000" />
+      <workItem from="1533675459469" duration="601000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="176632000" />
+    <option name="totallyTimeSpent" value="177089000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -854,8 +852,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/conclave_manager/templates/pod.tmpl">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="17" column="32" lean-forward="false" selection-start-line="17" selection-start-column="32" selection-end-line="17" selection-end-column="32" />
+        <state relative-caret-position="327">
+          <caret line="25" column="21" lean-forward="true" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
           <folding />
         </state>
       </provider>
