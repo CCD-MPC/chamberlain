@@ -61,6 +61,8 @@ def submit():
         cc_manager = conclave_manager.ConclaveManager(request.get_json(force=True), app)
         cc_manager.run()
 
+        return "OK"
+
 
 if __name__ == "__main__":
 
