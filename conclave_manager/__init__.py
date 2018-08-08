@@ -99,7 +99,7 @@ class ComputeParty:
             if i == self.pid:
                 net_str += "\t\t-host: 0.0.0.0\n\t\tport: 5000\n"
             else:
-                net_str += "\t\t-host: {0}-{1}\n\t\tport: 5000\n"\
+                net_str += "\t\t-host: conclave-{0}-{1}\n\t\tport: 5000\n"\
                     .format(self.timestamp, str(i))
 
         return net_str
