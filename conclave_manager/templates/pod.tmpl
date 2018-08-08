@@ -41,16 +41,13 @@
                 ],
                 "command":
                 [
-                    "cd",
-                    "/app",
-                    "&&",
                     "./run.sh"
                 ],
                 "volumeMounts":
                 [
                     {
                         "name": "config-volume",
-                        "mountPath": "/app"
+                        "mountPath": "/etc/protocol_config"
                     }
                 ]
             }
