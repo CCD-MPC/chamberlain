@@ -86,6 +86,8 @@ class ComputeParty:
 
         rendered = pystache.render(data_template, params)
 
+        self.app.logger.info("CC YAML file:\n{}".format(rendered))
+
         return b64encode(rendered.encode())
 
     def gen_net_config(self):
@@ -211,14 +213,15 @@ class ConclaveManager:
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
 
-    @staticmethod
-    def load_protocol():
+    def load_protocol(self):
         """
         TODO: Will later load this from self.protocol_config.protocol
         """
 
         mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
         protocol = open("{}/protocol.py".format(mock_data_directory)).read()
+
+        self.app.logger.info("CC Protocol:\n{}".format(protocol))
 
         return protocol
 
