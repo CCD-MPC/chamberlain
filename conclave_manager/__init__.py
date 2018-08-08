@@ -42,8 +42,8 @@ class ComputeParty:
         params["auth_url"] = open("/etc/config/auth_url", "r").read()
         params["proj_domain"] = open("/etc/config/proj_domain", "r").read()
         params["proj_name"] = open("/etc/config/proj_name", "r").read()
-        params["user_name"] = open("/etc/conf/user_name", "r").read()
-        params["pass"] = open("/etc/conf/pass", "r").read()
+        params["user_name"] = open("/etc/config/user_name", "r").read()
+        params["pass"] = open("/etc/config/pass", "r").read()
 
         swift_str = ""
         container_name = ""
