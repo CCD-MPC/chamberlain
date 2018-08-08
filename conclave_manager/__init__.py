@@ -78,7 +78,7 @@ class ComputeParty:
                 "PASSWORD": swift_params["pass"],
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
-                "CONTAINER_NAME": swift_params["container"],
+                "CONTAINER_NAME": swift_params["container_name"],
                 "IN_FILES": swift_params["swift_data_str"]
             }
 
