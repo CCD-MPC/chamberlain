@@ -2,7 +2,7 @@
 pid: {{{PID}}}
 all_pids: [{{{ALL_PIDS}}}]
 workflow_name: {{{WORKFLOW_NAME}}}
-use_swift: false
+use_swift: true
 
 input_path: /app/
 output_path: /app/
@@ -34,23 +34,23 @@ net:
 swift:
   source:
     AUTHORIZATION:
-      osAuthUrl: <str>
-      username: <str>
-      password: <str>
+      osAuthUrl: {{{OS_AUTH}}}
+      username: {{{USERNAME}}}
+      password: {{{PASSWORD}}}
     PROJECT:
-      osProjectDomain: <str>
-      osProjectName: <str>
+      osProjectDomain: {{{PROJ_DOMAIN}}}
+      osProjectName: {{{PROJ_NAME}}}
     DATA:
-      container_name: <str>
-      files: <list>
+      container_name: {{{CONTAINER_NAME}}}
+      files:
+{{{IN_FILES}}}
   dest:
     AUTHORIZATION:
-      osAuthUrl: <str>
-      username: <str>
-      password: <str>
+      osAuthUrl: {{{OS_AUTH}}}
+      username: {{{USERNAME}}}
+      password: {{{PASSWORD}}}
     PROJECT:
-      osProjectDomain: <str>
-      osProjectName: <str>
+      osProjectDomain: {{{PROJ_DOMAIN}}}
+      osProjectName: {{{PROJ_NAME}}}
     DATA:
-      container_name: <str>
-      files: <list>
+      container_name: {{{CONTAINER_NAME}}}
