@@ -11,13 +11,14 @@ from base64 import b64encode
 
 class ComputeParty:
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app):
+    def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data):
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.pid = pid
         self.all_pids = all_pids
         self.timestamp = timestamp
         self.app = app
+        self.swift_data = swift_data
 
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
@@ -28,24 +29,64 @@ class ComputeParty:
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
 
+    def gen_swift_conf(self):
+        """
+        hack hack hack
+
+        Loads Swift config using my credentials mounted on the pod via a ConfigMap.
+        Will obviously need to be generalized in the future.
+        """
+
+        params = {}
+
+        params["auth_url"] = open("/etc/config/auth_url", "r").read()
+        params["proj_domain"] = open("/etc/config/proj_domain", "r").read()
+        params["proj_name"] = open("/etc/config/proj_name", "r").read()
+        params["user_name"] = open("/etc/conf/user_name", "r").read()
+        params["pass"] = open("/etc/conf/pass", "r").read()
+
+        swift_str = ""
+        container_name = ""
+
+        if self.swift_data is not None:
+            for f in self.swift_data:
+                swift_str += "\t\t-{}\n".format(f["dataset"])
+                # assumes a single container for all input files
+                container_name = f["container"]
+
+        params["swift_data_str"] = swift_str
+        params["container_name"] = container_name
+
+        return params
+
     def gen_conclave_config(self):
         """
         Generate CC Config yaml.
         """
 
         net_str = self.gen_net_config()
+        swift_params = self.gen_swift_conf()
 
         params = \
             {
                 "PID": self.pid,
                 "ALL_PIDS": ", ".join(str(i) for i in self.all_pids),
                 "WORKFLOW_NAME": "conclave-{}".format(self.timestamp),
-                "NET_CONFIG": net_str
+                "NET_CONFIG": net_str,
+                "OS_AUTH": swift_params["auth_url"],
+                "USERNAME": swift_params["user_name"],
+                "PASSWORD": swift_params["pass"],
+                "PROJ_DOMAIN": swift_params["proj_domain"],
+                "PROJ_NAME": swift_params["proj_name"],
+                "CONTAINER_NAME": swift_params["container"],
+                "IN_FILES": swift_params["swift_data_str"]
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
 
-        return b64encode(pystache.render(data_template, params).encode())
+        rendered = pystache.render(data_template, params)
+
+        return b64encode(rendered.encode())
 
     def gen_net_config(self):
         """
@@ -195,8 +236,14 @@ class ConclaveManager:
                 .format(str(len(all_pids))))
 
         # TODO: will need to pass swift endpoints here
+        # hack hack hack
         for i in all_pids:
-            compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol, self.app))
+            if i == 1:
+                compute_parties.append(
+                    ComputeParty(i, all_pids, timestamp, self.protocol, self.app,
+                                 self.protocol_config['config']['dataRows']))
+            else:
+                compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol, self.app, None))
 
         return compute_parties
 
