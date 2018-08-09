@@ -43,15 +43,15 @@
 							<tr v-for="(row) in dataRows" v-bind:key="row.id">
 								<td class = 'formInput' id = 'endpointFile'>
 									<input class = 'fileInput' id = 'Endpoint' type="file" @change='onFileChange'>
-									<label for="file">Choose Endpoint</label>
+									<label for="file">Endpoint</label>
 								</td>
 								<td class = 'formInput' id = 'containerFile'>
 									<input class = 'fileInput' id = 'Container' type="file" @change='onFileChange'>
-									<label for="file">Choose Container</label>
+									<label for="file">Container</label>
 								</td>
 								<td class = 'formInput' id = 'datasetFile'>
 									<input class = 'fileInput' id = 'Dataset' type="file" @change='onFileChange'>
-									<label for="file">Choose Dataset</label>
+									<label for="file">Dataset</label>
 								</td>
 								<td>
 									<a @click="removeData(row.id)" style="cursor: pointer">Remove</a>
@@ -81,49 +81,15 @@
 <style lang='css'>
 	@import '../../node_modules/bulma/css/bulma.css';
 
-	.fileInput {
-		width: 0.1px;
-		height: 0.1px;
-		opacity: 0;
-		
-		overflow: hidden;
-		text-overflow: ellipsis;
-		position: absolute;
-
-		
-	}
-	.fileInput + label {
-		border: 1px solid lightgray;
-		background-color: white;
-		border-radius: 3px;
-		padding-left: 10px;
-		padding-right: 10px;
-		padding-top: 5px;
-		padding-bottom: 5px;
-    display: inline-block;
-	}
-
-	.fileInput:hover + label,
-	.fileInput + label:hover {
-			background-color: lightgray;
-	}
-	.fileInput + label {
-		cursor: pointer; /* "hand" cursor */
-	}
-
 	html, body {
-		background: #fafafa;
-		margin: 0; 
-		height: 100%; 
+		background: #fafafa;	
 		overflow: hidden;
 	}
 	#formWrapper {
 		/* Positioning */
-		position: absolute;
-		left: 15vw;
-		right:15vw;
-		top:15vh;
-		bottom:15vh;
+		width: 100%;
+		max-width: 768px;
+		margin: 0 auto;
 
 		/* format */
 		border-radius: 2px;
@@ -161,7 +127,6 @@
 		margin-bottom: 0px;
 	}
 
-
 	#formHeader {
 		font-family: 'overpass-bold', serif;
 		font-size: 30px;
@@ -186,9 +151,7 @@
 		font-size: 20px;
 	
 	}
-	#dataInput-top {
-		display:flex;
-	}
+	
 	#dataInput-title {
 		margin: none;
 		flex:1;
@@ -201,6 +164,35 @@
 		
 		background:none;
 		border: 2px gray;
+	}
+	.fileInput {
+		width: 30%;
+		height: 0.1px;
+		opacity: 0;
+		
+		overflow: hidden;
+		text-overflow: ellipsis;
+		position: absolute;
+
+		
+	}
+	.fileInput + label {
+		border: 1px solid lightgray;
+		background-color: white;
+		border-radius: 3px;
+		padding-left: 10px;
+		padding-right: 10px;
+		padding-top: 5px;
+		padding-bottom: 5px;
+    display: inline-block;
+	}
+
+	.fileInput:hover + label,
+	.fileInput + label:hover {
+			background-color: lightgray;
+	}
+	.fileInput + label {
+		cursor: pointer; /* "hand" cursor */
 	}
 	input[type="text"], textarea, input[type="file"] {
 		outline: none;
@@ -216,6 +208,7 @@
 		height:35px;
 
 	} 
+	
 	#dataInput-addSet{
 		padding: 10px;
 	}
@@ -240,6 +233,19 @@
 		justify-content: left;
 		
 	}
+	@media (min-width: 768px) {
+		#formwrapper {
+			left: 15vw;
+			right:15vw;
+			top:15vh;
+			bottom:15vh;
+		}
+		.dataInput-top {
+			display: flex;
+		}
+	}
+
+
 </style>
 
 
@@ -247,9 +253,8 @@
 <script type="text/javascript">
 	import axios from 'axios'
 
-	
-
 	export default {
+
 		name: 'InputFiles',
 		data() {
 			return {
@@ -261,20 +266,6 @@
 			}
 		},
 		methods: {
-			onFileChange(e){
-				var files = e.target.files || e.dataTransfer.files;
-				var label = e.target.nextElementSibling;
-			
-				if (files.length != undefined && files.length != 0)
-					if (files.length > 1) 
-						label.textContent = 'Uploaded ' + files.length + ' files'
-					else 
-						label.textContent = files[0].name;
-
-
-				
-
-			},
 			submitData()
 			{
 				// submit user data
@@ -295,6 +286,16 @@
 				axios.post(path, response)
 				  .then(function(response){console.log(response);})
 				  .catch(function(error){console.log(error);});
+			},
+			onFileChange(e){
+				var files = e.target.files || e.dataTransfer.files;
+				var label = e.target.nextElementSibling;
+			
+				if (files.length != undefined && files.length != 0)
+					if (files.length > 1) 
+						label.textContent = 'Uploaded ' + files.length + ' files'
+					else 
+						label.textContent = files[0].name;
 			},
 			handleSubmit()
 			{
@@ -325,10 +326,8 @@
 				  .catch(error => {
 				  	console.log(error)
 					})
-					
+
 			}
 		}
 	}
 </script>
-
-

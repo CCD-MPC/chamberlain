@@ -47,7 +47,38 @@
 			</div>
 		</div>
 		<div class = 'section-banner' id="footer">
-
+			<div id="footer-container">
+				<div class='footer-section'>
+					<h2 class='footer-header'>About</h2>
+					<a href="" class='footer-link'>Methodology</a>
+					<a href="" class='footer-link'>Soundcloud</a>
+					<a href="" class='footer-link'>Spotify playlist</a>
+					<a href="" class="footer-link">Philosophy 101</a>
+				</div>
+				<div class='footer-section'>
+					<h2 class='footer-header'>Support</h2>
+					<a href="" class="footer-link">One Fish</a>
+					<a href="" class="footer-link">Two Fish</a>
+					<a href="" class="footer-link">Red Fish</a>
+					<a href="" class="footer-link">Blue Fish</a>
+				</div>
+				<div class='footer-section'>
+					<h2 class = 'footer-header'>Contact</h2>
+					<a href="" class="footer-link">Ben G.</a>
+					<a href="" class="footer-link">Jacob D.</a>
+					<a href="" class="footer-link">Graeme M.</a>
+					<a href="" class="footer-link">G-Money</a>
+				</div>
+				<div class='footer-section'>
+					<h2 class='footer-header'>Other</h2>
+					<a href="" class="footer-link">Link One</a>
+					<a href="" class="footer-link">Link Two</a>
+					<a href="" class="footer-link">Link Three</a>
+				</div>
+			</div>
+			<p id="footer-info">
+				Red Hat 2018 © Copyright
+			</p>
 		</div>
 	</div>
 </template>
@@ -99,13 +130,13 @@ export default {
 
 	#h1-overlay {
 		position: absolute;
-		top: 20px;
-		left:20px;
+		top: 10px;
+		left: 10px;
 	}
 	#h2-overlay{
 		position:absolute;
-		top: 100px;
-		left: 20px;
+		top: 130px;
+		left: 10px;
 	}
 /* =========Section 2============= */
 
@@ -153,7 +184,43 @@ export default {
 		display: flex;
 		flex-direction: column;
 		text-align: left;
+		margin-bottom: 50px;
 	}
+	#github-header {
+		margin-bottom: 15px;
+	}
+/* ============ Footer ============*/
+	#footer{
+		background-color: #030303;
+	}
+	#footer-container{
+		width: 100%;
+		display:flex;
+	}
+
+	.footer-section {
+		display:flex;
+		flex-direction: column;
+
+		margin-top: 5px;
+		margin-bottom: 5px;
+		width: 25%;
+	}
+	.footer-header {
+		color:#0088ce;
+		font-size: 20px;
+	}
+	.footer-link{
+		font-size: 12px;
+		margin-top: 8px;
+		text-align: center;
+		color: white;
+	}
+	#footer-info{
+		font-size: 12px;
+		color:lightgrey;
+	}
+
 	.topHeader{
 		font-size: 40px;
 	}
@@ -192,6 +259,26 @@ export default {
 		.subtext {
 			font-size: 20px;
 		}
+		.footer-section {
+			margin-bottom: 15px;
+		}
+		.footer-header{
+			margin-bottom: 15px;
+		}
 	}
-    
+	@media (min-width: 420px) {
+		.topHeader {
+			top: 20px;
+			left: 20px;
+		}
+		.topSubtext {
+			top: 100px;
+			left: 20px;
+		}
+
+		.footer-link {
+			font-size: 15px;
+			margin-top: 5px;
+		}
+	}
 </style>

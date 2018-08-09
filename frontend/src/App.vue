@@ -32,8 +32,13 @@ export default {
 <style lang='css'>
   @import url('https://fonts.googleapis.com/css?family=Overpass:300,400');
 
+  @font-face {
+    font-family: 'overpass-light';
+    src: url('../assets/overpass-light.otf');
+  }
+
   #app {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: 'overpass-light', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
@@ -67,7 +72,7 @@ export default {
     justify-content: center;
   }
   #navbar-item{
-    font-family: 'overpass-bold';
+    font-family: 'overpass-light';
     
     padding-left: 10px;
     padding-right: 10px;
