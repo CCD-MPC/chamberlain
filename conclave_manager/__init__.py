@@ -50,7 +50,7 @@ class ComputeParty:
 
         if self.swift_data is not None:
             for f in self.swift_data:
-                swift_str += "\t\t-{}\n".format(f["dataset"])
+                swift_str += "      - {}\n".format(f["dataset"])
                 # assumes a single container for all input files
                 container_name = f["container"]
 
@@ -99,9 +99,9 @@ class ComputeParty:
 
         for i in self.all_pids:
             if i == self.pid:
-                net_str += "\t\t-host: 0.0.0.0\n\t\tport: 5000\n"
+                net_str += "      - host: 0.0.0.0\n        port: 5000\n"
             else:
-                net_str += "\t\t-host: conclave-{0}-{1}\n\t\tport: 5000\n"\
+                net_str += "      - host: conclave-{0}-{1}\n        port: 5000\n"\
                     .format(self.timestamp, str(i))
 
         return net_str
