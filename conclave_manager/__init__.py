@@ -28,6 +28,7 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+        self.jiff_service = self.define_service("jiff")
 
     def gen_swift_conf(self):
         """
@@ -62,6 +63,7 @@ class ComputeParty:
     def gen_conclave_config(self):
         """
         Generate CC Config yaml.
+
         """
 
         net_str = self.gen_net_config()
@@ -79,7 +81,9 @@ class ComputeParty:
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
                 "CONTAINER_NAME": swift_params["container_name"],
-                "IN_FILES": swift_params["swift_data_str"]
+                "IN_FILES": swift_params["swift_data_str"],
+                "PARTY_COUNT": len(self.all_pids),
+                "SERVER_SERVICE": "conclave-{0}-1-jiff".format(self.timestamp)
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
@@ -101,7 +105,7 @@ class ComputeParty:
             if i == self.pid:
                 net_str += "      - host: 0.0.0.0\n        port: 5000\n"
             else:
-                net_str += "      - host: conclave-{0}-{1}\n        port: 5000\n"\
+                net_str += "      - host: conclave-{0}-{1}-service\n        port: 5000\n"\
                     .format(self.timestamp, str(i))
 
         return net_str
@@ -145,14 +149,20 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
-    def define_service(self):
+    def define_service(self, backend: str=None):
         """
-        Populate Service template.
+        Populate Service template for CC Pods and MPC backends.
         """
+
+        if backend is None:
+            svc = "{}-service".format(self.name)
+        else:
+            svc = "{0}-{1}".format(self.name, backend)
 
         params = \
             {
-                "SERVICE_NAME": self.name
+                "SERVICE_NAME": svc,
+                "APP_NAME": self.name
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
