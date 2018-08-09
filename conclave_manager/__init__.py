@@ -28,7 +28,7 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
-        self.jiff_service = self.define_service("jiff")
+        self.jiff_service_body = self.define_service("jiff")
 
     def gen_swift_conf(self):
         """
@@ -193,6 +193,16 @@ class ComputeParty:
             api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
             self.app.logger.info(
                 "Service created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Service: \n{}\n"
+                    .format(e))
+
+        try:
+            api_response = kube_client.create_namespaced_service('cici', body=self.jiff_service_body, pretty='true')
+            self.app.logger.info(
+                "Service for JIFF MPC backend created successfully with response: \n{}\n"
                     .format(api_response))
         except ApiException as e:
             self.app.logger.error(
