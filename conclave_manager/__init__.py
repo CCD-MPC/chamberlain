@@ -156,13 +156,19 @@ class ComputeParty:
 
         if backend is None:
             svc = "{}-service".format(self.name)
+            port = 5000
         else:
             svc = "{0}-{1}".format(self.name, backend)
+            if backend == "jiff":
+                port = 5001
+            else:
+                port = 0
 
         params = \
             {
                 "SERVICE_NAME": svc,
-                "APP_NAME": self.name
+                "APP_NAME": self.name,
+                "PORT": port
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
