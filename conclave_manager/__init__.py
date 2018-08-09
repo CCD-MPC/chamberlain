@@ -23,7 +23,7 @@ class ComputeParty:
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
-        self.protocol = b64encode(protocol.encode())
+        self.protocol = b64encode(protocol.encode()).decode()
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
@@ -88,7 +88,7 @@ class ComputeParty:
 
         self.app.logger.info("CC YAML file:\n{}".format(rendered))
 
-        return b64encode(rendered.encode())
+        return b64encode(rendered.encode()).decode()
 
     def gen_net_config(self):
         """
