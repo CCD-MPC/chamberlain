@@ -2,24 +2,27 @@ import os
 import ast
 import time
 import pystache
+import socket
 
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
 from base64 import b64encode
+from time import sleep
 
 
 class ComputeParty:
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data):
+    def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data, jiff_server_ip):
 
-        self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.pid = pid
         self.all_pids = all_pids
         self.timestamp = timestamp
         self.app = app
         self.swift_data = swift_data
+        self.jiff_server_ip = jiff_server_ip
 
+        self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
@@ -228,16 +231,140 @@ class ComputeParty:
         return
 
 
+class JiffServer:
+
+    def __init__(self, app, timestamp):
+
+        self.app = app
+        self.timestamp = timestamp
+
+        self.name = "jiff-server-{0}".format(timestamp)
+        self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
+
+        self.pod_body = self.define_pod()
+        self.service_body = self.define_service()
+
+        self.launch_server()
+
+    def query_server_ip(self):
+        """
+        Attempt to query IP address of server.
+
+        <http>://<IP address> string is necessary for http.Server.listen() function in Jiff server.js file.
+        """
+
+        self.app.logger.info("Querying IP address of Jiff Server")
+
+        try:
+            ip = socket.gethostbyname("{}-service".format(self.name))
+        except socket.gaierror:
+            ip = None
+
+        return ip
+
+    def launch_server(self):
+        """
+        Launch JiffServer objects.
+        """
+
+        if self.pod_body is None:
+            self.define_pod()
+
+        if self.service_body is None:
+            self.define_service()
+
+        k_config.load_incluster_config()
+        kube_client = k_client.CoreV1Api()
+
+        try:
+            api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
+            self.app.logger.info(
+                "Jiff Server Service created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Jiff Server Service: \n{}\n"
+                    .format(e))
+
+        try:
+            api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
+            self.app.logger.info(
+                "Jiff Server Pod created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Jiff Server Pod: \n{}\n"
+                    .format(e))
+
+        return
+
+    def define_pod(self):
+        """
+        Populate Jiff Server Pod template.
+        """
+
+        params = \
+            {
+                "POD_NAME": self.name
+            }
+
+        data_template = open("{}/jiff_server_pod.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return ast.literal_eval(rendered)
+
+    def define_service(self):
+        """
+        Populate Service template for Jiff Server Service
+        """
+
+        params = \
+            {
+                "SERVICE_NAME": "{}-service".format(self.name),
+                "APP_NAME": self.name,
+                "PORT": 9000
+            }
+
+        data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return ast.literal_eval(rendered)
+
+
 class ConclaveManager:
 
     def __init__(self, json_data, app):
 
         self.app = app
-        self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.protocol_config = json_data
 
+        self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
+        self.timestamp = str(int(round(time.time() * 1000)))
+        self.jiff_server = JiffServer(app, self.timestamp)
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
+
+    def query_jiff_server(self):
+        """
+        Query IP address of JiffServer.
+        Halts creation of ComputeParty objects until it resolves.
+        """
+
+        ready = False
+        ip = None
+
+        while not ready:
+
+            ip = self.jiff_server.query_server_ip()
+
+            if ip is not None:
+                ready = True
+            else:
+                sleep(5)
+
+        return ip
 
     def load_protocol(self):
         """
@@ -256,7 +383,10 @@ class ConclaveManager:
         Init all compute parties.
         """
 
-        timestamp = str(int(round(time.time() * 1000)))
+        server_ip = self.query_jiff_server()
+
+        # need method to query jiff server DNS here
+
         all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
         compute_parties = []
 
@@ -264,15 +394,16 @@ class ConclaveManager:
             "Creating Conclave job templates for {} parties"
                 .format(str(len(all_pids))))
 
-        # TODO: will need to pass swift endpoints here
         # hack hack hack
         for i in all_pids:
             if i == 1:
                 compute_parties.append(
-                    ComputeParty(i, all_pids, timestamp, self.protocol, self.app,
-                                 self.protocol_config['config']['dataRows']))
+                    ComputeParty(i, all_pids, self.timestamp, self.protocol, self.app,
+                                 self.protocol_config['config']['dataRows'], server_ip))
             else:
-                compute_parties.append(ComputeParty(i, all_pids, timestamp, self.protocol, self.app, None))
+                compute_parties.append(
+                    ComputeParty(i, all_pids, self.timestamp,
+                                 self.protocol, self.app, None, server_ip))
 
         return compute_parties
 
