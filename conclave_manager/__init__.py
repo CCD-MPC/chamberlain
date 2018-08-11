@@ -99,7 +99,7 @@ class ComputeParty:
 
     def gen_net_config(self):
         """
-        Generate CC Net Config string that gets inserted into CC Concfig yaml.
+        Generate CC Net Config string that gets inserted into CC Config YAML.
         """
 
         net_str = ""
@@ -349,7 +349,7 @@ class ConclaveManager:
     def query_jiff_server(self):
         """
         Query IP address of JiffServer.
-        Halts creation of ComputeParty objects until it resolves.
+        Halts creation of ComputeParty objects until resolved.
         """
 
         ready = False
@@ -385,7 +385,7 @@ class ConclaveManager:
 
         server_ip = self.query_jiff_server()
 
-        # need method to query jiff server DNS here
+        self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
         all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
         compute_parties = []
@@ -394,6 +394,7 @@ class ConclaveManager:
             "Creating Conclave job templates for {} parties"
                 .format(str(len(all_pids))))
 
+        '''
         # hack hack hack
         for i in all_pids:
             if i == 1:
@@ -404,6 +405,19 @@ class ConclaveManager:
                 compute_parties.append(
                     ComputeParty(i, all_pids, self.timestamp,
                                  self.protocol, self.app, None, server_ip))
+        '''
+
+        for i in all_pids:
+            compute_parties.append(
+                ComputeParty(
+                    i,
+                    all_pids,
+                    self.timestamp,
+                    self.protocol,
+                    self.app,
+                    self.protocol_config['config']['dataRows'][i],
+                    server_ip)
+            )
 
         return compute_parties
 
