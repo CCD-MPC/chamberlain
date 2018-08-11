@@ -163,7 +163,7 @@ class ComputeParty:
         else:
             svc = "{0}-{1}".format(self.name, backend)
             if backend == "jiff":
-                port = 5001
+                port = 9000
             else:
                 port = 0
 
