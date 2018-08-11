@@ -12,6 +12,10 @@ from time import sleep
 
 
 class ComputeParty:
+    """
+    Represents one party in a computation.
+    Generates all Kubernetes template files.
+    """
 
     def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data, jiff_server_ip):
 
@@ -84,7 +88,7 @@ class ComputeParty:
                 "CONTAINER_NAME": swift_params["container_name"],
                 "IN_FILES": swift_params["swift_data_str"],
                 "PARTY_COUNT": len(self.all_pids),
-                "SERVER_SERVICE": "conclave-{0}-1-jiff".format(self.timestamp)
+                "SERVER_SERVICE": self.jiff_server_ip
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
@@ -230,6 +234,9 @@ class ComputeParty:
 
 
 class JiffServer:
+    """
+    Generates and launches server for ComputeParty objects to run Jiff jobs over.
+    """
 
     def __init__(self, app, timestamp):
 
@@ -332,6 +339,9 @@ class JiffServer:
 
 
 class ConclaveManager:
+    """
+    Generates and launches JiffServer & ComputeParty objects
+    """
 
     def __init__(self, json_data, app):
 
