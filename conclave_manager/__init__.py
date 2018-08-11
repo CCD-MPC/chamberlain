@@ -52,11 +52,11 @@ class ComputeParty:
         swift_str = ""
         container_name = ""
 
+        # NOTE -- this assumes one input file per party and will need to be generalized
         if self.swift_data is not None:
-            for f in self.swift_data:
-                swift_str += "      - {}\n".format(f["dataset"])
-                # assumes a single container for all input files
-                container_name = f["container"]
+            swift_str += "      - {}\n".format(self.swift_data["dataset"])
+            # assumes a single container for all input files
+            container_name = self.swift_data["container"]
 
         params["swift_data_str"] = swift_str
         params["container_name"] = container_name
