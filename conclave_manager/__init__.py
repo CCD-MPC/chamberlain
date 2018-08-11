@@ -35,8 +35,6 @@ class ComputeParty:
 
     def gen_swift_conf(self):
         """
-        hack hack hack
-
         Loads Swift config using my credentials mounted on the pod via a ConfigMap.
         Will obviously need to be generalized in the future.
         """
@@ -415,7 +413,7 @@ class ConclaveManager:
                     self.timestamp,
                     self.protocol,
                     self.app,
-                    self.protocol_config['config']['dataRows'][i],
+                    self.protocol_config['config']['dataRows'][i-1],
                     server_ip)
             )
 
