@@ -35,7 +35,6 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
-        self.jiff_service_body = self.define_service("jiff")
 
     def gen_swift_conf(self):
         """
@@ -154,11 +153,12 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
-    def define_service(self, backend: str=None):
+    def define_service(self):
         """
         Populate Service template for CC Pods and MPC backends.
         """
 
+        '''
         if backend is None:
             svc = "{}-service".format(self.name)
             port = 5000
@@ -168,6 +168,10 @@ class ComputeParty:
                 port = 9000
             else:
                 port = 0
+        '''
+
+        svc = "{}-service".format(self.name)
+        port = 5000
 
         params = \
             {
@@ -209,7 +213,7 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
-
+        '''
         try:
             api_response = kube_client.create_namespaced_service('cici', body=self.jiff_service_body, pretty='true')
             self.app.logger.info(
@@ -219,6 +223,7 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
+        '''
 
         try:
             api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
@@ -401,19 +406,6 @@ class ConclaveManager:
         self.app.logger.info(
             "Creating Conclave job templates for {} parties"
                 .format(str(len(all_pids))))
-
-        '''
-        # hack hack hack
-        for i in all_pids:
-            if i == 1:
-                compute_parties.append(
-                    ComputeParty(i, all_pids, self.timestamp, self.protocol, self.app,
-                                 self.protocol_config['config']['dataRows'], server_ip))
-            else:
-                compute_parties.append(
-                    ComputeParty(i, all_pids, self.timestamp,
-                                 self.protocol, self.app, None, server_ip))
-        '''
 
         for i in all_pids:
             compute_parties.append(
