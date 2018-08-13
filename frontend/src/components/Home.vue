@@ -38,14 +38,16 @@
 						</table>
 					</div>
 				</div>
-				<div class="FormStep">
+				<div class="FormStep" id="submit">
 					<div class="formTitle">
-						<h1>Step 2: Submit!</h1>
+						<h1>Step 2: Upload a Protocol & Submit</h1>
 					</div>
+                    <div id="protocolButton">
+                        <input style = 'margin-left: 10px' class="button is-pulled-left" id="protocol" type="file" @change="onFileChange">
+                    </div>
 					<div id = 'submitButton'>
-						<button style = 'margin-left: 10px' class="button btn-primary is-pulled-left" type="submit" @click="submitData">Compute</button>
+						<button style = 'margin-left: 10px' class="button" type="submit" @click="submitData">Compute</button>
 					</div>
-
 				</div>
 				<div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
 					<button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
