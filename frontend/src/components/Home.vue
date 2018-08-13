@@ -19,23 +19,22 @@
 					</div>
 					<div id="tableWrapper">
 						<table class="table">
-							<tr v-for="(row) in dataRows" v-bind:key="row.id">
-								<td class = 'formInput' id = 'endpointFile'>
-									<input class = 'fileInput' id = 'Endpoint' type="file" @change='onFileChange'>
-									<label for="file">Endpoint</label>
-								</td>
-								<td class = 'formInput' id = 'containerFile'>
-									<input class = 'fileInput' id = 'Container' type="file" @change='onFileChange'>
-									<label for="file">Container</label>
-								</td>
-								<td class = 'formInput' id = 'datasetFile'>
-									<input class = 'fileInput' id = 'Dataset' type="file" @change='onFileChange'>
-									<label for="file">Dataset</label>
-								</td>
-								<td>
-									<a @click="removeData(row.id)" style="cursor: pointer">Remove</a>
-								</td>
-							</tr>
+                            <tbody>
+                            <tr v-for="(row, index) in dataRows">
+                                <td>
+                                    <input type="text" v-model="row.endpoint">
+                                </td>
+                                <td>
+                                    <input type="text" v-model="row.container">
+                                </td>
+                                <td>
+                                    <input type="text" v-model="row.dataset">
+                                </td>
+                                <td>
+                                    <a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
+                                </td>
+                            </tr>
+                            </tbody>
 						</table>
 					</div>
 				</div>
@@ -237,9 +236,6 @@
 		name: 'InputFiles',
 		data() {
 			return {
-				userData: {
-				  sparkURL: ""
-				},
 				dataRows: [{endpoint: "", container: "", dataset: ""}],
 				jobStatus: ""
 			}
@@ -255,8 +251,7 @@
 				  	"protocol": {},
 					"config":
 					  {
-					  	"userData": this.userData,
-							"dataRows": this.dataRows
+                        "dataRows": this.dataRows
 					  }
 				  };
 
@@ -280,16 +275,14 @@
 			{
 				// idk what this is. if i remove it things break
 			},
-			removeData(id)
+			removeData(index)
 			{
-				const index = this.dataRows.findIndex(item => item.id === id);
 				this.dataRows.splice(index, 1);
 			},
 			addData()
 			{
 				var elem = document.createElement('tr');
 				this.dataRows.push({
-					id: Math.random().toString(32).slice(2, 10), // replace me
 				  endpoint: "",
 				  container: "",
 				  dataset: ""
