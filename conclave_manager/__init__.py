@@ -158,18 +158,6 @@ class ComputeParty:
         Populate Service template for CC Pods and MPC backends.
         """
 
-        '''
-        if backend is None:
-            svc = "{}-service".format(self.name)
-            port = 5000
-        else:
-            svc = "{0}-{1}".format(self.name, backend)
-            if backend == "jiff":
-                port = 9000
-            else:
-                port = 0
-        '''
-
         svc = "{}-service".format(self.name)
         port = 5000
 
@@ -213,17 +201,6 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
-        '''
-        try:
-            api_response = kube_client.create_namespaced_service('cici', body=self.jiff_service_body, pretty='true')
-            self.app.logger.info(
-                "Service for JIFF MPC backend created successfully with response: \n{}\n"
-                    .format(api_response))
-        except ApiException as e:
-            self.app.logger.error(
-                "Error creating Service: \n{}\n"
-                    .format(e))
-        '''
 
         try:
             api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
@@ -379,6 +356,16 @@ class ConclaveManager:
 
         return ip
 
+    def query_pod_status(self):
+        """
+        Need some kind of protocol for querying status of all pods and deleting
+        all object associated with them once they have status "Completed". API
+        for necessary function is here:
+        https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#read_namespaced_pod_status
+        """
+
+        return
+
     def load_protocol(self):
         """
         TODO: Will later load this from self.protocol_config.protocol
@@ -407,6 +394,13 @@ class ConclaveManager:
             "Creating Conclave job templates for {} parties"
                 .format(str(len(all_pids))))
 
+        '''
+        for each submitted dataset, create a ComputeParty
+        
+        TODO: will need to resolve ownership between datasets, and 
+        create a compute party for each unique data owner (i.e. - 
+        case when a single party owns more than one dataset).
+        '''
         for i in all_pids:
             compute_parties.append(
                 ComputeParty(
@@ -421,9 +415,9 @@ class ConclaveManager:
 
         return compute_parties
 
-    def launch_all_parties(self):
+    def run(self):
         """
-        Create ConfigMap, Services, and Pod for each compute party & launch.
+        Wraps main class methods.
         """
 
         self.app.logger.info(
@@ -432,13 +426,6 @@ class ConclaveManager:
 
         for party in self.compute_parties:
             party.launch()
-
-    def run(self):
-        """
-        Wraps main class methods.
-        """
-
-        self.launch_all_parties()
 
 
 

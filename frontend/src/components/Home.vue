@@ -8,27 +8,6 @@
 				<div id="formHeader">
 					<h1>Get Started</h1>
 				</div>
-				
-			
-			<!-- Step 2 - specify your input datasets. -->
-			<!-- <button class="button is-centered" @click="addData">Add A Dataset</button> -->
-			<!-- Endpoint, Container, Dataset ... inputs -->
-			<!-- <tr v-for="(row, index) in dataRows">
-								<td>
-									<input type="text" v-model="row.endpoint">
-								</td>
-								<td>
-									<input type="text" v-model="row.container">
-								</td>
-								<td>
-									<input type="text" v-model="row.dataset">
-								</td>
-								<td>
-									<a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
-								</td>
-							</tr>
-				-->
-				
 				<div class = 'FormStep' id="dataInput">
 					<div id = 'dataInput-top'>
 						<div class = 'formTitle' id="dataInput-title">
@@ -58,7 +37,7 @@
 								</td>
 							</tr>
 						</table>
-					</div>	
+					</div>
 				</div>
 				<div class="FormStep">
 					<div class="formTitle">
@@ -67,13 +46,13 @@
 					<div id = 'submitButton'>
 						<button style = 'margin-left: 10px' class="button btn-primary is-pulled-left" type="submit" @click="submitData">Compute</button>
 					</div>
-					
+
 				</div>
 				<div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
 					<button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
 					<p>Job Status: {{ jobStatus }} </p>
 				</div>
-		  </div>	
+		  </div>
 	  </form>
   </div>
 </template>
@@ -82,7 +61,7 @@
 	@import '../../node_modules/bulma/css/bulma.css';
 
 	html, body {
-		background: #fafafa;	
+		background: #fafafa;
 		overflow: hidden;
 	}
 	#formWrapper {
@@ -94,7 +73,7 @@
 		/* format */
 		border-radius: 2px;
 		border: darkgray 2px;
-		/*background-color: white;*/ 
+		/*background-color: white;*/
 		color: #030303;
 		/*box-shadow: 0 0.1em 1em 0 #bbb;*/
 	}
@@ -115,11 +94,11 @@
 		max-height: 125px;
 		overflow-y: scroll;
 	}
-	
+
 	.table {
 		background: transparent;
 		border: none;
-		
+
 	}
 	.table, tr, td {
 		border:none !important;
@@ -131,7 +110,7 @@
 		font-family: 'overpass-bold', serif;
 		font-size: 30px;
 		font-weight: 300;
-		
+
 		margin-top: 10px;
 		padding-left: 5%;
 		padding-bottom: 20px;
@@ -149,9 +128,9 @@
 		margin-bottom: 10px;
 		font-family: 'overpass-bold';
 		font-size: 20px;
-	
+
 	}
-	
+
 	#dataInput-title {
 		margin: none;
 		flex:1;
@@ -161,7 +140,7 @@
 		width: auto;
 		padding-left: 10px;
 		padding-right: 10px;
-		
+
 		background:none;
 		border: 2px gray;
 	}
@@ -169,12 +148,12 @@
 		width: 30%;
 		height: 0.1px;
 		opacity: 0;
-		
+
 		overflow: hidden;
 		text-overflow: ellipsis;
 		position: absolute;
 
-		
+
 	}
 	.fileInput + label {
 		border: 1px solid lightgray;
@@ -207,8 +186,8 @@
 		width: 100%;
 		height:35px;
 
-	} 
-	
+	}
+
 	#dataInput-addSet{
 		padding: 10px;
 	}
@@ -226,12 +205,12 @@
 		margin: 0px auto;
 
 		position: relative;
-		
+
 	}
 	#submitButton {
 		display:flex;
 		justify-content: left;
-		
+
 	}
 	@media (min-width: 768px) {
 		#formwrapper {
@@ -290,11 +269,11 @@
 			onFileChange(e){
 				var files = e.target.files || e.dataTransfer.files;
 				var label = e.target.nextElementSibling;
-			
+
 				if (files.length != undefined && files.length != 0)
-					if (files.length > 1) 
-						label.textContent = 'Uploaded ' + files.length + ' files'
-					else 
+					if (files.length > 1)
+						label.textContent = 'Uploaded ' + files.length + ' files';
+					else
 						label.textContent = files[0].name;
 			},
 			handleSubmit()
@@ -315,7 +294,7 @@
 				  container: "",
 				  dataset: ""
 				});
-			}, 
+			},
 			getStatusFromBackend()
 			{
 				const path = '/api/job_status';

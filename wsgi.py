@@ -1,5 +1,6 @@
 import logging
 import os
+import time
 
 import conclave_manager
 
@@ -60,10 +61,6 @@ def submit():
 
         cc_manager = conclave_manager.ConclaveManager(request.get_json(force=True), app)
         cc_manager.run()
-
-        '''
-        Need to query status of pods here, delete any that have status 'Completed'.
-        '''
 
         return "OK"
 
