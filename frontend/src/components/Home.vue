@@ -246,32 +246,45 @@
 			submitData()
 			{
 				// submit user data
-
-				const response =
+				const obj =
 				  {
-				  	// TODO: add functionality to upload protocol
-				  	"protocol": {},
 					"config":
 					  {
                         "dataRows": this.dataRows
 					  }
 				  };
 
+                var filename = this.filename;
+                console.log(filename);
 				const path = "/api/submit";
+                
+                const json = JSON.stringify(obj);
+                const blob = new Blob([json], {
+                  type: 'application/json'
+                });
+                
 
-				axios.post(path, response)
-				  .then(function(response){console.log(response);})
+                const data = new FormData();
+                data.append(filename, blob);
+                axios({
+                  method: 'post',
+                  url: path,
+                  data: data,
+                }).then(function(response){console.log(response);})
 				  .catch(function(error){console.log(error);});
+
 			},
 			onFileChange(e){
 				var files = e.target.files || e.dataTransfer.files;
-				var label = e.target.nextElementSibling;
+                this.filename = files[0].name;
 
-				if (files.length != undefined && files.length != 0)
-					if (files.length > 1)
-						label.textContent = 'Uploaded ' + files.length + ' files';
-					else
-						label.textContent = files[0].name;
+			//	var label = e.target.nextElementSibling;
+
+			//	if (files.length != undefined && files.length != 0)
+			//		if (files.length > 1)
+			//			label.textContent = 'Uploaded ' + files.length + ' files';
+			//		else
+			//			label.textContent = files[0].name;
 			},
 			handleSubmit()
 			{

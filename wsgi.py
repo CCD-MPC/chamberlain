@@ -56,13 +56,11 @@ def job_status(status=None):
 def submit():
 
     if request.method == 'POST':
-
-        app.logger.info("JSON received: {}".format(request.get_json(force=True)))
-
-        cc_manager = conclave_manager.ConclaveManager(request.get_json(force=True), app)
-        cc_manager.run()
-
-        return "OK"
+        filename = list(request.files.keys())[0].strip().split("\n")
+        file = request.files[filename[0]]
+        if file:
+            file.save(os.path.join("/app/", "protocol.py"))
+            return "OK"
 
 
 if __name__ == "__main__":
