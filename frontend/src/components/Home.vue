@@ -47,6 +47,7 @@
                     </div>
 					<div id = 'submitButton'>
 						<button style = 'margin-left: 10px' class="button" type="submit" @click="submitData">Compute</button>
+                        <div> Your Compute ID: {{ ID }}</div>
 					</div>
 				</div>
 				<div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
@@ -224,8 +225,6 @@
 			display: flex;
 		}
 	}
-
-
 </style>
 
 
@@ -235,73 +234,76 @@
 
 	export default {
 
-		name: 'InputFiles',
-		data() {
-			return {
-				dataRows: [{endpoint: "", container: "", dataset: ""}],
-				jobStatus: ""
-			}
-		},
-		methods: {
-			submitData()
-			{
-				// submit user data
-
-				const response =
-				  {
-				  	// TODO: add functionality to upload protocol
-				  	"protocol": {},
-					"config":
-					  {
-                        "dataRows": this.dataRows
-					  }
-				  };
-
-				const path = "/api/submit";
-
-				axios.post(path, response)
-				  .then(function(response){console.log(response);})
-				  .catch(function(error){console.log(error);});
+			name: 'InputFiles',
+			data() {
+				return {
+					dataRows: [{endpoint: "", container: "", dataset: ""}],
+					jobStatus: ""
+				}
 			},
-			onFileChange(e){
-				var files = e.target.files || e.dataTransfer.files;
-				var label = e.target.nextElementSibling;
+			methods: {
+				submitData() {
+					// submit user data
 
-				if (files.length != undefined && files.length != 0)
-					if (files.length > 1)
-						label.textContent = 'Uploaded ' + files.length + ' files';
-					else
-						label.textContent = files[0].name;
-			},
-			handleSubmit()
-			{
-				// idk what this is. if i remove it things break
-			},
-			removeData(index)
-			{
-				this.dataRows.splice(index, 1);
-			},
-			addData()
-			{
-				var elem = document.createElement('tr');
-				this.dataRows.push({
-				  endpoint: "",
-				  container: "",
-				  dataset: ""
-				});
-			},
-			getStatusFromBackend()
-			{
-				const path = '/api/job_status';
-				axios.get(path)
-				  .then(response => {
-				  	this.jobStatus = response.data.status
-				  })
-				  .catch(error => {
-				  	console.log(error)
-					})
+					new Date;
+					var ID = Date.now();
 
+					this.ID = ID;
+
+					const response =
+						{
+							"protocol": this.protocol,
+							"ID": ID,
+							"config":
+								{
+									"dataRows": this.dataRows
+								}
+						};
+
+					const path = "/api/submit";
+
+					axios.post(path, response)
+						.then(function (response) {
+							console.log(response);
+						})
+						.catch(function (error) {
+							console.log(error);
+						});
+				},
+				onFileChange(e) {
+					var files = e.target.files || e.dataTransfer.files;
+					console.log(files[0]);
+					this.protocol = files[0];
+				},
+				handleSubmit() {
+					// idk what this is. if i remove it things break
+				},
+				removeData(index) {
+					this.dataRows.splice(index, 1);
+				},
+				addData() {
+					this.dataRows.push({
+						endpoint: "",
+						container: "",
+						dataset: ""
+					});
+				},
+				getStatusFromBackend() {
+					const path = '/api/job_status';
+
+					const response =
+						{
+							"ID": this.ID
+						};
+
+					axios.post(path, response)
+						.then(response => {
+							this.jobStatus = response.data.status
+						})
+						.catch(error => {
+							console.log(error)
+						})
+				}
 			}
 		}
-	}
 </script>
