@@ -234,12 +234,60 @@
 
 	export default {
 
-			name: 'InputFiles',
-			data() {
-				return {
-					dataRows: [{endpoint: "", container: "", dataset: ""}],
-					jobStatus: ""
-				}
+        name: 'InputFiles',
+        data() {
+          return {
+						dataRows: [{endpoint: "", container: "", dataset: ""}],
+						jobStatus: ""
+					}
+		},
+		methods: {
+			submitData()
+			{
+				// submit user data
+				const obj =
+				  {
+					"config":
+					  {
+                        "dataRows": this.dataRows
+					  }
+				  };
+
+                var filename = this.filename;
+                console.log(filename);
+				const path = "/api/submit";
+
+                const json = JSON.stringify(obj);
+                const blob = new Blob([json], {
+                  type: 'application/json'
+                });
+
+
+                const data = new FormData();
+                data.append(filename, blob);
+                axios({
+                  method: 'post',
+                  url: path,
+                  data: data,
+                }).then(function(response){console.log(response);})
+				  .catch(function(error){console.log(error);});
+
+			},
+			onFileChange(e){
+				var files = e.target.files || e.dataTransfer.files;
+                this.filename = files[0].name;
+
+			//	var label = e.target.nextElementSibling;
+
+			//	if (files.length != undefined && files.length != 0)
+			//		if (files.length > 1)
+			//			label.textContent = 'Uploaded ' + files.length + ' files';
+			//		else
+			//			label.textContent = files[0].name;
+			},
+			handleSubmit()
+			{
+				// idk what this is. if i remove it things break
 			},
 			methods: {
 				submitData() {
