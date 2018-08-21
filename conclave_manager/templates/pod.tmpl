@@ -48,6 +48,10 @@
                     {
                         "name": "config-volume",
                         "mountPath": "/etc/config"
+                    },
+                    {
+                        "name": "data-volume",
+                        "mountPath": "/data"
                     }
                 ]
             }
@@ -71,6 +75,10 @@
                         }
                     ]
                 }
+            },
+            {
+                "name": "data-volume",
+                "emptyDir": {}
             }
         ]
     }

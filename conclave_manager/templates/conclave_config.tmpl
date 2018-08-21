@@ -4,8 +4,8 @@ all_pids: [{{{ALL_PIDS}}}]
 workflow_name: {{{WORKFLOW_NAME}}}
 use_swift: true
 
-input_path: /app/input_data/
-output_path: /app/input_data/
+input_path: /data/
+output_path: /data/
 code_path: /app/code/
 
 # SPARK
@@ -29,7 +29,7 @@ net:
   parties:
 {{{NET_CONFIG}}}
 
-# SWIFT [TODO]
+# SWIFT
 swift:
   source:
     AUTHORIZATION:
