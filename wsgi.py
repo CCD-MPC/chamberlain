@@ -1,14 +1,14 @@
 import logging
 import os
-import time
-
-import conclave_manager
 
 from flask import Flask
 from flask import request
 from flask import render_template
 from flask import jsonify
 from flask_cors import CORS
+
+from conclave_manager import ConclaveManager
+from conclave_manager.status import CheckStatus
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 
@@ -34,15 +34,24 @@ def catch_all(path):
     return render_template("index.html")
 
 
-@app.route('/api/job_status')
-def job_status(status=None):
+@app.route('/api/job_status', methods=['POST'])
+def job_status():
     """
     After querying status of Conclave job, send response to frontend.
     TODO: make status response meaningful
+
+    OUTLINE:
+        When user hits 'Compute', they'll be given an ID that they can use to query the status of
+        Jobs. The ConclaveManager class will be instantiated with an ID.
+
     """
 
-    if status is None:
-        status = 'everything ok'
+    msg = request.get_json(force=True)
+
+    if msg:
+        status = CheckStatus(app, msg["ID"])
+    else:
+        status = "You do not have a Compute ID. Submit a job to obtain one."
 
     response = \
         {
@@ -57,12 +66,20 @@ def submit():
 
     if request.method == 'POST':
 
-        app.logger.info("JSON received: {}".format(request.get_json(force=True)))
+        config = request.get_json(force=True)
+        compute_id = config["ID"]
 
-        cc_manager = conclave_manager.ConclaveManager(request.get_json(force=True), app)
-        cc_manager.run()
+        app.logger.info("JSON received: {}".format(config))
 
-        return "OK"
+        cc_manager = ConclaveManager(request.get_json(force=True), app, compute_id)
+        # cc_manager.run()
+
+        response = \
+            {
+                "ID": compute_id
+            }
+
+        return jsonify(response)
 
 
 if __name__ == "__main__":
