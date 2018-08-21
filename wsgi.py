@@ -65,7 +65,6 @@ def job_status():
 def submit():
 
     if request.method == 'POST':
-<<<<<<< HEAD
 
         config = request.get_json(force=True)
         compute_id = config["ID"]
@@ -80,14 +79,12 @@ def submit():
                 "ID": compute_id
             }
 
-        return jsonify(response)
-=======
         filename = list(request.files.keys())[0].strip().split("\n")
         file = request.files[filename[0]]
         if file:
             file.save(os.path.join("/app/", "protocol.py"))
-            return "OK"
->>>>>>> c10f53ac8fbe83edd54daedcba3fe831c4d602dc
+
+        return jsonify(response)
 
 
 if __name__ == "__main__":
