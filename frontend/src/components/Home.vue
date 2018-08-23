@@ -38,22 +38,22 @@
 						</table>
 					</div>
 				</div>
-				<div class="FormStep" id="submit">
-					<div class="formTitle">
-						<h1>Step 2: Upload a Protocol & Submit</h1>
-					</div>
-                    <div id="protocolButton">
-                        <input style = 'margin-left: 10px' class="button is-pulled-left" id="protocol" type="file" @change="onFileChange">
-                    </div>
-					<div id = 'submitButton'>
-						<button style = 'margin-left: 10px' class="button" type="submit" @click="submitData">Compute</button>
-                        <div> Your Compute ID: {{ ID }}</div>
-					</div>
-				</div>
-				<div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
-					<button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
-					<p>Job Status: {{ jobStatus }} </p>
-				</div>
+              <div class="FormStep" id="submit">
+                  <div class="formTitle">
+                      <h1>Step 2: Upload a Protocol & Submit</h1>
+                  </div>
+                  <div id="protocolButton">
+                      <input style = 'margin-left: 10px' class="button is-pulled-left" id="protocol" type="file" @change="onFileChange">
+                  </div>
+                  <div id = 'submitButton'>
+                      <button style = 'margin-left: 10px' class="button" type="submit" @click="submitData">Compute</button>
+                      <div> Your Compute ID: {{ ID }}</div>
+                  </div>
+              </div>
+              <div class = 'FormStep' style = 'border-bottom: none; padding-top: 20px'>
+                  <button class="button btn-primary is-pulled-right" @click="getStatusFromBackend">Check Status</button>
+                  <p>Job Status: {{ jobStatus }} </p>
+              </div>
 		  </div>
 	  </form>
   </div>
@@ -225,6 +225,8 @@
 			display: flex;
 		}
 	}
+
+
 </style>
 
 
@@ -232,100 +234,89 @@
 <script type="text/javascript">
 	import axios from 'axios'
 
+    var contents;
+
 	export default {
 
-			name: 'InputFiles',
-			data() {
-				return {
-					dataRows: [{endpoint: "", container: "", dataset: ""}],
-					jobStatus: ""
-				}
+		name: 'InputFiles',
+		data() {
+			return {
+				dataRows: [{endpoint: "", container: "", dataset: ""}],
+                jobStatus: "",
+                ID: "",
+                protocol: ""
+			}
+		},
+		methods: {
+			submitData()
+			{
+              new Date;
+              var ID = Date.now();
+
+              this.ID = ID;
+
+              const response =
+                {
+                  "protocol": contents,
+                  "ID": ID,
+                  "config":
+                    {
+                      "dataRows": this.dataRows
+                    }
+                };
+
+              const path = "/api/submit";
+
+              axios.post(path, response)
+                .then(function(response){console.log(response);})
+                .catch(function(error){console.log(error);});
+
 			},
-			methods: {
-				submitData() {
-					// submit user data
-					new Date;
-					var ID = Date.now();
+			onFileChange(e){
+				const file = e.target.files[0];
+				const reader = new FileReader();
 
-					this.ID = ID;
+				reader.onload = function(e) {
+					contents = e.target.result;
+                    return contents;
+                };
 
-					const obj =
-						{
-							"protocol": this.protocol,
-							"ID": ID,
-							"config":
-								{
-									"dataRows": this.dataRows
-								}
-						};
+				reader.readAsText(file);
 
-					var filename = this.filename;
-					console.log(filename);
-					const path = "/api/submit";
+			},
+			handleSubmit()
+			{
+				// idk what this is. if i remove it things break
+			},
+			removeData(index)
+			{
+              this.dataRows.splice(index, 1);
+			},
+			addData()
+			{
+              this.dataRows.push({
+                endpoint: "",
+                container: "",
+                dataset: ""
+              });
+			},
+			getStatusFromBackend()
+			{
+              const path = '/api/job_status';
 
-					const json = JSON.stringify(obj);
-					const blob = new Blob([json], {
-						type: 'application/json'
-					});
+              const response =
+                {
+                  "ID": this.ID
+                };
 
-
-					const data = new FormData();
-					data.append(filename, blob);
-					axios({
-						method: 'post',
-						url: path,
-						data: data,
-					}).then(function (response) {
-						console.log(response);
-					})
-						.catch(function (error) {
-							console.log(error);
-						});
-
-				},
-				onFileChange(e) {
-					var files = e.target.files || e.dataTransfer.files;
-					this.filename = files[0].name;
-				},
-				handleSubmit() {
-					// idk what this is. if i remove it things break
-				},
-				methods: {
-					onFileChange(e) {
-						var files = e.target.files || e.dataTransfer.files;
-						console.log(files[0]);
-						this.protocol = files[0];
-					},
-					handleSubmit() {
-						// idk what this is. if i remove it things break
-					},
-					removeData(index) {
-						this.dataRows.splice(index, 1);
-					},
-					addData() {
-						this.dataRows.push({
-							endpoint: "",
-							container: "",
-							dataset: ""
-						});
-					},
-					getStatusFromBackend() {
-						const path = '/api/job_status';
-
-						const response =
-							{
-								"ID": this.ID
-							};
-
-						axios.post(path, response)
-							.then(response => {
-								this.jobStatus = response.data.status
-							})
-							.catch(error => {
-								console.log(error)
-							})
-					}
-				}
+              axios.post(path, response)
+                .then(response => {
+                  this.jobStatus = response.data.status
+                })
+                .catch(error => {
+                  console.log(error)
+                })
 			}
 		}
+	}
 </script>

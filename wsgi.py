@@ -72,17 +72,12 @@ def submit():
         app.logger.info("JSON received: {}".format(config))
 
         cc_manager = ConclaveManager(request.get_json(force=True), app, compute_id)
-        # cc_manager.run()
+        cc_manager.run()
 
         response = \
             {
                 "ID": compute_id
             }
-
-        filename = list(request.files.keys())[0].strip().split("\n")
-        file = request.files[filename[0]]
-        if file:
-            file.save(os.path.join("/app/", "protocol.py"))
 
         return jsonify(response)
 
