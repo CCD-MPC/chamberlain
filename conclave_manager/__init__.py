@@ -54,12 +54,10 @@ class ConclaveManager:
 
     def load_protocol(self):
         """
-        TODO: Will later load this from self.protocol_config.protocol
+        Load protocol from protocol_config and log result.
         """
 
-        mock_data_directory = "{}/mock_data".format(os.path.dirname(os.path.realpath(__file__)))
-        protocol = open("{}/protocol.py".format(mock_data_directory)).read()
-
+        protocol = self.protocol_config['protocol']
         self.app.logger.info("CC Protocol:\n{}".format(protocol))
 
         return protocol
@@ -81,12 +79,12 @@ class ConclaveManager:
                 .format(str(len(all_pids))))
 
         '''
-        for each submitted dataset, create a ComputeParty
-        
         TODO: will need to resolve ownership between datasets, and 
         create a compute party for each unique data owner (i.e. - 
-        case when a single party owns more than one dataset).
+        case when a single party owns more than one dataset). No 
+        point in doing this until we incorporate the DataVerse API, though.
         '''
+
         for i in all_pids:
             compute_parties.append(
                 ComputeParty(
