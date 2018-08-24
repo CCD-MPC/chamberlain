@@ -2,7 +2,8 @@
 *.pyc
 backend/venv
 frontend/node_modules
-dist/node_modules
+dist/
 .vscode
 dist/
 .idea/
+__pycache__
