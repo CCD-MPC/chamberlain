@@ -2,8 +2,8 @@ import os
 
 from time import sleep
 
-from conclave_manager.jiff_server import JiffServer
-from conclave_manager.compute_party import ComputeParty
+from src.conclave_manager import JiffServer
+from src.conclave_manager.compute_party import ComputeParty
 
 
 class ConclaveManager:
@@ -41,16 +41,6 @@ class ConclaveManager:
                 sleep(5)
 
         return ip
-
-    def query_pod_status(self):
-        """
-        Need some kind of protocol for querying status of all pods and deleting
-        all object associated with them once they have status "Completed". API
-        for necessary function is here:
-        https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/CoreV1Api.md#read_namespaced_pod_status
-        """
-
-        return
 
     def load_protocol(self):
         """

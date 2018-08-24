@@ -6,14 +6,24 @@ from flask import request
 from flask import render_template
 from flask import jsonify
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 
-from conclave_manager import ConclaveManager
-from conclave_manager.status import CheckStatus
+from src.conclave_manager import ConclaveManager
+from src.conclave_manager.status import CheckStatus
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 
 # CORS to allow status calls from backend to frontend
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# database
+db = SQLAlchemy(app)
+
+
+class ConclaveDb(db.Model):
+    __tablename__ = 'Jobs'
+    job_id = db.column('job_id', db.Integer, primary_key=True)
+    num_parties = db.column('parties', db.Integer)
 
 
 if __name__ != "__main__":
@@ -38,15 +48,15 @@ def catch_all(path):
 def job_status():
     """
     After querying status of Conclave job, send response to frontend.
-    TODO: make status response meaningful
 
     OUTLINE:
         When user hits 'Compute', they'll be given an ID that they can use to query the status of
-        Jobs. The ConclaveManager class will be instantiated with an ID.
-
+        Jobs.
     """
 
     msg = request.get_json(force=True)
+
+    app.logger.info("Status request received for Job with ID {}".format(msg["ID"]))
 
     if msg:
         status = CheckStatus(app, msg["ID"])
