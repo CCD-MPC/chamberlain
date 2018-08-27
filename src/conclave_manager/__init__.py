@@ -2,7 +2,7 @@ import os
 
 from time import sleep
 
-from src.conclave_manager import JiffServer
+from src.conclave_manager.jiff_server import JiffServer
 from src.conclave_manager.compute_party import ComputeParty
 
 
@@ -11,13 +11,13 @@ class ConclaveManager:
     Generates and launches JiffServer & ComputeParty objects
     """
 
-    def __init__(self, json_data, app, compute_id):
+    def __init__(self, json_data, app):
 
         self.app = app
         self.protocol_config = json_data
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
-        self.timestamp = compute_id
+        self.timestamp = json_data["ID"]
         self.jiff_server = JiffServer(app, self.timestamp)
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
