@@ -11,7 +11,7 @@ from base64 import b64encode
 class ComputeParty:
     """
     Represents one party in a computation.
-    Generates all Kubernetes template files.
+    Generates all Kubernetes objects.
     """
 
     def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data, jiff_server_ip):
@@ -39,7 +39,7 @@ class ComputeParty:
         Will obviously need to be generalized in the future.
         """
 
-        params = {}
+        params = dict()
 
         params["auth_url"] = open("/etc/config/auth_url", "r").read()
         params["proj_domain"] = open("/etc/config/proj_domain", "r").read()

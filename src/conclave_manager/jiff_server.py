@@ -10,7 +10,7 @@ from kubernetes.client.rest import ApiException
 
 class JiffServer:
     """
-    Generates and launches server for ComputeParty objects to run Jiff jobs over.
+    Generates and launches a Jiff server.
     """
 
     def __init__(self, app, timestamp):
@@ -80,7 +80,7 @@ class JiffServer:
 
     def define_pod(self):
         """
-        Populate Jiff Server Pod template.
+        Populate JiffServer Pod template.
         """
 
         params = \
@@ -96,7 +96,7 @@ class JiffServer:
 
     def define_service(self):
         """
-        Populate Service template for Jiff Server Service
+        Populate Service template for JiffServer Service
         """
 
         params = \
