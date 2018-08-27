@@ -35,6 +35,7 @@ def check_pod_status(job_id, num_parties, app):
     for p in pods:
         try:
             status = kube_client.read_namespaced_pod_status(p, "cici", pretty="true")
+            app.logger.info("Status for {0}: {1}".format(p, status))
             statuses.append(status)
         except ApiException as e:
             app.logger.error("Error checking status for Pod {0}: {1}".format(p, e))
