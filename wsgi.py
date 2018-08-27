@@ -7,32 +7,32 @@ from flask import render_template
 from flask import jsonify
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 from src.conclave_manager import ConclaveManager
-from src.conclave_manager.status import CheckStatus
+from src.db.status import check_status
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
-
-# CORS to allow status calls from backend to frontend
+app.config.from_pyfile('src/db/db.cfg')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-
-# database
 db = SQLAlchemy(app)
 
 
-class ConclaveDb(db.Model):
+class ConclaveJob(db.Model):
+    """
+    Extends SQLAlchemy Model class, represents a running Conclave Job.
+    """
+
     __tablename__ = 'Jobs'
-    job_id = db.column('job_id', db.Integer, primary_key=True)
-    num_parties = db.column('parties', db.Integer)
+    job_id = db.Column('job_id', db.Integer, primary_key=True)
+    parties = db.Column('parties', db.Integer)
+    pub_date = db.Column('pub_date', db.DateTime)
 
+    def __init__(self, job_id, parties):
 
-if __name__ != "__main__":
-    """
-    Bind Python logs to gunicorn logger.
-    """
-    gunicorn_logger = logging.getLogger("gunicorn.error")
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+        self.job_id = job_id
+        self.num_parties = parties
+        self.pub_date = datetime.utcnow()
 
 
 @app.route('/', defaults={'path': ''})
@@ -47,11 +47,7 @@ def catch_all(path):
 @app.route('/api/job_status', methods=['POST'])
 def job_status():
     """
-    After querying status of Conclave job, send response to frontend.
-
-    OUTLINE:
-        When user hits 'Compute', they'll be given an ID that they can use to query the status of
-        Jobs.
+    Query status of Conclave job, send response to frontend.
     """
 
     msg = request.get_json(force=True)
@@ -59,7 +55,7 @@ def job_status():
     app.logger.info("Status request received for Job with ID {}".format(msg["ID"]))
 
     if msg:
-        status = CheckStatus(app, msg["ID"])
+        status = check_status(app, msg)
     else:
         status = "You do not have a Compute ID. Submit a job to obtain one."
 
@@ -73,26 +69,43 @@ def job_status():
 
 @app.route('/api/submit', methods=['POST'])
 def submit():
+    """
+    Enter CC Job data into DB & submit CC Job.
+    """
 
     if request.method == 'POST':
 
         config = request.get_json(force=True)
-        compute_id = config["ID"]
 
         app.logger.info("JSON received: {}".format(config))
 
-        cc_manager = ConclaveManager(request.get_json(force=True), app, compute_id)
+        cc_job = ConclaveJob(config["ID"], len(config['config']['dataRows']))
+        db.session.add(cc_job)
+        db.session.commit()
+
+        cc_manager = ConclaveManager(config, app)
         cc_manager.run()
 
         response = \
             {
-                "ID": compute_id
+                "ID": config["ID"]
             }
 
         return jsonify(response)
 
 
+if __name__ != "__main__":
+    """
+    Bind Python logs to gunicorn logger.
+    """
+
+    gunicorn_logger = logging.getLogger("gunicorn.error")
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
+
 if __name__ == "__main__":
+
+    db.create_all()
 
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
