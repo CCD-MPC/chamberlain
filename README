@@ -8,8 +8,8 @@ npm install
 npm run build
 cd ..
 
-source backend/venv/bin/activate
+source backend/versions/bin/activate
+(venv) pip install -r requirements.txt
 
 (venv) gunicorn -c config.py wsgi:app
-
 ```
