@@ -64,7 +64,6 @@ class ComputeParty:
     def gen_conclave_config(self):
         """
         Generate CC Config yaml.
-
         """
 
         net_str = self.gen_net_config()

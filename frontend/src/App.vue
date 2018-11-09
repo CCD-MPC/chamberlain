@@ -5,15 +5,15 @@
         <img id = 'icon' src = '../assets/blueHatCICI.png'>
       </div>
       <div id="navbar-items" role='navigation' aria-label='main navigation'>
-        <div id="navbar-itemWrapper"> 
+        <div id="navbar-itemWrapper">
           <div class="linkWrapper">
-            <router-link id="navbar-item" to="/" exact>
-              Home
+            <router-link class="navbar-item" to="/" exact>
+                Home
             </router-link>
           </div>
           <div class="linkWrapper">
-            <router-link id="navbar-item" to="/about" >
-              About
+            <router-link class="navbar-item" to="/about" exact>
+                About
             </router-link>
           </div>
         </div>
@@ -47,15 +47,14 @@ export default {
   #icon {
     height:40px;
   }
-  
+
   #navbar {
-    background-color: #030303; 
+    background-color: #030303;
     display: flex;
     color:#0088ce;
   }
-  
+
   #navbar-items{
-   
     display:flex;
     justify-content:right;
     margin-left: auto;
@@ -64,22 +63,22 @@ export default {
   #navbar-itemWrapper{
     flex-grow: 1;
     display: flex;
-    
   }
+
   .linkWrapper{
     display: flex;
     flex-direction: column;
     justify-content: center;
+      padding-left: 10px;
+      padding-right: 10px;
   }
-  #navbar-item{
+  .navbar-item{
     font-family: 'overpass-light';
-    
     padding-left: 10px;
     padding-right: 10px;
   }
   #navbar-item:focus{
     color: #00659c;
   }
-
 
 </style>
