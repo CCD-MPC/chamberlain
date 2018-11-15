@@ -1,0 +1,17 @@
+{
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata":
+    {
+        "name": "swift-cfg",
+        "namespace": "{{{NAMESPACE}}}"
+    },
+    "data":
+    {
+        "osAuthUrl": "{{{OSAUTHURL}}}",
+        "osProjectDomain": "{{{OSPROJDOMAIN}}}",
+        "osProjectName": "{{{OSPROJNAME}}}",
+        "username": "{{{USERNAME}}}",
+        "password": "{{{PASSWORD}}}"
+    }
+}
