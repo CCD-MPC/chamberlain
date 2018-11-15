@@ -18,21 +18,26 @@ class ConclaveWebInstaller:
         - create DB vol (pending persistent volume creation on DC)
     """
 
-    def __init__(self, with_swift=True):
+    def __init__(self, with_swift=True, with_vol=False):
 
         self.config = self.load_config()
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
 
         self.with_swift = with_swift
+        self.with_vol = with_vol
 
         self.sa_body = self.define_service_account()
         self.swift_config_map_body = self.define_swift_config_map()
         self.deployment_body = self.define_deployment_config()
         self.service_body = self.define_service()
         self.route_body = self.define_route()
+        self.db_body = self.define_db()
 
     @staticmethod
     def load_config():
+        """
+        Load config file
+        """
 
         with open("{}/conf/conf.json".format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
             conf = json.load(f)
@@ -77,14 +82,29 @@ class ConclaveWebInstaller:
         return ast.literal_eval(rendered)
 
     def define_service(self):
+        """
+        Load Service JSON
+        """
 
         data = open("{}service.tmpl".format(self.template_directory), 'r').read()
 
         return ast.literal_eval(data)
 
     def define_route(self):
+        """
+        Load Route JSON
+        """
 
         data = open("{}route.tmpl".format(self.template_directory), 'r').read()
+
+        return ast.literal_eval(data)
+
+    def define_db(self):
+        """
+        Load PersistentVolumeClaim
+        """
+
+        data = open("{}db_vol.tmpl".format(self.template_directory), 'r').read()
 
         return ast.literal_eval(data)
 
@@ -97,7 +117,11 @@ class ConclaveWebInstaller:
             "NAMESPACE": self.config["namespace"]
         }
 
-        data_template = open("{}deployment_config.tmpl".format(self.template_directory), 'r').read()
+        if self.with_vol:
+            data_template = open("{}deployment_config.tmpl".format(self.template_directory), 'r').read()
+        else:
+            data_template = open("{}deployment_config_with_db.tmpl".format(self.template_directory), 'r').read()
+
         rendered = pystache.render(data_template, data_params)
 
         return ast.literal_eval(rendered)
@@ -111,6 +135,14 @@ class ConclaveWebInstaller:
 
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
+
+        if self.with_vol:
+            try:
+                vol = os_client.resources.get(api_version='v1', kind="PersistentVolumeClaim")
+                api_response = vol.create(namespace=self.config['namespace'], body=self.db_body)
+                print("Created DB: \n {}\n".format(api_response))
+            except DynamicApiError as e:
+                print("Error creating DB: \n{} \n".format(e))
 
         try:
             sa = os_client.resources.get(api_version='v1', kind="ServiceAccount")
