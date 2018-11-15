@@ -7,6 +7,7 @@ from kubernetes import config as k_config
 from kubernetes import client as k_client
 from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import DynamicApiError
+from subprocess import call
 
 
 class ConclaveWebInstaller:
@@ -19,7 +20,7 @@ class ConclaveWebInstaller:
 
     def __init__(self, with_swift=True):
 
-        self.config = json.load("{}/config/conf.json".format(os.path.dirname(os.path.realpath(__file__))))
+        self.config = self.load_config()
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
 
         self.with_swift = with_swift
@@ -27,6 +28,24 @@ class ConclaveWebInstaller:
         self.sa_body = self.define_service_account()
         self.swift_config_map_body = self.define_swift_config_map()
         self.deployment_body = self.define_deployment_config()
+        self.service_body = self.define_service()
+        self.route_body = self.define_route()
+
+    @staticmethod
+    def load_config():
+
+        with open("{}/conf/conf.json".format(os.path.dirname(os.path.realpath(__file__))), 'r') as f:
+            conf = json.load(f)
+
+        return conf
+
+    def create_secret(self):
+        """
+        Create generic secret from Kube config file
+        """
+
+        call(["/bin/bash", 'create_secret.sh', self.config['namespace']])
+
 
     @staticmethod
     def define_service_account():
@@ -57,6 +76,18 @@ class ConclaveWebInstaller:
 
         return ast.literal_eval(rendered)
 
+    def define_service(self):
+
+        data = open("{}service.tmpl".format(self.template_directory), 'r').read()
+
+        return ast.literal_eval(data)
+
+    def define_route(self):
+
+        data = open("{}route.tmpl".format(self.template_directory), 'r').read()
+
+        return ast.literal_eval(data)
+
     def define_deployment_config(self):
         """
         Populate DeploymentConfig template
@@ -75,6 +106,8 @@ class ConclaveWebInstaller:
         """
         Launch all objects
         """
+
+        self.create_secret()
 
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
@@ -96,9 +129,23 @@ class ConclaveWebInstaller:
         try:
             depl = os_client.resources.get(api_version='v1', kind="DeploymentConfig")
             api_response = depl.create(namespace=self.config['namespace'], body=self.deployment_body)
-            print("Create DeploymentConfig: \n{} \n".format(api_response))
+            print("Created DeploymentConfig: \n{} \n".format(api_response))
         except DynamicApiError as e:
             print("Error creating DeploymentConifg: \n{} \n".format(e))
+
+        try:
+            service = os_client.resources.get(api_version='v1', kind="Service")
+            api_response = service.create(namespace=self.config['namespace'], body=self.service_body)
+            print("Created Service: \n{} \n".format(api_response))
+        except DynamicApiError as e:
+            print("Error creating Service: \n{} \n".format(e))
+
+        try:
+            route = os_client.resources.get(api_version='v1', kind="Route")
+            api_response = route.create(namespace=self.config['namespace'], body=self.route_body)
+            print("Created Route: \n{} \n".format(api_response))
+        except DynamicApiError as e:
+            print("Error creating Route: \n{} \n".format(e))
 
         return
 

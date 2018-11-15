@@ -1,0 +1,20 @@
+{
+    "apiVersion":"v1",
+    "kind":"Route",
+    "metadata":{
+        "annotations":{
+            "openshift.io/host.generated":"true"
+        },
+        "name":"conclave-web"
+    },
+    "spec":{
+        "port":{
+            "targetPort":"8080-tcp"
+        },
+        "to":{
+            "kind":"Service",
+            "name":"conclave-web",
+            "weight":100
+        }
+    }
+}

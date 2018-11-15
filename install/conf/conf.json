@@ -1,11 +1,11 @@
 {
-  "namespace": "",
+  "namespace": "c2d",
   "swift_conf":
   {
-    "osAuthUrl": "",
-    "osProjectDomain": "",
-    "osProjectName": "",
-    "username": "",
-    "password": ""
+    "osAuthUrl": "https://kaizen.massopen.cloud:5000/v3",
+    "osProjectDomain": "default",
+    "osProjectName": "ccs-musketeer-demo",
+    "username": "bengetch@gmail.com",
+    "password": "OreoCooks12"
   }
 }
