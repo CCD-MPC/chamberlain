@@ -95,8 +95,8 @@ def submit():
         db.session.add(cc_job)
         db.session.commit()
 
-        # cc_manager = ConclaveManager(config, app)
-        # cc_manager.run()
+        cc_manager = ConclaveManager(config, app)
+        cc_manager.run()
 
         response = \
             {
