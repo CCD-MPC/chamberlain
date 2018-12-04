@@ -261,7 +261,8 @@
                   "ID": ID,
                   "config":
                     {
-                      "dataRows": this.dataRows
+                      "dataRows": [],
+                      "dataverse": this.dataRows
                     }
                 };
 
