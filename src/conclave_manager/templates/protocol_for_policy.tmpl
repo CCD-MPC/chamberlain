@@ -1,0 +1,18 @@
+import sys
+sys.path.append("/app/conclave/")
+
+import conclave.lang as sal
+from conclave.utils import *
+import conclave.dag as ccDag
+
+
+{{{PROTOCOL}}}
+
+if __name__ == "__main__":
+
+    dag = ccDag.OpDag(protocol())
+
+    """
+    TODO: policy engine code goes here -
+    TODO: might need to instead get the list of Jobs instead of the OpDag
+    """

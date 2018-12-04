@@ -1,0 +1,12 @@
+import sys
+sys.path.append("/app/conclave/")
+
+import conclave.lang as sal
+from conclave.utils import *
+from conclave import workflow
+
+
+{{{PROTOCOL}}}
+
+if __name__ == "__main__":
+    workflow.run(protocol)
