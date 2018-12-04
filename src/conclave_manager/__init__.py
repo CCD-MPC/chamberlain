@@ -58,10 +58,23 @@ class ConclaveManager:
         """
 
         server_ip = self.query_jiff_server()
+        use_swift = False
+        use_dv = False
 
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
-        all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
+        if len(self.protocol_config['config']['dataRows']) > 0:
+            use_swift = True
+            all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
+
+        elif len(self.protocol_config['config']['dataverse']) > 0:
+            use_dv = True
+            all_pids = list(range(1, len(self.protocol_config['dataverse']) + 1))
+
+        else:
+            self.app.logger.error("No input data endpoints passed. \n\n")
+            return None
+
         compute_parties = []
 
         self.app.logger.info(
@@ -71,28 +84,53 @@ class ConclaveManager:
         '''
         TODO: will need to resolve ownership between datasets, and 
         create a compute party for each unique data owner (i.e. - 
-        case when a single party owns more than one dataset). No 
-        point in doing this until we incorporate the DataVerse API, though.
+        case when a single party owns more than one dataset).
+        
+        Might be able to resolve via aliases in the metadata for
+        DV endpoints.
         '''
 
-        for i in all_pids:
-            compute_parties.append(
-                ComputeParty(
-                    i,
-                    all_pids,
-                    self.timestamp,
-                    self.protocol,
-                    self.app,
-                    self.protocol_config['config']['dataRows'][i-1],
-                    server_ip)
-            )
+        if use_swift:
+            for i in all_pids:
+                compute_parties.append(
+                    ComputeParty(
+                        i,
+                        all_pids,
+                        self.timestamp,
+                        self.protocol,
+                        self.app,
+                        self.protocol_config['config']['dataRows'][i-1],
+                        server_ip,
+                        "swift")
+                )
+
+        elif use_dv:
+            for i in all_pids:
+                compute_parties.append(
+                    ComputeParty(
+                        i,
+                        all_pids,
+                        self.timestamp,
+                        self.protocol,
+                        self.app,
+                        self.protocol_config['dataverse'][i-1],
+                        server_ip,
+                    )
+                )
 
         return compute_parties
 
     def run(self):
         """
-        Wraps main class methods.
+        Launch all ComputeParty objects, if they exist.
         """
+
+        if self.compute_parties is None:
+            self.app.logger.error(
+                "No compute parties, nothing to run. \n "
+                "This likely means that no endpoints for input "
+                "data were passed to the ConclaveManager.")
+            return
 
         self.app.logger.info(
             "Launching Conclave pods for the following compute parties:\n{}"
