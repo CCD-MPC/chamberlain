@@ -14,24 +14,56 @@ class ComputeParty:
     Generates all Kubernetes objects.
     """
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app, swift_data, jiff_server_ip):
+    def __init__(self, pid, all_pids, timestamp, protocol, app, endpoints, jiff_server_ip, data_source="dv"):
 
         self.pid = pid
         self.all_pids = all_pids
         self.timestamp = timestamp
         self.app = app
-        self.swift_data = swift_data
+        self.endpoints = endpoints
         self.jiff_server_ip = jiff_server_ip
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
-        self.protocol = b64encode(protocol.encode()).decode()
+        self.protocol = "\n".join("\t" + l for l in protocol.split("\n"))
+        self.protocol_for_policy = self.gen_protocol_for_policy(self.protocol)
+        self.protocol_main = self.gen_protocol_main(self.protocol)
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+
+    def gen_protocol_for_policy(self, protocol):
+        """
+        Generate protocol code that gets passed to the policy engine.
+        """
+
+        params = {
+            "PROTOCOL": protocol
+        }
+
+        data_template = open("{}/protocol_for_policy.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return b64encode(rendered.encode()).decode()
+
+    def gen_protocol_main(self, protocol):
+        """
+        Generate protocol code that will be executed if the workflow passes the policy engine.
+        """
+
+        params = {
+            "PROTOCOL": protocol
+        }
+
+        data_template = open("{}/protocol_main.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return b64encode(rendered.encode()).decode()
 
     def gen_swift_conf(self):
         """
@@ -51,15 +83,21 @@ class ComputeParty:
         container_name = ""
 
         # NOTE -- this assumes one input file per party and will need to be generalized
-        if self.swift_data is not None:
-            swift_str += "      - {}\n".format(self.swift_data["dataset"])
+        if self.endpoints is not None:
+            swift_str += "      - {}\n".format(self.endpoints["dataset"])
             # assumes a single container for all input files
-            container_name = self.swift_data["container"]
+            container_name = self.endpoints["container"]
 
         params["swift_data_str"] = swift_str
         params["container_name"] = container_name
 
         return params
+
+    def gen_dv_conf(self):
+
+        params = dict()
+
+
 
     def gen_conclave_config(self):
         """
@@ -123,6 +161,8 @@ class ComputeParty:
                 "NAME": name,
                 "NAMESPACE": namespace,
                 "PROTOCOL": str(self.protocol),
+                "PROTOCOL_MAIN": str(self.protocol_main),
+                "PROTOCOL_POLICY": str(self.protocol_for_policy),
                 "CONF": self.conclave_config
             }
 
