@@ -1,63 +1,96 @@
-# GENERAL
-pid: {{{PID}}}
-all_pids: [{{{ALL_PIDS}}}]
-workflow_name: {{{WORKFLOW_NAME}}}
-use_swift: true
-
-input_path: /data/
-output_path: /data/
-code_path: /app/code/
-
-# SPARK
-spark:
-  master_url: <ip>:<port>
-
-# OBLIV-C
-oblivc:
-  oc_path: /app/obliv-c/bin/oblivcc
-  ip_port: <str>:<str>
-
-# JIFF
-jiff:
-  jiff_path: /app/jiff/
-  party_count: {{{PARTY_COUNT}}}
-  server_ip: {{{SERVER_SERVICE}}}
-  server_port: 9000
-
-# NET
-net:
-  parties:
-{{{NET_CONFIG}}}
-
-# SWIFT
-swift:
-  source:
-    AUTHORIZATION:
-      osAuthUrl: {{{OS_AUTH}}}
-      username: {{{USERNAME}}}
-      password: {{{PASSWORD}}}
-    PROJECT:
-      osProjectDomain: {{{PROJ_DOMAIN}}}
-      osProjectName: {{{PROJ_NAME}}}
-    DATA:
-      container_name: {{{CONTAINER_NAME}}}
-      files:
-{{{IN_FILES}}}
-  dest:
-    AUTHORIZATION:
-      osAuthUrl: {{{OS_AUTH}}}
-      username: {{{USERNAME}}}
-      password: {{{PASSWORD}}}
-    PROJECT:
-      osProjectDomain: {{{PROJ_DOMAIN}}}
-      osProjectName: {{{PROJ_NAME}}}
-    DATA:
-      container_name: {{{CONTAINER_NAME}}}
-
-# DATAVERSE
-dataverse:
-  source:
-    hostname: {{{DV_HOST}}}
-    alias: {{{DV_ALIAS}}}
-    doi: {{{DV_DOI}}}
-
+{
+	"user_config":
+	{
+		"pid": "{{{PID}}}",
+		"all_pids": "{{{ALL_PIDS}}}"
+		,
+		"workflow_name": "{{{WORKFLOW_NAME}}}",
+		"paths":
+		{
+			"input_path": "/data/",
+			"output_path": "/data/",
+			"code_path": "/app/code"
+		}
+	},
+	"net":
+	{
+		"parties":
+		[
+			"{{{NET_CONFIG}}}"
+		]
+	},
+	"backends":
+	{
+		"spark":
+		{
+			"available": "{{{SPARK_AVAIL}}}",
+			"master_url": "<ip:port>"
+		},
+		"oblivc":
+		{
+			"available": "{{{OC_AVAIL}}}",
+			"oc_path": "/app/obliv-c/bin/oblivcc",
+			"ip_port": "<str>:<str>"
+		},
+		"jiff":
+		{
+			"jiff_path": "/app/jiff/",
+			"party_count": "{{{PARTY_COUNT}}}",
+			"server_ip": "{{{SERVER_SERVICE}}}",
+			"server_port": 9000
+		}
+	},
+	"data":
+	{
+		"data_backend": "{{{DATA_BACKEND}}}",
+		"swift":
+		{
+			"source":
+			{
+				"auth":
+				{
+					"osAuthUrl": "{{{OS_AUTH}}}",
+					"username": "{{{USERNAME}}}",
+					"password": "{{{PASSWORD}}}"
+				},
+				"project":
+				{
+					"osProjectDomain": "{{{PROJ_DOMAIN}}}",
+					"osProjectName": "{{{PROJ_NAME}}}"
+				},
+				"data":
+				{
+					"container_name": "{{{SOURCE_CONTAINER_NAME}}}",
+					"files": "{{{IN_FILES}}}"
+				}
+			},
+			"dest":
+			{
+				"auth":
+				{
+					"osAuthUrl": "{{{OS_AUTH}}}",
+					"username": "{{{USERNAME}}}",
+					"password": "{{{PASSWORD}}}"
+				},
+				"project":
+				{
+					"osProjectDomain": "{{{PROJ_DOMAIN}}}",
+					"osProjectName": "{{{PROJ_NAME}}}"
+				},
+				"data":
+				{
+					"container_name": "{{{DEST_CONTAINER_NAME}}}"
+				}
+			}
+		},
+		"dataverse":
+		{
+			"source":
+			{
+				"hostname": "{{{DV_HOST}}}",
+				"alias": "{{{DV_ALIAS}}}",
+				"doi": "{{{DV_DOI}}}"
+			}
+		}
+	}
+}
