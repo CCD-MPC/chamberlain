@@ -68,7 +68,7 @@ class ComputeParty:
     def gen_swift_conf(self):
         """
         Loads Swift config using my credentials mounted on the pod via a ConfigMap.
-        Will obviously need to be generalized in the future.
+        Will need to be generalized in the future.
         """
 
         params = dict()
@@ -96,8 +96,6 @@ class ComputeParty:
     def gen_dv_conf(self):
 
         params = dict()
-
-
 
     def gen_conclave_config(self):
         """
