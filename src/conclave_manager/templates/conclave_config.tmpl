@@ -2,7 +2,7 @@
 	"user_config":
 	{
 		"pid": "{{{PID}}}",
-		"all_pids": "{{{ALL_PIDS}}}"
+		"all_pids": {{{ALL_PIDS}}}
 		,
 		"workflow_name": "{{{WORKFLOW_NAME}}}",
 		"paths":
@@ -14,23 +14,20 @@
 	},
 	"net":
 	{
-		"parties":
-		[
-			"{{{NET_CONFIG}}}"
-		]
+		"parties": {{{NET_CONFIG}}}
 	},
 	"backends":
 	{
 		"spark":
 		{
 			"available": "{{{SPARK_AVAIL}}}",
-			"master_url": "<ip:port>"
+			"master_url": "{{{SPARK_IP_PORT}}}"
 		},
 		"oblivc":
 		{
 			"available": "{{{OC_AVAIL}}}",
 			"oc_path": "/app/obliv-c/bin/oblivcc",
-			"ip_port": "<str>:<str>"
+			"ip_port": "{{{OC_IP_PORT}}}"
 		},
 		"jiff":
 		{
@@ -61,7 +58,7 @@
 				"data":
 				{
 					"container_name": "{{{SOURCE_CONTAINER_NAME}}}",
-					"files": "{{{IN_FILES}}}"
+					"files": "{{{SWIFT_FILE}}}"
 				}
 			},
 			"dest":
@@ -85,11 +82,21 @@
 		},
 		"dataverse":
 		{
+			"auth":
+			{
+				"host": "{{{DV_HOST}}}",
+				"token": "{{{DV_TOKEN}}}"
+			},
 			"source":
 			{
-				"hostname": "{{{DV_HOST}}}",
-				"alias": "{{{DV_ALIAS}}}",
-				"doi": "{{{DV_DOI}}}"
+				"alias": "{{{SOURCE_ALIAS}}}",
+				"doi": "{{{SOURCE_DOI}}}",
+				"files": "{{{DV_FILE}}}"
+			},
+			"dest":
+			{
+				"author": "{{{OUTPUT_AUTHOR}}}",
+				"alias": "{{{DEST_ALIAS}}}"
 			}
 		}
 	}
