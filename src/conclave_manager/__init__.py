@@ -58,17 +58,16 @@ class ConclaveManager:
         """
 
         server_ip = self.query_jiff_server()
-        use_swift = False
-        use_dv = False
+        data_backend = ''
 
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
         if len(self.protocol_config['config']['dataRows']) > 0:
-            use_swift = True
+            data_backend = 'swift'
             all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
 
         elif len(self.protocol_config['config']['dataverse']) > 0:
-            use_dv = True
+            data_backend = 'dataverse'
             all_pids = list(range(1, len(self.protocol_config['dataverse']) + 1))
 
         else:
@@ -90,7 +89,7 @@ class ConclaveManager:
         DV endpoints.
         '''
 
-        if use_swift:
+        if data_backend == 'swift':
             for i in all_pids:
                 compute_parties.append(
                     ComputeParty(
@@ -104,7 +103,7 @@ class ConclaveManager:
                         "swift")
                 )
 
-        elif use_dv:
+        elif data_backend == 'dataverse':
             for i in all_pids:
                 compute_parties.append(
                     ComputeParty(
@@ -117,6 +116,9 @@ class ConclaveManager:
                         server_ip,
                     )
                 )
+
+        else:
+            return None
 
         return compute_parties
 
