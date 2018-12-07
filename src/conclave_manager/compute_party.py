@@ -92,6 +92,10 @@ class ComputeParty:
         return params
 
     def gen_dv_conf(self):
+        """
+        Load DV config using my credentials mounted on the pod via a ConfigMap.
+        Will need to be generalized in the future.
+        """
 
         params = dict()
 
@@ -127,6 +131,7 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": 0,
                 "OC_IP_PORT": "N/A",
+                "JIFF_AVAIL": 1,
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip,
                 "DATA_BACKEND": self.data_source,
