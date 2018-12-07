@@ -14,7 +14,7 @@ class ComputeParty:
     Generates all Kubernetes objects.
     """
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app, endpoints, jiff_server_ip, data_source="dv"):
+    def __init__(self, pid, all_pids, timestamp, protocol, app, endpoints, jiff_server_ip, data_source="dataverse"):
 
         self.pid = pid
         self.all_pids = all_pids
@@ -22,6 +22,7 @@ class ComputeParty:
         self.app = app
         self.endpoints = endpoints
         self.jiff_server_ip = jiff_server_ip
+        self.data_source = data_source
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
@@ -73,23 +74,20 @@ class ComputeParty:
 
         params = dict()
 
-        params["auth_url"] = open("/etc/config/auth_url", "r").read()
-        params["proj_domain"] = open("/etc/config/proj_domain", "r").read()
-        params["proj_name"] = open("/etc/config/proj_name", "r").read()
-        params["user_name"] = open("/etc/config/user_name", "r").read()
-        params["pass"] = open("/etc/config/pass", "r").read()
-
-        swift_str = ""
-        container_name = ""
-
-        # NOTE -- this assumes one input file per party and will need to be generalized
-        if self.endpoints is not None:
-            swift_str += "      - {}\n".format(self.endpoints["dataset"])
-            # assumes a single container for all input files
-            container_name = self.endpoints["container"]
-
-        params["swift_data_str"] = swift_str
-        params["container_name"] = container_name
+        params["auth_url"] = \
+            open("/etc/config/auth_url", "r").read() if self.data_source == 'swift' else 'N/A'
+        params["proj_domain"] = \
+            open("/etc/config/proj_domain", "r").read() if self.data_source == 'swift' else 'N/A'
+        params["proj_name"] = \
+            open("/etc/config/proj_name", "r").read() if self.data_source == 'swift' else 'N/A'
+        params["user_name"] = \
+            open("/etc/config/user_name", "r").read() if self.data_source == 'swift' else 'N/A'
+        params["pass"] = \
+            open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
+        params["swift_file"] = \
+            self.endpoints["dataset"] if self.data_source == 'swift' else 'N/A'
+        params["container_name"] = \
+            self.endpoints["container"] if self.data_source == 'swift' else "N/A"
 
         return params
 
@@ -97,36 +95,63 @@ class ComputeParty:
 
         params = dict()
 
+        params['dv_host'] = \
+            open("/etc/config/dv_host", "r").read() if self.data_source == "dataverse" else "N/A"
+        params['dv_token'] = \
+            open("/etc/config/dv_token", "r").read() if self.data_source == "dataverse" else "N/A"
+        params['dv_alias'] = \
+            self.endpoints['alias'] if self.data_source == "dataverse" else "N/A"
+        params["doi"] = \
+            self.endpoints["doi"] if self.data_source == "dataverse" else "N/A"
+        params['dv_file'] = \
+            self.endpoints["files"] if self.data_source == "dataverse" else "N/A"
+
+        return params
+
     def gen_conclave_config(self):
         """
         Generate CC Config yaml.
         """
 
-        net_str = self.gen_net_config()
+        net_list = self.gen_net_config()
         swift_params = self.gen_swift_conf()
+        dv_params = self.gen_dv_conf()
 
         params = \
             {
                 "PID": self.pid,
-                "ALL_PIDS": ", ".join(str(i) for i in self.all_pids),
+                "ALL_PIDS": self.all_pids,
                 "WORKFLOW_NAME": "conclave-{}".format(self.timestamp),
-                "NET_CONFIG": net_str,
+                "NET_CONFIG": net_list,
+                "SPARK_AVAIL": 0,
+                "SPARK_IP_PORT": "N/A",
+                "OC_AVAIL": 0,
+                "OC_IP_PORT": "N/A",
+                "PARTY_COUNT": len(self.all_pids),
+                "SERVER_SERVICE": self.jiff_server_ip,
+                "DATA_BACKEND": self.data_source,
                 "OS_AUTH": swift_params["auth_url"],
                 "USERNAME": swift_params["user_name"],
                 "PASSWORD": swift_params["pass"],
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
-                "CONTAINER_NAME": swift_params["container_name"],
-                "IN_FILES": swift_params["swift_data_str"],
-                "PARTY_COUNT": len(self.all_pids),
-                "SERVER_SERVICE": self.jiff_server_ip
+                "SOURCE_CONTAINER_NAME": swift_params["container_name"],
+                "SWIFT_FILE": swift_params["swift_files"],
+                "DEST_CONTAINER_NAME": swift_params["container_name"],
+                "DV_HOST": dv_params["dv_host"],
+                "DV_TOKEN": dv_params["dv_token"],
+                "SOURCE_ALIAS": dv_params["dv_alias"],
+                "SOURCE_DOI": dv_params["doi"],
+                "DV_FILE": dv_params["dv_files"],
+                "OUTPUT_AUTHOR": "test author",
+                "DEST_ALIAS": dv_params["dv_alias"]
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, params)
 
-        self.app.logger.info("CC YAML file:\n{}".format(rendered))
+        self.app.logger.info("CC JSON file:\n{}".format(rendered))
 
         return b64encode(rendered.encode()).decode()
 
@@ -135,16 +160,15 @@ class ComputeParty:
         Generate CC Net Config string that gets inserted into CC Config YAML.
         """
 
-        net_str = ""
+        ret_net = []
 
         for i in self.all_pids:
             if i == self.pid:
-                net_str += "      - host: 0.0.0.0\n        port: 5000\n"
+                ret_net.append({'host': '0.0.0.0', 'port': 5000})
             else:
-                net_str += "      - host: conclave-{0}-{1}-service\n        port: 5000\n" \
-                    .format(self.timestamp, str(i))
+                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.timestamp, str(i)), "port": 5000})
 
-        return net_str
+        return ret_net
 
     def define_config_map(self):
         """
