@@ -1,11 +1,16 @@
-import sys
+import argparse
 
 from install import ConclaveWebInstaller
 
-if len(sys.argv) > 1:
-    swift_param = sys.argv[1]
-else:
-    swift_param = True
 
-installer = ConclaveWebInstaller(with_swift=swift_param)
-installer.launch_all()
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser(description="Install C2D on OpenShift")
+    parser.add_argument("--swift", type=bool, default=True, required=False)
+    parser.add_argument("--dv", type=bool, default=True, required=False)
+    parser.add_argument("--vol", type=bool, default=True, required=False)
+
+    args = parser.parse_args()
+
+    installer = ConclaveWebInstaller(with_swift=args.swift, with_dv=args.dv, with_vol=args.vol)
+    installer.launch_all()
