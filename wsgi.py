@@ -17,6 +17,9 @@ app.config.from_pyfile('src/db/db.cfg')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 db = SQLAlchemy(app)
 
+"""
+TODO: should be able to check via ENV variable whether Persistent Volumes exist, and use DB if so.
+"""
 
 class ConclaveJob(db.Model):
     """
