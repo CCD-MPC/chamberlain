@@ -7,5 +7,3 @@ dist/
 dist/
 .idea/
 __pycache__
-
-/install/conf/conf.json
