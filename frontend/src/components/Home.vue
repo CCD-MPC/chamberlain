@@ -22,13 +22,13 @@
                             <tbody>
                             <tr v-for="(row, index) in dataRows">
                                 <td>
-                                    <input type="text" v-model="row.endpoint">
+                                    <input type="text" v-model="row.alias">
                                 </td>
                                 <td>
-                                    <input type="text" v-model="row.container">
+                                    <input type="text" v-model="row.doi">
                                 </td>
                                 <td>
-                                    <input type="text" v-model="row.dataset">
+                                    <input type="text" v-model="row.files">
                                 </td>
                                 <td>
                                     <a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
@@ -241,7 +241,7 @@
 		name: 'InputFiles',
 		data() {
 			return {
-				dataRows: [{endpoint: "", container: "", dataset: ""}],
+				dataRows: [{alias: "", doi: "", files: ""}],
                 jobStatus: "",
                 ID: "",
                 protocol: ""
