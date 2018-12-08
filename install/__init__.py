@@ -18,16 +18,18 @@ class ConclaveWebInstaller:
         - create DB vol (pending persistent volume creation on DC)
     """
 
-    def __init__(self, with_swift=True, with_vol=False):
+    def __init__(self, with_swift=True, with_dv=True, with_vol=False):
 
         self.config = self.load_config()
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
 
         self.with_swift = with_swift
+        self.with_dv = with_dv
         self.with_vol = with_vol
 
         self.sa_body = self.define_service_account()
         self.swift_config_map_body = self.define_swift_config_map()
+        self.dv_config_map_body = self.define_dv_config_map()
         self.deployment_body = self.define_deployment_config()
         self.service_body = self.define_service()
         self.route_body = self.define_route()
@@ -64,7 +66,7 @@ class ConclaveWebInstaller:
 
     def define_swift_config_map(self):
         """
-        Populate ConfigMap template
+        Populate Swift ConfigMap template
         """
 
         data_params = {
@@ -76,7 +78,23 @@ class ConclaveWebInstaller:
             "PASSWORD": self.config["swift_conf"]["password"]
         }
 
-        data_template = open("{}configmap.tmpl".format(self.template_directory), 'r').read()
+        data_template = open("{}swift_cfg_map.tmpl".format(self.template_directory), 'r').read()
+        rendered = pystache.render(data_template, data_params)
+
+        return ast.literal_eval(rendered)
+
+    def define_dv_config_map(self):
+        """
+        Populate Dataverse ConfigMap template
+        """
+
+        data_params = {
+            "NAMESPACE": self.config["namespace"],
+            "HOST": self.config["dataverse_conf"]["host"],
+            "TOKEN": self.config["dataverse_conf"]["token"]
+        }
+
+        data_template = open("{}dv_cfg_map.tmpl".format(self.template_directory), 'r').read()
         rendered = pystache.render(data_template, data_params)
 
         return ast.literal_eval(rendered)
@@ -151,12 +169,21 @@ class ConclaveWebInstaller:
         except DynamicApiError as e:
             print("Error creating Service Account: \n{} \n".format(e))
 
-        try:
-            config_map = os_client.resources.get(api_version='v1', kind="ConfigMap")
-            api_response = config_map.create(namespace=self.config['namespace'], body=self.swift_config_map_body)
-            print("Created Swift ConfigMap: \n{} \n".format(api_response))
-        except DynamicApiError as e:
-            print("Error creating Swift ConfigMap: \n{} \n".format(e))
+        if self.with_swift:
+            try:
+                config_map = os_client.resources.get(api_version='v1', kind="ConfigMap")
+                api_response = config_map.create(namespace=self.config['namespace'], body=self.swift_config_map_body)
+                print("Created Swift ConfigMap: \n{} \n".format(api_response))
+            except DynamicApiError as e:
+                print("Error creating Swift ConfigMap: \n{} \n".format(e))
+
+        if self.with_dv:
+            try:
+                config_map = os_client.resources.get(api_version='v1', kind="ConfigMap")
+                api_response = config_map.create(namespace=self.config['namespace'], body=self.dv_config_map_body)
+                print("Created Dataverse ConfigMap: \n{} \n".format(api_response))
+            except DynamicApiError as e:
+                print("Error creating Dataverse ConfigMap: \n{} \n".format(e))
 
         try:
             depl = os_client.resources.get(api_version='v1', kind="DeploymentConfig")
