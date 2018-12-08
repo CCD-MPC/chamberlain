@@ -63,10 +63,12 @@ class ConclaveManager:
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
         if len(self.protocol_config['config']['dataRows']) > 0:
+            self.app.logger.info("Using Swift as storage backend. \n")
             data_backend = 'swift'
             all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
 
         elif len(self.protocol_config['config']['dataverse']) > 0:
+            self.app.logger.info("Using Dataverse as storage backend. \n")
             data_backend = 'dataverse'
             all_pids = list(range(1, len(self.protocol_config['dataverse']) + 1))
 
@@ -83,7 +85,7 @@ class ConclaveManager:
         '''
         TODO: will need to resolve ownership between datasets, and 
         create a compute party for each unique data owner (i.e. - 
-        case when a single party owns more than one dataset).
+        case when a single party stores more than one dataset).
         
         Might be able to resolve via aliases in the metadata for
         DV endpoints.
