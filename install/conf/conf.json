@@ -1,0 +1,16 @@
+{
+  "namespace": "",
+  "swift_conf":
+  {
+    "osAuthUrl": "",
+    "osProjectDomain": "",
+    "osProjectName": "",
+    "username": "",
+    "password": ""
+  },
+  "dataverse_conf":
+  {
+    "host": "",
+    "token": ""
+  }
+}
