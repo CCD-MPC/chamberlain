@@ -8,4 +8,9 @@
     "username": "bengetch@gmail.com",
     "password": "OreoCooks12"
   }
+  "dataverse_conf":
+  {
+    "host": "dataverse.massopen.cloud",
+    "token": "90475024-d83b-470c-896a-2ea21c6e5f4b"
+  }
 }
