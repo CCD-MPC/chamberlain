@@ -92,7 +92,7 @@ def submit():
 
         cc_job = ConclaveJob(
             job_id=config["ID"],
-            parties=len(config['config']['dataRows']),
+            parties=len(config['config']['dataverse']),
             pub_date=datetime.utcnow()
         )
         db.session.add(cc_job)
