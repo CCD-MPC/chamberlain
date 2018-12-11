@@ -51,6 +51,11 @@
                             {
                                 "name": "db-vol",
                                 "mountPath": "/data/"
+                            },
+                            {
+                                "name":"dv-vol",
+                                "mountPath":"/etc/dv_cfg",
+                                "readOnly": True
                             }
                         ],
                         "image":"docker.io/bengetch/conclave-web:latest",
@@ -81,6 +86,10 @@
                             {
                                 "name":"OPENSHIFTMGR_PROJECT",
                                 "value":"{{{NAMESPACE}}}"
+                            },
+                            {
+                                "name":"WITH_VOL",
+                                "value":"True"
                             }
                         ]
                     }
@@ -122,6 +131,22 @@
                                 {
                                     "key":"password",
                                     "path":"pass"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name":"dv-vol",
+                        "configMap":{
+                            "name":"dv-cfg",
+                            "items":[
+                                {
+                                    "key":"host",
+                                    "path":"host"
+                                },
+                                {
+                                    "key":"token",
+                                    "path":"token"
                                 }
                             ]
                         }

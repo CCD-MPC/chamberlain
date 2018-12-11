@@ -45,7 +45,12 @@
                             },
                             {
                                 "name":"swift-vol",
-                                "mountPath":"/etc/config",
+                                "mountPath":"/etc/swift_cfg",
+                                "readOnly": True
+                            },
+                            {
+                                "name":"dv-vol",
+                                "mountPath":"/etc/dv_cfg",
                                 "readOnly": True
                             }
                         ],
@@ -77,6 +82,10 @@
                             {
                                 "name":"OPENSHIFTMGR_PROJECT",
                                 "value":"{{{NAMESPACE}}}"
+                            },
+                            {
+                                "name":"WITH_VOL",
+                                "value":"False"
                             }
                         ]
                     }
@@ -112,6 +121,22 @@
                                 {
                                     "key":"password",
                                     "path":"pass"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "name":"dv-vol",
+                        "configMap":{
+                            "name":"dv-cfg",
+                            "items":[
+                                {
+                                    "key":"host",
+                                    "path":"host"
+                                },
+                                {
+                                    "key":"token",
+                                    "path":"token"
                                 }
                             ]
                         }
