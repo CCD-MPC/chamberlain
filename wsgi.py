@@ -1,5 +1,6 @@
 import logging
 import os
+import ast
 
 from flask import Flask
 from flask import request
@@ -12,14 +13,13 @@ from datetime import datetime
 from src.conclave_manager import ConclaveManager
 from src.conclave_manager.status import check_pod_status
 
+WITH_VOL = os.getenv("WITH_VOL")
+
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 app.config.from_pyfile('src/db/db.cfg')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 db = SQLAlchemy(app)
 
-"""
-TODO: should be able to check via ENV variable whether Persistent Volumes exist, and use DB if so.
-"""
 
 class ConclaveJob(db.Model):
     """
@@ -66,7 +66,10 @@ def job_status():
     app.logger.info("Status request received for Job with ID {}".format(msg["ID"]))
 
     if msg:
-        status = check_status(msg)
+        if ast.literal_eval(WITH_VOL):
+            status = check_status(msg)
+        else:
+            status = "No DB present, can't check job status."
     else:
         status = "You do not have a Compute ID. Submit a job to obtain one."
 
@@ -90,13 +93,14 @@ def submit():
 
         app.logger.info("JSON received: {}".format(config))
 
-        cc_job = ConclaveJob(
-            job_id=config["ID"],
-            parties=len(config['config']['dataverse']),
-            pub_date=datetime.utcnow()
-        )
-        db.session.add(cc_job)
-        db.session.commit()
+        if ast.literal_eval(WITH_VOL):
+            cc_job = ConclaveJob(
+                job_id=config["ID"],
+                parties=len(config['config']['dataverse']),
+                pub_date=datetime.utcnow()
+            )
+            db.session.add(cc_job)
+            db.session.commit()
 
         cc_manager = ConclaveManager(config, app)
         cc_manager.run()
@@ -120,7 +124,8 @@ if __name__ != "__main__":
 
 if __name__ == "__main__":
 
-    db.create_all()
+    if ast.literal_eval(WITH_VOL):
+        db.create_all()
 
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
