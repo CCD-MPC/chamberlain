@@ -13,9 +13,6 @@ from subprocess import call
 class ConclaveWebInstaller:
     """
     Defines and launches all objects associated with C2D.
-
-    TODO:
-        - create DB vol (pending persistent volume creation on DC)
     """
 
     def __init__(self, with_swift=True, with_dv=True, with_vol=False):
@@ -136,9 +133,9 @@ class ConclaveWebInstaller:
         }
 
         if self.with_vol:
-            data_template = open("{}deployment_config.tmpl".format(self.template_directory), 'r').read()
-        else:
             data_template = open("{}deployment_config_with_db.tmpl".format(self.template_directory), 'r').read()
+        else:
+            data_template = open("{}deployment_config.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, data_params)
 
