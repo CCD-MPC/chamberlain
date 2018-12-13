@@ -50,7 +50,6 @@ class ConclaveWebInstaller:
 
         call(["/bin/bash", 'create_secret.sh', self.config['namespace']])
 
-
     @staticmethod
     def define_service_account():
         """

@@ -58,7 +58,6 @@ class ConclaveManager:
         """
 
         server_ip = self.query_jiff_server()
-        data_backend = ''
 
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
@@ -142,8 +141,3 @@ class ConclaveManager:
 
         for party in self.compute_parties:
             party.launch()
-
-
-
-
-
