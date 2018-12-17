@@ -64,6 +64,8 @@ class ComputeParty:
 
         rendered = pystache.render(data_template, params)
 
+        self.app.logger.info("CC protocol: \n{}".format(rendered))
+
         return b64encode(rendered.encode()).decode()
 
     def gen_swift_conf(self):
@@ -187,7 +189,6 @@ class ComputeParty:
             {
                 "NAME": name,
                 "NAMESPACE": namespace,
-                "PROTOCOL": str(self.protocol),
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),
                 "CONF": self.conclave_config
