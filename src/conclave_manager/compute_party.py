@@ -39,10 +39,14 @@ class ComputeParty:
     def gen_protocol_for_policy(self, protocol):
         """
         Generate protocol code that gets passed to the policy engine.
+
+        TODO: fetch policy and pass to template
         """
 
         params = {
-            "PROTOCOL": protocol
+            "PROTOCOL": protocol,
+            "PID": int(self.pid),
+            "POLICY": dict()
         }
 
         data_template = open("{}/protocol_for_policy.tmpl".format(self.template_directory), 'r').read()
