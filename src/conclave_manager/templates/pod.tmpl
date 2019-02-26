@@ -56,6 +56,26 @@
                 ]
             }
         ],
+        "initContainers":
+        [
+            {
+                "name": "init-{{{POD_NAME}}}",
+                "image": "docker.io/bengetch/policy-engine:latest",
+                "imagePullPolicy": "Always",
+                "command":
+                [
+                    "./run.sh"
+                ],
+                "volumeMounts":
+                [
+                    {
+                        "name": "config-volume",
+                        "mountPath": "/etc/config"
+                    }
+                ]
+            }
+
+        ],
         "volumes":
         [
             {
