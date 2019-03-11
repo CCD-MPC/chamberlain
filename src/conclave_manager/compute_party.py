@@ -14,13 +14,14 @@ class ComputeParty:
     Generates all Kubernetes objects.
     """
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app, endpoints, jiff_server_ip, data_source="dataverse"):
+    def __init__(self, pid, all_pids, timestamp, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"):
 
         self.pid = pid
         self.all_pids = all_pids
         self.timestamp = timestamp
         self.app = app
-        self.endpoints = endpoints
+        self.config = protocol_config
+        self.endpoints = protocol_config['config']['dataRows'][pid-1]
         self.jiff_server_ip = jiff_server_ip
         self.data_source = data_source
 
@@ -74,22 +75,33 @@ class ComputeParty:
 
     def gen_swift_conf(self):
         """
-        Loads Swift config using my credentials mounted on the pod via a ConfigMap.
-        Will need to be generalized in the future.
+        Loads Swift config using either default configuration data
+        or from config passed via config.swift_config, if present in the JSON.
         """
 
         params = dict()
 
-        params["auth_url"] = \
-            open("/etc/config/auth_url", "r").read() if self.data_source == 'swift' else 'N/A'
-        params["proj_domain"] = \
-            open("/etc/config/proj_domain", "r").read() if self.data_source == 'swift' else 'N/A'
-        params["proj_name"] = \
-            open("/etc/config/proj_name", "r").read() if self.data_source == 'swift' else 'N/A'
-        params["user_name"] = \
-            open("/etc/config/user_name", "r").read() if self.data_source == 'swift' else 'N/A'
-        params["pass"] = \
-            open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
+        try:
+            params["auth_url"] = self.config["swift_config"]["auth_url"]
+            params["proj_domain"] = self.config["swift_config"]["proj_domain"]
+            params["proj_name"] = self.config["swift_config"]["proj_name"]
+            params["user_name"] = self.config["swift_config"]["user_name"]
+            params["pass"] = self.config["swift_config"]["pass"]
+        except KeyError:
+            self.app.logger.info(
+                "No Swift Authorization config passed. Reading Swift project info from default configuration.\n"
+            )
+            params["auth_url"] = \
+                open("/etc/config/auth_url", "r").read() if self.data_source == 'swift' else 'N/A'
+            params["proj_domain"] = \
+                open("/etc/config/proj_domain", "r").read() if self.data_source == 'swift' else 'N/A'
+            params["proj_name"] = \
+                open("/etc/config/proj_name", "r").read() if self.data_source == 'swift' else 'N/A'
+            params["user_name"] = \
+                open("/etc/config/user_name", "r").read() if self.data_source == 'swift' else 'N/A'
+            params["pass"] = \
+                open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
+
         params["swift_file"] = \
             self.endpoints["dataset"] if self.data_source == 'swift' else 'N/A'
         params["container_name"] = \
