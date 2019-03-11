@@ -255,15 +255,16 @@
 
               this.ID = ID;
 
+              // TODO: hardcoded swift backend bc cloud dv is down, make configurable
               const response =
                 {
                   "protocol": contents,
                   "ID": ID,
+                  "backend": "swift",
                   "config":
                     {
-                      "dataRows": [],
-                      "dataverse": this.dataRows
-                    }
+                      "dataRows": this.dataRows,
+                    },
                 };
 
               const path = "/api/submit";
