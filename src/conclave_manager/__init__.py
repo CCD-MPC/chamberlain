@@ -61,15 +61,15 @@ class ConclaveManager:
 
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
-        if len(self.protocol_config['config']['dataRows']) > 0:
+        if self.protocol_config["backend"] == "swift":
             self.app.logger.info("Using Swift as storage backend. \n")
             data_backend = 'swift'
             all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
 
-        elif len(self.protocol_config['config']['dataverse']) > 0:
+        elif self.protocol_config["backend"] == "dataverse":
             self.app.logger.info("Using Dataverse as storage backend. \n")
             data_backend = 'dataverse'
-            all_pids = list(range(1, len(self.protocol_config['dataverse']) + 1))
+            all_pids = list(range(1, len(self.protocol_config["config"]['dataRows']) + 1))
 
         else:
             self.app.logger.error("No input data endpoints passed. \n\n")
@@ -99,7 +99,7 @@ class ConclaveManager:
                         self.timestamp,
                         self.protocol,
                         self.app,
-                        self.protocol_config['config']['dataRows'][i-1],
+                        self.protocol_config,
                         server_ip,
                         "swift")
                 )
@@ -113,7 +113,7 @@ class ConclaveManager:
                         self.timestamp,
                         self.protocol,
                         self.app,
-                        self.protocol_config['dataverse'][i-1],
+                        self.protocol_config,
                         server_ip,
                     )
                 )
