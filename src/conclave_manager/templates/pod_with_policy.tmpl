@@ -1,0 +1,108 @@
+{
+    "apiVersion": "v1",
+    "kind": "Pod",
+    "metadata":
+    {
+        "name": "{{{POD_NAME}}}",
+        "labels":
+        {
+            "app": "{{{POD_NAME}}}"
+        }
+    },
+    "spec":
+    {
+        "selector":
+        {
+            "app": "{{{POD_NAME}}}"
+        },
+        "restartPolicy": "Never",
+        "containers":
+        [
+            {
+                "name": "{{{POD_NAME}}}",
+                "image": "docker.io/bengetch/conclave:latest",
+                "ports":
+                [
+                    {
+                        "containerPort": 5000
+                    }
+                ],
+                "imagePullPolicy": "Always",
+                "env":
+                [
+                    {
+                        "name": "KUBECFG_PATH",
+                        "value": "/tmp/.kube/config"
+                    },
+                    {
+                        "name": "OPENSHIFTMGR_PROJECT",
+                        "value": "cici"
+                    }
+                ],
+                "command":
+                [
+                    "./run.sh"
+                ],
+                "volumeMounts":
+                [
+                    {
+                        "name": "config-volume",
+                        "mountPath": "/etc/config"
+                    },
+                    {
+                        "name": "data-volume",
+                        "mountPath": "/data"
+                    }
+                ]
+            }
+        ],
+        "initContainers":
+        [
+            {
+                "name": "init-{{{POD_NAME}}}",
+                "image": "docker.io/bengetch/policy-engine:latest",
+                "imagePullPolicy": "Always",
+                "command":
+                [
+                    "./run.sh"
+                ],
+                "volumeMounts":
+                [
+                    {
+                        "name": "config-volume",
+                        "mountPath": "/etc/config"
+                    }
+                ]
+            }
+        ],
+        "volumes":
+        [
+            {
+                "name": "config-volume",
+                "configMap":
+                {
+                    "name": "{{{CONFIGMAP_NAME}}}",
+                    "items":
+                    [
+                        {
+                            "key": "protocol_encoded",
+                            "path": "protocol"
+                        },
+                        {
+                            "key": "protocol_policy_encoded",
+                            "path": "protocol_policy"
+                        }
+                        {
+                            "key": "conf_encoded",
+                            "path": "conf"
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "data-volume",
+                "emptyDir": {}
+            }
+        ]
+    }
+}
