@@ -29,7 +29,7 @@ class ComputeParty:
         self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
 
-        self.protocol = "\n".join("\t" + l for l in protocol.split("\n"))
+        self.protocol = protocol
         self.protocol_for_policy = self.gen_protocol_for_policy(self.protocol)
         self.protocol_main = self.gen_protocol_main(self.protocol)
         self.conclave_config = self.gen_conclave_config()
@@ -65,7 +65,9 @@ class ComputeParty:
             "PROTOCOL": protocol
         }
 
-        data_template = open("{}/protocol_main.tmpl".format(self.template_directory), 'r').read()
+        # TODO: change to different protocol template once we decide on how we want to pass workflows
+        # data_template = open("{}/protocol_main.tmpl".format(self.template_directory), 'r').read()
+        data_template = open("{}/protocol.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, params)
 
