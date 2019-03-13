@@ -20,6 +20,8 @@ def construct_object_strings(job_id, num_parties):
 def check_pod_status(job_id, num_parties, app):
     """
     Query pod status for all pods with the given <job_id>.
+
+    TODO: configurable namespacing
     """
 
     k_config.load_incluster_config()

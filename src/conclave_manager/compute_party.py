@@ -21,6 +21,7 @@ class ComputeParty:
         self.timestamp = timestamp
         self.app = app
         self.config = protocol_config
+        self.namespace = self.set_namespace(protocol_config)
         self.endpoints = protocol_config['config']['dataRows'][pid-1]
         self.jiff_server_ip = jiff_server_ip
         self.data_source = data_source
@@ -36,6 +37,16 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+
+    @staticmethod
+    def set_namespace(config):
+
+        try:
+            namespace = config["namespace"]
+        except KeyError:
+            namespace = 'cici'
+
+        return namespace
 
     def gen_protocol_for_policy(self, protocol):
         """
@@ -201,12 +212,11 @@ class ComputeParty:
         """
 
         name = "conclave-{0}-{1}-map".format(self.timestamp, str(self.pid))
-        namespace = "cici"
 
         data_params = \
             {
                 "NAME": name,
-                "NAMESPACE": namespace,
+                "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),
                 "CONF": self.conclave_config
@@ -226,7 +236,8 @@ class ComputeParty:
         params = \
             {
                 "POD_NAME": self.name,
-                "CONFIGMAP_NAME": self.config_map_name
+                "CONFIGMAP_NAME": self.config_map_name,
+                "NAMESPACE": self.namespace
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
@@ -265,7 +276,7 @@ class ComputeParty:
         kube_client = k_client.CoreV1Api()
 
         try:
-            api_response = kube_client.create_namespaced_config_map('cici', self.config_map_body, pretty='true')
+            api_response = kube_client.create_namespaced_config_map(self.namespace, self.config_map_body, pretty='true')
             self.app.logger.info(
                 "ConfigMap created successfully with response: \n{}\n"
                     .format(api_response))
@@ -275,7 +286,7 @@ class ComputeParty:
                     .format(e))
 
         try:
-            api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
+            api_response = kube_client.create_namespaced_service(self.namespace, body=self.service_body, pretty='true')
             self.app.logger.info(
                 "Service created successfully with response: \n{}\n"
                     .format(api_response))
@@ -285,7 +296,7 @@ class ComputeParty:
                     .format(e))
 
         try:
-            api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
+            api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
             self.app.logger.info(
                 "Pod created successfully with response: \n{}\n"
                     .format(api_response))

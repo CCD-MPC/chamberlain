@@ -18,7 +18,7 @@ class ConclaveManager:
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.timestamp = json_data["ID"]
-        self.jiff_server = JiffServer(app, self.timestamp)
+        self.jiff_server = JiffServer(app, self.timestamp, json_data)
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
 

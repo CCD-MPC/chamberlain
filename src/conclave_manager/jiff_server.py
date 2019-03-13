@@ -13,10 +13,11 @@ class JiffServer:
     Generates and launches a Jiff server.
     """
 
-    def __init__(self, app, timestamp):
+    def __init__(self, app, timestamp, protocol_config):
 
         self.app = app
         self.timestamp = timestamp
+        self.namespace = self.set_namespace(protocol_config)
 
         self.name = "jiff-server-{0}".format(timestamp)
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
@@ -25,6 +26,16 @@ class JiffServer:
         self.service_body = self.define_service()
 
         self.launch_server()
+
+    @staticmethod
+    def set_namespace(config):
+
+        try:
+            namespace = config["namespace"]
+        except KeyError:
+            namespace = 'cici'
+
+        return namespace
 
     def query_server_ip(self):
         """
@@ -57,7 +68,7 @@ class JiffServer:
         kube_client = k_client.CoreV1Api()
 
         try:
-            api_response = kube_client.create_namespaced_service('cici', body=self.service_body, pretty='true')
+            api_response = kube_client.create_namespaced_service(self.namespace, body=self.service_body, pretty='true')
             self.app.logger.info(
                 "Jiff Server Service created successfully with response: \n{}\n"
                     .format(api_response))
@@ -67,7 +78,7 @@ class JiffServer:
                     .format(e))
 
         try:
-            api_response = kube_client.create_namespaced_pod('cici', body=self.pod_body, pretty='true')
+            api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
             self.app.logger.info(
                 "Jiff Server Pod created successfully with response: \n{}\n"
                     .format(api_response))
@@ -85,7 +96,8 @@ class JiffServer:
 
         params = \
             {
-                "POD_NAME": self.name
+                "POD_NAME": self.name,
+                "NAMESPACE": self.namespace
             }
 
         data_template = open("{}/jiff_server_pod.tmpl".format(self.template_directory), 'r').read()
