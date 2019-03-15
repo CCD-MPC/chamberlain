@@ -56,7 +56,7 @@ class ConclaveWebInstaller:
         Create Service Account body
         """
 
-        sa_body = k_client.V1ServiceAccount(metadata={"name": "cw-svc"})
+        sa_body = k_client.V1ServiceAccount(metadata={"name": "cw-svc", "labels": {"app": "conclave-web"}})
 
         return sa_body
 
@@ -131,11 +131,33 @@ class ConclaveWebInstaller:
             "NAMESPACE": self.config["namespace"]
         }
 
-        if self.with_vol:
-            data_template = open("{}deployment_config_with_db.tmpl".format(self.template_directory), 'r').read()
-        else:
-            data_template = open("{}deployment_config.tmpl".format(self.template_directory), 'r').read()
+        data_template = ''
 
+        # TODO work out this tree, only works for no db && with_swift rn
+        if self.with_vol:
+            if self.with_swift and self.with_dv:
+                data_template = open(
+                    "{}/deployments/with_db/deployment_all.tmpl".format(self.template_directory), 'r').read()
+            elif self.with_swift:
+                data_template = open(
+                    "{}/deployments/with_db/deployment_all_swift_only.tmpl".format(self.template_directory), 'r').read()
+            elif self.with_dv:
+                data_template = open(
+                    "{}/deployments/with_db/deployment_dv_only.tmpl".format(self.template_directory), 'r').read()
+            else:
+                raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
+        else:
+            if self.with_swift and self.with_dv:
+                data_template = open(
+                    "{}/deployments/without_db/deployment_config.tmpl".format(self.template_directory), 'r').read()
+            elif self.with_swift:
+                data_template = open(
+                    "{}/deployments/without_db/deployment_config_swift_only.tmpl".format(self.template_directory), 'r').read()
+            elif self.with_dv:
+                data_template = open(
+                    "{}/deployments/without_db/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
+            else:
+                raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
         rendered = pystache.render(data_template, data_params)
 
         return ast.literal_eval(rendered)

@@ -43,7 +43,6 @@ Add your Dataverse authentication details to the install:
 Add Persistent Volumes to the installation (allows tracking of running jobs)
 `--vol=True`
 
-
-## Pending Implementation
-
-* Conclave-Web currently pulls data from Swift by default, Dataverse integration is forthcoming.
+Sometimes, the service account created by the installation lacks edit privileges. After running the installation script,
+just run `oc policy add-role-to-user edit system:serviceaccount:<NAMESPACE>:cw-svc`.
+ This will add the appropriate permissions.
