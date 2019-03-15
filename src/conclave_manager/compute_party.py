@@ -178,7 +178,7 @@ class ComputeParty:
                 "DV_TOKEN": dv_params["dv_token"],
                 "SOURCE_ALIAS": dv_params["dv_alias"],
                 "SOURCE_DOI": dv_params["doi"],
-                "DV_FILE": dv_params["dv_files"],
+                "DV_FILE": dv_params["dv_file"],
                 "OUTPUT_AUTHOR": "test author",
                 "DEST_ALIAS": dv_params["dv_alias"]
             }
