@@ -115,10 +115,10 @@ class ComputeParty:
             params["pass"] = \
                 open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
 
-        params["swift_file"] = \
-            self.endpoints["dataset"] if self.data_source == 'swift' else 'N/A'
         params["container_name"] = \
-            self.endpoints["container"] if self.data_source == 'swift' else "N/A"
+            self.endpoints["doi"] if self.data_source == 'swift' else "N/A"
+        params["swift_file"] = \
+            self.endpoints["files"] if self.data_source == 'swift' else 'N/A'
 
         return params
 
