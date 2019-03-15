@@ -200,7 +200,7 @@ class ComputeParty:
 
         for i in self.all_pids:
             if i == self.pid:
-                ret_net.append({'host': '0.0.0.0', 'port': 5000})
+                ret_net.append({"host": "0.0.0.0", "port": 5000})
             else:
                 ret_net.append({"host": "conclave-{0}-{1}-service".format(self.timestamp, str(i)), "port": 5000})
 
