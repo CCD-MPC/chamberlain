@@ -172,7 +172,7 @@ class ComputeParty:
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
                 "SOURCE_CONTAINER_NAME": swift_params["container_name"],
-                "SWIFT_FILE": swift_params["swift_files"],
+                "SWIFT_FILE": swift_params["swift_file"],
                 "DEST_CONTAINER_NAME": swift_params["container_name"],
                 "DV_HOST": dv_params["dv_host"],
                 "DV_TOKEN": dv_params["dv_token"],
