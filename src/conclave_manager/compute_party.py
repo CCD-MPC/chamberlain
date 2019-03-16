@@ -1,6 +1,7 @@
 import os
 import ast
 import pystache
+import json
 
 from kubernetes import client as k_client
 from kubernetes import config as k_config
@@ -193,7 +194,7 @@ class ComputeParty:
 
     def gen_net_config(self):
         """
-        Generate CC Net Config string that gets inserted into CC Config YAML.
+        Generate CC Net Config string that gets inserted into CC Config JSON.
         """
 
         ret_net = []
@@ -204,7 +205,7 @@ class ComputeParty:
             else:
                 ret_net.append({"host": "conclave-{0}-{1}-service".format(self.timestamp, str(i)), "port": 5000})
 
-        return ret_net
+        return json.dumps(ret_net)
 
     def define_config_map(self):
         """
