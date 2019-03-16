@@ -15,7 +15,7 @@ class ConclaveWebInstaller:
     Defines and launches all objects associated with C2D.
     """
 
-    def __init__(self, with_swift=True, with_dv=True, with_vol=False):
+    def __init__(self, with_swift=True, with_dv=True, with_vol=False, minishift=False):
 
         self.config = self.load_config()
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
@@ -23,6 +23,7 @@ class ConclaveWebInstaller:
         self.with_swift = with_swift
         self.with_dv = with_dv
         self.with_vol = with_vol
+        self.minishift = minishift
 
         self.sa_body = self.define_service_account()
         self.swift_config_map_body = self.define_swift_config_map()
@@ -109,9 +110,14 @@ class ConclaveWebInstaller:
         Load Route JSON
         """
 
-        data = open("{}route.tmpl".format(self.template_directory), 'r').read()
+        data_params = {
+            "API_VERSION": "apps.openshift.io/v1" if self.minishift else "v1"
+        }
 
-        return ast.literal_eval(data)
+        data_template = open("{}route.tmpl".format(self.template_directory), 'r').read()
+        rendered = pystache.render(data_template, data_params)
+
+        return ast.literal_eval(rendered)
 
     def define_db(self):
         """
@@ -128,12 +134,10 @@ class ConclaveWebInstaller:
         """
 
         data_params = {
-            "NAMESPACE": self.config["namespace"]
+            "NAMESPACE": self.config["namespace"],
+            "API_VERSION": "apps.openshift.io/v1" if self.minishift else "v1"
         }
 
-        data_template = ''
-
-        # TODO work out this tree, only works for no db && with_swift rn
         if self.with_vol:
             if self.with_swift and self.with_dv:
                 data_template = open(
