@@ -20,8 +20,10 @@
         "ports":
         [
             {
+                "name": "{{{PORT}}}-tcp",
                 "protocol": "TCP",
-                "port": {{{PORT}}}
+                "port": {{{PORT}}},
+                "targetPort": {{{PORT}}}
             }
         ]
     }
