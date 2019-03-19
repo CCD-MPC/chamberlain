@@ -1,6 +1,7 @@
 import logging
 import os
 import ast
+import sys
 
 from flask import Flask
 from flask import request
@@ -94,20 +95,37 @@ def submit():
         app.logger.info("JSON received: {}".format(config))
 
         if ast.literal_eval(WITH_VOL):
-            cc_job = ConclaveJob(
-                job_id=config["ID"],
-                parties=len(config['config']['dataverse']),
-                pub_date=datetime.utcnow()
-            )
-            db.session.add(cc_job)
-            db.session.commit()
+            try:
+                backend = config["config"]["backend"]
+                if backend == "swift":
+                    cc_job = ConclaveJob(
+                        job_id=config["ID"],
+                        parties=len(config["swift"]["endpoints"]),
+                        pub_date=datetime.utcnow()
+                    )
+                    db.session.add(cc_job)
+                    db.session.commit()
+                elif backend == "dataverse":
+                    cc_job = ConclaveJob(
+                        job_id=config["ID"],
+                        parties=len(config["dataverse"]["endpoints"]),
+                        pub_date=datetime.utcnow()
+                    )
+                    db.session.add(cc_job)
+                    db.session.commit()
+                else:
+                    app.logger.error("Backend {} not recognized. Exiting computation.\n".format(backend))
+                    sys.exit(1)
+            except KeyError:
+                app.logger.error("No data storage backend passed in request. Exiting computation.\n")
+                sys.exit(1)
 
         cc_manager = ConclaveManager(config, app)
         cc_manager.run()
 
         response = \
             {
-                "ID": config["ID"]
+                "ID": config["config"]["ID"]
             }
 
         return jsonify(response)
