@@ -2,6 +2,7 @@ import os
 import ast
 import pystache
 import json
+import sys
 
 from kubernetes import client as k_client
 from kubernetes import config as k_config
@@ -23,7 +24,7 @@ class ComputeParty:
         self.app = app
         self.config = protocol_config
         self.namespace = self.set_namespace(protocol_config)
-        self.endpoints = protocol_config['config']['dataRows'][pid-1]
+        self.endpoints = self.get_endpoints(data_source)
         self.jiff_server_ip = jiff_server_ip
         self.data_source = data_source
 
@@ -38,6 +39,16 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+
+    def get_endpoints(self, data_source):
+
+        if data_source == "swift":
+            return self.config["swift"]["endpoints"][self.pid - 1]
+        elif data_source == "dataverse":
+            return self.config["dataverse"]["endpoints"][self.pid - 1]
+        else:
+            self.app.logger.info("Data source not recognized: {}\n".format(data_source))
+            sys.exit(1)
 
     @staticmethod
     def set_namespace(config):
@@ -96,11 +107,11 @@ class ComputeParty:
         params = dict()
 
         try:
-            params["auth_url"] = self.config["swift_config"]["auth_url"]
-            params["proj_domain"] = self.config["swift_config"]["proj_domain"]
-            params["proj_name"] = self.config["swift_config"]["proj_name"]
-            params["user_name"] = self.config["swift_config"]["user_name"]
-            params["pass"] = self.config["swift_config"]["pass"]
+            params["auth_url"] = self.config["swift"]["auth_url"]
+            params["proj_domain"] = self.config["swift"]["proj_domain"]
+            params["proj_name"] = self.config["swift"]["proj_name"]
+            params["user_name"] = self.config["swift"]["user_name"]
+            params["pass"] = self.config["swift"]["pass"]
         except KeyError:
             self.app.logger.info(
                 "No Swift Authorization config passed. Reading Swift project info from default configuration.\n"
@@ -117,9 +128,9 @@ class ComputeParty:
                 open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
 
         params["container_name"] = \
-            self.endpoints["doi"] if self.data_source == 'swift' else "N/A"
+            self.endpoints["containerName"] if self.data_source == 'swift' else "N/A"
         params["swift_file"] = \
-            self.endpoints["files"] if self.data_source == 'swift' else 'N/A'
+            self.endpoints["file"] if self.data_source == 'swift' else 'N/A'
 
         return params
 
