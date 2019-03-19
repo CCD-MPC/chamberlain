@@ -107,11 +107,11 @@ class ComputeParty:
         params = dict()
 
         try:
-            params["auth_url"] = self.config["swift"]["auth_url"]
-            params["proj_domain"] = self.config["swift"]["proj_domain"]
-            params["proj_name"] = self.config["swift"]["proj_name"]
-            params["user_name"] = self.config["swift"]["user_name"]
-            params["pass"] = self.config["swift"]["pass"]
+            params["auth_url"] = self.config["swift"]["authUrl"]
+            params["proj_domain"] = self.config["swift"]["projDomain"]
+            params["proj_name"] = self.config["swift"]["projName"]
+            params["user_name"] = self.config["swift"]["username"]
+            params["pass"] = self.config["swift"]["password"]
         except KeyError:
             self.app.logger.info(
                 "No Swift Authorization config passed. Reading Swift project info from default configuration.\n"
