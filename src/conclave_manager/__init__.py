@@ -67,12 +67,12 @@ class ConclaveManager:
         if self.protocol_config["config"]["backend"] == "swift":
             self.app.logger.info("Using Swift as storage backend. \n")
             data_backend = 'swift'
-            all_pids = list(range(1, len(self.protocol_config['config']['dataRows']) + 1))
+            all_pids = list(range(1, len(self.protocol_config['swift']['endpoints']) + 1))
 
         elif self.protocol_config["config"]["backend"] == "dataverse":
             self.app.logger.info("Using Dataverse as storage backend. \n")
             data_backend = 'dataverse'
-            all_pids = list(range(1, len(self.protocol_config["config"]['dataRows']) + 1))
+            all_pids = list(range(1, len(self.protocol_config["dataverse"]['endpoints']) + 1))
 
         else:
             self.app.logger.error("No input data endpoints passed. \n\n")
