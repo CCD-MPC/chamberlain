@@ -22,13 +22,13 @@
                             <tbody>
                             <tr v-for="(row, index) in dataRows">
                                 <td>
-                                    <input type="text" v-model="row.alias">
+                                    <input type="text" v-model="row.authUrl">
                                 </td>
                                 <td>
-                                    <input type="text" v-model="row.doi">
+                                    <input type="text" v-model="row.containerName">
                                 </td>
                                 <td>
-                                    <input type="text" v-model="row.files">
+                                    <input type="text" v-model="row.file">
                                 </td>
                                 <td>
                                     <a v-on:click="removeData(index)" style="cursor: pointer">Remove</a>
@@ -241,7 +241,7 @@
 		name: 'InputFiles',
 		data() {
 			return {
-				dataRows: [{alias: "", doi: "", files: ""}],
+				dataRows: [{authUrl: "", containerName: "", file: ""}],
                 jobStatus: "",
                 ID: "",
                 protocol: ""
@@ -256,16 +256,23 @@
               this.ID = ID;
 
               // TODO: hardcoded swift backend bc cloud dv is down, make configurable
-              const response =
-                {
-                  "protocol": contents,
-                  "ID": ID,
-                  "backend": "swift",
-                  "config":
-                    {
-                      "dataRows": this.dataRows,
-                    },
-                };
+                const response =
+                  {
+                  	"protocol":
+                      {
+                      	"data": contents,
+                        "dataFormat": "text"
+                      },
+                    "config":
+                      {
+                      	"ID": ID,
+                        "backend": "swift"
+                      },
+                    "swift":
+                      {
+                      	"endpoints": this.dataRows
+                      }
+                  };
 
               const path = "/api/submit";
 
@@ -297,9 +304,9 @@
 			addData()
 			{
               this.dataRows.push({
-                endpoint: "",
-                container: "",
-                dataset: ""
+                aurthUrl: "",
+                containerName: "",
+                file: ""
               });
 			},
 			getStatusFromBackend()
