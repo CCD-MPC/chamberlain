@@ -16,11 +16,11 @@ class ComputeParty:
     Generates all Kubernetes objects.
     """
 
-    def __init__(self, pid, all_pids, timestamp, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"):
+    def __init__(self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"):
 
         self.pid = pid
         self.all_pids = all_pids
-        self.timestamp = timestamp
+        self.compute_id = compute_id
         self.app = app
         self.config = protocol_config
         self.namespace = self.set_namespace(protocol_config)
@@ -29,8 +29,8 @@ class ComputeParty:
         self.data_source = data_source
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
-        self.name = "conclave-{0}-{1}".format(timestamp, str(pid))
-        self.config_map_name = "conclave-{0}-{1}-map".format(timestamp, str(pid))
+        self.name = "conclave-{0}-{1}".format(compute_id, str(pid))
+        self.config_map_name = "conclave-{0}-{1}-map".format(compute_id, str(pid))
 
         self.protocol = protocol
         self.protocol_for_policy = self.gen_protocol_for_policy(self.protocol)
@@ -107,30 +107,28 @@ class ComputeParty:
         params = dict()
 
         try:
-            params["auth_url"] = self.config["swift"]["authUrl"]
-            params["proj_domain"] = self.config["swift"]["projDomain"]
-            params["proj_name"] = self.config["swift"]["projName"]
-            params["user_name"] = self.config["swift"]["username"]
-            params["pass"] = self.config["swift"]["password"]
+            party_id = self.endpoints["partyId"]
         except KeyError:
-            self.app.logger.info(
-                "No Swift Authorization config passed. Reading Swift project info from default configuration.\n"
-            )
-            params["auth_url"] = \
-                open("/etc/config/auth_url", "r").read() if self.data_source == 'swift' else 'N/A'
-            params["proj_domain"] = \
-                open("/etc/config/proj_domain", "r").read() if self.data_source == 'swift' else 'N/A'
-            params["proj_name"] = \
-                open("/etc/config/proj_name", "r").read() if self.data_source == 'swift' else 'N/A'
-            params["user_name"] = \
-                open("/etc/config/user_name", "r").read() if self.data_source == 'swift' else 'N/A'
-            params["pass"] = \
-                open("/etc/config/pass", "r").read() if self.data_source == 'swift' else 'N/A'
+            party_id = "mine"
+
+        self.app.logger.info(
+            "Loading Swift credentials for user {}.\n".format(party_id)
+        )
+        params["auth_url"] = \
+            open("/etc/swift_config/{}/auth_url".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+        params["proj_domain"] = \
+            open("/etc/swift_config/{}/proj_domain".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+        params["proj_name"] = \
+            open("/etc/swift_config/{}/proj_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+        params["user_name"] = \
+            open("/etc/swift_config/{}/user_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+        params["pass"] = \
+            open("/etc/swift_config/{}/pass".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
 
         params["container_name"] = \
             self.endpoints["containerName"] if self.data_source == 'swift' else "N/A"
-        params["swift_file"] = \
-            self.endpoints["file"] if self.data_source == 'swift' else 'N/A'
+        params["swift_files"] = \
+            self.endpoints["files"] if self.data_source == 'swift' else 'N/A'
 
         return params
 
@@ -168,7 +166,7 @@ class ComputeParty:
             {
                 "PID": self.pid,
                 "ALL_PIDS": self.all_pids,
-                "WORKFLOW_NAME": "conclave-{}".format(self.timestamp),
+                "WORKFLOW_NAME": "conclave-{}".format(self.compute_id),
                 "NET_CONFIG": net_list,
                 "SPARK_AVAIL": 0,
                 "SPARK_IP_PORT": "N/A",
@@ -184,7 +182,7 @@ class ComputeParty:
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
                 "SOURCE_CONTAINER_NAME": swift_params["container_name"],
-                "SWIFT_FILE": swift_params["swift_file"],
+                "SWIFT_FILE": "all" if len(swift_params["swift_files"]) == 0 else swift_params["swift_files"],
                 "DEST_CONTAINER_NAME": swift_params["container_name"],
                 "DV_HOST": dv_params["dv_host"],
                 "DV_TOKEN": dv_params["dv_token"],
@@ -214,7 +212,7 @@ class ComputeParty:
             if i == self.pid:
                 ret_net.append({"host": "0.0.0.0", "port": 5000})
             else:
-                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.timestamp, str(i)), "port": 5000})
+                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.compute_id, str(i)), "port": 5000})
 
         return json.dumps(ret_net)
 
@@ -223,11 +221,17 @@ class ComputeParty:
         Populate ConfigMap template.
         """
 
-        name = "conclave-{0}-{1}-map".format(self.timestamp, str(self.pid))
+        name = "conclave-{0}-{1}-map".format(self.compute_id, str(self.pid))
+
+        try:
+            in_file = self.endpoints["fileName"]
+        except KeyError:
+            in_file = ""
 
         data_params = \
             {
                 "NAME": name,
+                "FILENAME": in_file,
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),

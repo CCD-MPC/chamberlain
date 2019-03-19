@@ -99,7 +99,7 @@ def submit():
                 backend = config["config"]["backend"]
                 if backend == "swift":
                     cc_job = ConclaveJob(
-                        job_id=config["ID"],
+                        job_id=config["config"]["ID"],
                         parties=len(config["swift"]["endpoints"]),
                         pub_date=datetime.utcnow()
                     )
@@ -107,7 +107,7 @@ def submit():
                     db.session.commit()
                 elif backend == "dataverse":
                     cc_job = ConclaveJob(
-                        job_id=config["ID"],
+                        job_id=config["config"]["ID"],
                         parties=len(config["dataverse"]["endpoints"]),
                         pub_date=datetime.utcnow()
                     )

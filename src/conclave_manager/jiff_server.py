@@ -13,13 +13,13 @@ class JiffServer:
     Generates and launches a Jiff server.
     """
 
-    def __init__(self, app, timestamp, protocol_config):
+    def __init__(self, app, compute_id, protocol_config):
 
         self.app = app
-        self.timestamp = timestamp
+        self.compute_id = compute_id
         self.namespace = self.set_namespace(protocol_config)
 
-        self.name = "jiff-server-{0}".format(timestamp)
+        self.name = "jiff-server-{0}".format(compute_id)
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
 
         self.pod_body = self.define_pod()

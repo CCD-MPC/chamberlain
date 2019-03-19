@@ -17,8 +17,8 @@ class ConclaveManager:
         self.protocol_config = json_data
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
-        self.timestamp = json_data["config"]["ID"]
-        self.jiff_server = JiffServer(app, self.timestamp, json_data)
+        self.compute_id = json_data["config"]["ID"]
+        self.jiff_server = JiffServer(app, self.compute_id, json_data)
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
 
@@ -61,7 +61,7 @@ class ConclaveManager:
 
         server_ip = self.query_jiff_server()
 
-        self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
+        self.app.logger.info("Server IP for Job {0}: {1}".format(self.compute_id, server_ip))
 
         # TODO: try/except here
         if self.protocol_config["config"]["backend"] == "swift":
@@ -99,7 +99,7 @@ class ConclaveManager:
                     ComputeParty(
                         i,
                         all_pids,
-                        self.timestamp,
+                        self.compute_id,
                         self.protocol,
                         self.app,
                         self.protocol_config,
@@ -113,7 +113,7 @@ class ConclaveManager:
                     ComputeParty(
                         i,
                         all_pids,
-                        self.timestamp,
+                        self.compute_id,
                         self.protocol,
                         self.app,
                         self.protocol_config,
