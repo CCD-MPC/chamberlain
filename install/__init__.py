@@ -26,8 +26,8 @@ class ConclaveWebInstaller:
         self.minishift = minishift
 
         self.sa_body = self.define_service_account()
-        self.swift_config_map_body = self.define_swift_config_map()
-        self.dv_config_map_body = self.define_dv_config_map("mine")
+        self.swift_config_map_body = self.define_swift_config_map("mine")
+        self.dv_config_map_body = self.define_dv_config_map()
         self.deployment_body = self.define_deployment_config()
         self.service_body = self.define_service()
         self.route_body = self.define_route()
@@ -61,7 +61,7 @@ class ConclaveWebInstaller:
 
         return sa_body
 
-    def define_swift_config_map(self):
+    def define_swift_config_map(self, party_id):
         """
         Populate Swift ConfigMap template
         """
@@ -72,7 +72,8 @@ class ConclaveWebInstaller:
             "OSPROJDOMAIN": self.config["swift_conf"]["osProjectDomain"],
             "OSPROJNAME": self.config["swift_conf"]["osProjectName"],
             "USERNAME": self.config["swift_conf"]["username"],
-            "PASSWORD": self.config["swift_conf"]["password"]
+            "PASSWORD": self.config["swift_conf"]["password"],
+            "PARTY_ID": party_id
         }
 
         data_template = open("{}swift_cfg_map.tmpl".format(self.template_directory), 'r').read()
@@ -80,7 +81,7 @@ class ConclaveWebInstaller:
 
         return ast.literal_eval(rendered)
 
-    def define_dv_config_map(self, party_id):
+    def define_dv_config_map(self):
         """
         Populate Dataverse ConfigMap template
         """
@@ -88,8 +89,7 @@ class ConclaveWebInstaller:
         data_params = {
             "NAMESPACE": self.config["namespace"],
             "HOST": self.config["dataverse_conf"]["host"],
-            "TOKEN": self.config["dataverse_conf"]["token"],
-            "PARTY_ID": party_id
+            "TOKEN": self.config["dataverse_conf"]["token"]
         }
 
         data_template = open("{}dv_cfg_map.tmpl".format(self.template_directory), 'r').read()
