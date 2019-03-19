@@ -17,7 +17,7 @@ class ConclaveManager:
         self.protocol_config = json_data
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
-        self.timestamp = json_data["ID"]
+        self.timestamp = json_data["config"]["ID"]
         self.jiff_server = JiffServer(app, self.timestamp, json_data)
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
@@ -45,9 +45,11 @@ class ConclaveManager:
     def load_protocol(self):
         """
         Load protocol from protocol_config and log result.
+
+        # TODO implement b64 encoded form for protocol
         """
 
-        protocol = self.protocol_config['protocol']
+        protocol = self.protocol_config['protocol']["data"]
         self.app.logger.info("CC Protocol:\n{}".format(protocol))
 
         return protocol
@@ -61,6 +63,7 @@ class ConclaveManager:
 
         self.app.logger.info("Server IP for Job {0}: {1}".format(self.timestamp, server_ip))
 
+        # TODO: try/except here
         if self.protocol_config["config"]["backend"] == "swift":
             self.app.logger.info("Using Swift as storage backend. \n")
             data_backend = 'swift'
