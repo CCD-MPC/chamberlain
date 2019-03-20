@@ -142,19 +142,19 @@ class ConclaveWebInstaller:
         if self.with_vol:
             if self.with_swift and self.with_dv:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_all.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_all_swift_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_db/deployment_config_swift_only.tmpl".format(self.template_directory), 'r').read()
             elif self.with_dv:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_dv_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_db/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
             else:
                 raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
         else:
             if self.with_swift and self.with_dv:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/without_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
                     "{}/deployments/without_db/deployment_config_swift_only.tmpl".format(self.template_directory), 'r').read()
@@ -177,13 +177,13 @@ class ConclaveWebInstaller:
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
 
-        if self.with_vol:
-            try:
-                vol = os_client.resources.get(api_version='v1', kind="PersistentVolumeClaim")
-                api_response = vol.create(namespace=self.config['namespace'], body=self.db_body)
-                print("Created DB: \n {}\n".format(api_response))
-            except DynamicApiError as e:
-                print("Error creating DB: \n{} \n".format(e))
+        # if self.with_vol:
+        #     try:
+        #         vol = os_client.resources.get(api_version='v1', kind="PersistentVolumeClaim")
+        #         api_response = vol.create(namespace=self.config['namespace'], body=self.db_body)
+        #         print("Created DB: \n {}\n".format(api_response))
+        #     except DynamicApiError as e:
+        #         print("Error creating DB: \n{} \n".format(e))
 
         try:
             sa = os_client.resources.get(api_version='v1', kind="ServiceAccount")
