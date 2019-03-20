@@ -146,5 +146,8 @@ if __name__ == "__main__":
         app.logger.info("\n\n CREATING DB \n\n")
         db.create_all()
 
+    app.logger.info("\n\n HERE \n\n")
+    print("\n\n HERE PRINT \n\n")
+
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
