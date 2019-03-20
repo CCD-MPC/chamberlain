@@ -129,6 +129,7 @@ class ComputeParty:
             self.endpoints["containerName"] if self.data_source == 'swift' else "N/A"
         params["swift_files"] = \
             self.endpoints["files"] if self.data_source == 'swift' else 'N/A'
+        params["filename"] = self.endpoints["fileName"] if self.data_source == 'swift' else 'N/A'
 
         return params
 
@@ -183,6 +184,7 @@ class ComputeParty:
                 "PROJ_NAME": swift_params["proj_name"],
                 "SOURCE_CONTAINER_NAME": swift_params["container_name"],
                 "SWIFT_FILE": "all" if len(swift_params["swift_files"]) == 0 else swift_params["swift_files"],
+                "FILENAME": swift_params["filename"],
                 "DEST_CONTAINER_NAME": swift_params["container_name"],
                 "DV_HOST": dv_params["dv_host"],
                 "DV_TOKEN": dv_params["dv_token"],
