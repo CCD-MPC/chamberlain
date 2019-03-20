@@ -143,6 +143,7 @@ if __name__ != "__main__":
 if __name__ == "__main__":
 
     if ast.literal_eval(WITH_VOL):
+        app.logger.info("\n\n CREATING DB \n\n")
         db.create_all()
 
     port = int(os.environ.get("PORT", 8080))
