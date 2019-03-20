@@ -120,11 +120,11 @@ class ComputeParty:
             "Loading Swift credentials for user {}.\n".format(party_id)
         )
         params["auth_url"] = \
-            open("/etc/swift_config/{}/auth_url".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+            open("/etc/swift-config/{}/auth_url".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["proj_domain"] = \
-            open("/etc/swift_config/{}/proj_domain".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+            open("/etc/swift-config/{}/proj_domain".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["proj_name"] = \
-            open("/etc/swift_config/{}/proj_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+            open("/etc/swift-config/{}/proj_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["user_name"] = \
             open("/etc/swift_config/{}/user_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["pass"] = \
