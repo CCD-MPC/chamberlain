@@ -7,7 +7,7 @@ import sys
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
-from base64 import b64encode
+from base64 import b64encode, b64decode
 
 
 class ComputeParty:
@@ -84,8 +84,13 @@ class ComputeParty:
         Generate protocol code that will be executed if the workflow passes the policy engine.
         """
 
+        if self.config['protocol']['format'] == 'b64':
+            protocol_decoded = b64decode(protocol).decode()
+        else:
+            protocol_decoded = protocol
+
         params = {
-            "PROTOCOL": protocol
+            "PROTOCOL": protocol_decoded
         }
 
         # TODO: change to different protocol template once we decide on how we want to pass workflows
