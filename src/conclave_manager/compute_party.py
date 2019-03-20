@@ -188,7 +188,7 @@ class ComputeParty:
                 "PROJ_DOMAIN": swift_params["proj_domain"],
                 "PROJ_NAME": swift_params["proj_name"],
                 "SOURCE_CONTAINER_NAME": swift_params["container_name"],
-                "SWIFT_FILE": "all" if len(swift_params["swift_files"]) == 0 else swift_params["swift_files"],
+                "SWIFT_FILES": swift_params["swift_files"],
                 "FILENAME": swift_params["filename"],
                 "DEST_CONTAINER_NAME": swift_params["container_name"],
                 "DV_HOST": dv_params["dv_host"],
