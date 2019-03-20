@@ -144,6 +144,7 @@ if __name__ == "__main__":
 
     if ast.literal_eval(WITH_VOL):
         app.logger.info("\n\n CREATING DB \n\n")
+        print("\n\n CREATING DB HERE \n\n")
         db.create_all()
 
     app.logger.info("\n\n HERE \n\n")
