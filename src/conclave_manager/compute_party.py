@@ -161,7 +161,7 @@ class ComputeParty:
 
     def gen_conclave_config(self):
         """
-        Generate CC Config yaml.
+        Generate CC Config JSON.
         """
 
         net_list = self.gen_net_config()
