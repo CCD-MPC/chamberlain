@@ -126,9 +126,9 @@ class ComputeParty:
         params["proj_name"] = \
             open("/etc/swift-config/{}/proj_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["user_name"] = \
-            open("/etc/swift_config/{}/user_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+            open("/etc/swift-config/{}/user_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
         params["pass"] = \
-            open("/etc/swift_config/{}/pass".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+            open("/etc/swift-config/{}/pass".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
 
         params["container_name"] = \
             self.endpoints["containerName"] if self.data_source == 'swift' else "N/A"
