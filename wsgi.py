@@ -1,36 +1,19 @@
 import logging
 import os
-import ast
-import sys
 
 from flask import Flask
 from flask import request
 from flask import render_template
 from flask import jsonify
 from flask_cors import CORS
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from base64 import b64encode
 
 from src.conclave_manager import ConclaveManager
 from src.conclave_manager.status import check_pod_status
-
-WITH_VOL = os.getenv("WITH_VOL")
+from src.swift import SwiftData
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
-app.config.from_pyfile('src/db/db.cfg')
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-db = SQLAlchemy(app)
-
-
-class ConclaveJob(db.Model):
-    """
-    Extends SQLAlchemy Model class, represents a running Conclave Job.
-    """
-
-    __tablename__ = 'Jobs'
-    job_id = db.Column('job_id', db.Integer, primary_key=True)
-    parties = db.Column('parties', db.Integer)
-    pub_date = db.Column('pub_date', db.DateTime)
 
 
 @app.route('/', defaults={'path': ''})
@@ -42,18 +25,55 @@ def catch_all(path):
     return render_template("index.html")
 
 
-def check_status(msg):
+def pull_swift_data(compute_id, cfg):
 
-    job = ConclaveJob.query.filter_by(job_id=msg["ID"]).first()
+    ret = {}
 
-    if job is not None:
-        status = check_pod_status(job.id, app)
-    else:
-        status = "No CC Jobs found for this ID."
+    container = compute_id
+    swift_data = SwiftData(cfg)
 
-    app.logger.info(status)
+    os.mkdir("/tmp/{}".format(compute_id))
+    swift_data.get_all_data(container, "/tmp/{}".format(compute_id))
 
-    return status
+    for subdir, dirs, files in os.walk("/tmp/{}".format(compute_id)):
+        for file in files:
+            f = open("/tmp/{0}/{1}".format(compute_id, file))
+            data = f.read()
+            data_encoded = b64encode(data.encode()).decode()
+            ret[file] = data_encoded
+            f.close()
+
+    return ret
+
+
+@app.route('/api/return_output', methods=['POST'])
+def return_output():
+
+    msg = request.get_json(force=True)
+
+    app.logger.info("Request for output received for Job with ID {}".format(msg["ID"]))
+
+    swift_cfg = {
+        "auth": {
+            "osAuthUrl": open("etc/swift-config/mine/auth_url", "r").read(),
+            "username": open("/etc/swift-config/mine/user_name", "r").read(),
+            "password": open("/etc/swift-config/mine/pass", "r").read()
+        },
+        "project": {
+            "osProjectDomain": open("/etc/swift-config/mine/proj_domain", "r").read(),
+            "osProjectName": open("/etc/swift-config/mine/proj_name", "r").read()
+        }
+    }
+
+    data = pull_swift_data(msg["ID"], swift_cfg)
+
+    response = \
+        {
+            "job_id": msg["ID"],
+            "files": [data]
+        }
+
+    return jsonify(response)
 
 
 @app.route('/api/job_status', methods=['POST'])
@@ -73,6 +93,7 @@ def job_status():
 
     response = \
         {
+            'job_id': msg["ID"],
             'status': status
         }
 
@@ -82,7 +103,7 @@ def job_status():
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
-    Enter CC Job data into DB & submit CC Job.
+    submit CC Job.
     """
 
     if request.method == 'POST':
@@ -90,32 +111,6 @@ def submit():
         config = request.get_json(force=True)
 
         app.logger.info("JSON received: {}".format(config))
-
-        if ast.literal_eval(WITH_VOL):
-            try:
-                backend = config["config"]["backend"]
-                if backend == "swift":
-                    cc_job = ConclaveJob(
-                        job_id=config["config"]["ID"],
-                        parties=len(config["swift"]["endpoints"]),
-                        pub_date=datetime.utcnow()
-                    )
-                    db.session.add(cc_job)
-                    db.session.commit()
-                elif backend == "dataverse":
-                    cc_job = ConclaveJob(
-                        job_id=config["config"]["ID"],
-                        parties=len(config["dataverse"]["endpoints"]),
-                        pub_date=datetime.utcnow()
-                    )
-                    db.session.add(cc_job)
-                    db.session.commit()
-                else:
-                    app.logger.error("Backend {} not recognized. Exiting computation.\n".format(backend))
-                    sys.exit(1)
-            except KeyError:
-                app.logger.error("No data storage backend passed in request. Exiting computation.\n")
-                sys.exit(1)
 
         cc_manager = ConclaveManager(config, app)
         cc_manager.run()
@@ -138,14 +133,6 @@ if __name__ != "__main__":
     app.logger.setLevel(gunicorn_logger.level)
 
 if __name__ == "__main__":
-
-    if ast.literal_eval(WITH_VOL):
-        app.logger.info("\n\n CREATING DB \n\n")
-        print("\n\n CREATING DB HERE \n\n")
-        db.create_all()
-
-    app.logger.info("\n\n HERE \n\n")
-    print("\n\n HERE PRINT \n\n")
 
     port = int(os.environ.get("PORT", 8080))
     app.run(host='0.0.0.0', port=port, debug=True)
