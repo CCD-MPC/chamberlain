@@ -17,7 +17,7 @@ def construct_object_strings(job_id, num_parties):
     return jiff_server_str + compute_party_pods
 
 
-def check_pod_status(job_id, app):
+def check_pod_status(msg, app):
     """
     Query pod status for all pods with the given <job_id>.
 
@@ -28,6 +28,8 @@ def check_pod_status(job_id, app):
 
     k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
+
+    job_id = msg["ID"]
 
     pods = kube_client.list_namespaced_pod("cici", label_selector="job_id={}".format(job_id))
 
