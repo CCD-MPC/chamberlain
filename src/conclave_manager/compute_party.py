@@ -190,7 +190,7 @@ class ComputeParty:
                 "SOURCE_CONTAINER_NAME": swift_params["container_name"],
                 "SWIFT_FILES": swift_params["swift_files"],
                 "FILENAME": swift_params["filename"],
-                "DEST_CONTAINER_NAME": swift_params["container_name"],
+                "DEST_CONTAINER_NAME": self.compute_id,
                 "DV_HOST": dv_params["dv_host"],
                 "DV_TOKEN": dv_params["dv_token"],
                 "SOURCE_ALIAS": dv_params["dv_alias"],
