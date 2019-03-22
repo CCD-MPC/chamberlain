@@ -260,7 +260,8 @@ class ComputeParty:
             {
                 "POD_NAME": self.name,
                 "CONFIGMAP_NAME": self.config_map_name,
-                "NAMESPACE": self.namespace
+                "NAMESPACE": self.namespace,
+                "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
@@ -281,7 +282,8 @@ class ComputeParty:
             {
                 "SERVICE_NAME": svc,
                 "APP_NAME": self.name,
-                "PORT": port
+                "PORT": port,
+                "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()

@@ -3,7 +3,11 @@
     "kind": "Service",
     "metadata":
     {
-        "name": "{{{SERVICE_NAME}}}"
+        "name": "{{{SERVICE_NAME}}}",
+        "labels":
+        {
+            "job_id": {{{COMPUTE_ID}}}
+        }
     },
     "spec":
     {

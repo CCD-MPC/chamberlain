@@ -97,7 +97,8 @@ class JiffServer:
         params = \
             {
                 "POD_NAME": self.name,
-                "NAMESPACE": self.namespace
+                "NAMESPACE": self.namespace,
+                "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/jiff_server_pod.tmpl".format(self.template_directory), 'r').read()
@@ -115,7 +116,8 @@ class JiffServer:
             {
                 "SERVICE_NAME": "{}-service".format(self.name),
                 "APP_NAME": self.name,
-                "PORT": 9000
+                "PORT": 9000,
+                "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
