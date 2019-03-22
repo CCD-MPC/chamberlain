@@ -24,7 +24,7 @@ def check_pod_status(msg, app):
     TODO: configurable namespacing
     """
 
-    ret = []
+    ret = {}
 
     k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
@@ -38,10 +38,11 @@ def check_pod_status(msg, app):
 
         try:
             status = kube_client.read_namespaced_pod_status(pod_item.metadata.name, "cici", pretty="true")
-            app.logger.info("Status for {0}: {1}\n".format(pod_item.metadata.name, status))
-            ret.append(status)
+            app.logger.info("Status for {0}: {1}\n".format(pod_item.metadata.name, status["status"]["phase"]))
+            ret[pod_item.metadata.name] = status["status"]["phase"]
+            
         except ApiException as e:
             app.logger.error("Error checking status for Pod {0}: {1}\n".format(pod_item.metadata.name, e))
-            ret.append(e)
+            ret["ERR"] = e
 
     return ret
