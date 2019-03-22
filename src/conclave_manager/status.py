@@ -17,30 +17,29 @@ def construct_object_strings(job_id, num_parties):
     return jiff_server_str + compute_party_pods
 
 
-def check_pod_status(job_id, num_parties, app):
+def check_pod_status(job_id, app):
     """
     Query pod status for all pods with the given <job_id>.
 
     TODO: configurable namespacing
     """
 
+    ret = []
+
     k_config.load_incluster_config()
     kube_client = k_client.CoreV1Api()
 
-    pods = construct_object_strings(job_id, num_parties)
+    pods = kube_client.list_namespaced_pod("cici", label_selector="job_id={}".format(job_id))
 
-    app.logger.info("Checking status for the following Pods: {}"
-                    .format("\n".join(cc for cc in pods)))
+    for _, pod_item in enumerate(pods.items):
+        app.logger.info("Checking status for Pod {}".format(pod_item.metadata.name))
 
-    statuses = []
-
-    for p in pods:
         try:
-            status = kube_client.read_namespaced_pod_status(p, "cici", pretty="true")
-            app.logger.info("Status for {0}: {1}".format(p, status))
-            statuses.append(status)
+            status = kube_client.read_namespaced_pod_status(pod_item.metadata.name, "cici", pretty="true")
+            app.logger.info("Status for {0}: {1}\n".format(pod_item.metadata.name, status))
+            ret.append(status)
         except ApiException as e:
-            app.logger.error("Error checking status for Pod {0}: {1}".format(p, e))
-            statuses.append(e)
+            app.logger.error("Error checking status for Pod {0}: {1}\n".format(pod_item.metadata.name, e))
+            ret.append(e)
 
-    return statuses
+    return ret

@@ -47,7 +47,7 @@ def check_status(msg):
     job = ConclaveJob.query.filter_by(job_id=msg["ID"]).first()
 
     if job is not None:
-        status = check_pod_status(job.id, job.parties, app)
+        status = check_pod_status(job.id, app)
     else:
         status = "No CC Jobs found for this ID."
 
@@ -67,10 +67,7 @@ def job_status():
     app.logger.info("Status request received for Job with ID {}".format(msg["ID"]))
 
     if msg:
-        if ast.literal_eval(WITH_VOL):
-            status = check_status(msg)
-        else:
-            status = "No DB present, can't check job status."
+        status = check_pod_status(msg, app)
     else:
         status = "You do not have a Compute ID. Submit a job to obtain one."
 
