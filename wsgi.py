@@ -48,6 +48,9 @@ def pull_swift_data(compute_id, cfg):
 
 @app.route('/api/return_output', methods=['POST'])
 def return_output():
+    """
+    TODO: if job isnt completed then dont pull the data
+    """
 
     msg = request.get_json(force=True)
 
@@ -55,7 +58,7 @@ def return_output():
 
     swift_cfg = {
         "auth": {
-            "osAuthUrl": open("etc/swift-config/mine/auth_url", "r").read(),
+            "osAuthUrl": open("/etc/swift-config/mine/auth_url", "r").read(),
             "username": open("/etc/swift-config/mine/user_name", "r").read(),
             "password": open("/etc/swift-config/mine/pass", "r").read()
         },
