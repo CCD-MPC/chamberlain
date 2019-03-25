@@ -1,5 +1,6 @@
 import logging
 import os
+import shutil
 
 from flask import Flask
 from flask import request
@@ -42,6 +43,8 @@ def pull_swift_data(compute_id, cfg):
             data_encoded = b64encode(data.encode()).decode()
             ret[file] = data_encoded
             f.close()
+
+    shutil.rmtree("/tmp/{}".format(compute_id))
 
     return ret
 
