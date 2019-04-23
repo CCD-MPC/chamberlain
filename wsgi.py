@@ -12,6 +12,7 @@ from base64 import b64encode
 from src.conclave_manager import ConclaveManager
 from src.conclave_manager.status import check_pod_status
 from src.swift import SwiftData
+from src.demo_hacks.mean import MeanHandler
 
 app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -27,6 +28,9 @@ def catch_all(path):
 
 
 def pull_swift_data(compute_id, cfg):
+    """
+    pull data from an associated swift container, b64 encode, and return it
+    """
 
     ret = {}
 
@@ -44,6 +48,7 @@ def pull_swift_data(compute_id, cfg):
             ret[file] = data_encoded
             f.close()
 
+    # cleanup pulled data
     shutil.rmtree("/tmp/{}".format(compute_id))
 
     return ret
@@ -118,8 +123,21 @@ def submit():
 
         app.logger.info("JSON received: {}".format(config))
 
-        cc_manager = ConclaveManager(config, app)
-        cc_manager.run()
+        try:
+            method = config["config"]["compute"]
+        except KeyError:
+            method = "single-thread"
+
+        if method == "parallel":
+            handler = MeanHandler(config, app)
+            jobs = handler.generate_workflows()
+            for i in range(5):
+                cc_manager = ConclaveManager(jobs[i], app)
+                cc_manager.run()
+
+        else:
+            cc_manager = ConclaveManager(config, app)
+            cc_manager.run()
 
         response = \
             {
