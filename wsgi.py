@@ -111,6 +111,16 @@ def job_status():
     return jsonify(response)
 
 
+def handle_parallel(config):
+
+    handler = MeanHandler(config, app)
+    jobs = handler.generate_workflows()
+
+    for i in range(5):
+        cc_manager = ConclaveManager(jobs[i], app)
+        cc_manager.run()
+
+
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
@@ -129,11 +139,7 @@ def submit():
             method = "single-thread"
 
         if method == "parallel":
-            handler = MeanHandler(config, app)
-            jobs = handler.generate_workflows()
-            for i in range(5):
-                cc_manager = ConclaveManager(jobs[i], app)
-                cc_manager.run()
+            handle_parallel(config)
 
         else:
             cc_manager = ConclaveManager(config, app)
