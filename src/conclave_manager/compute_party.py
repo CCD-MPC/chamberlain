@@ -2,7 +2,6 @@ import os
 import ast
 import pystache
 import json
-import sys
 
 from kubernetes import client as k_client
 from kubernetes import config as k_config
@@ -22,33 +21,37 @@ class ComputeParty:
         self.all_pids = all_pids
         self.compute_id = compute_id
         self.app = app
-        self.config = protocol_config
-        self.namespace = self.set_namespace(protocol_config)
-        self.endpoints = self.get_endpoints(data_source)
-        self.jiff_server_ip = jiff_server_ip
         self.data_source = data_source
+        self.config = protocol_config
+        self.mpc_backend = self.set_mpc_backend()
+        self.namespace = self.set_namespace(protocol_config)
+        self.endpoints = self.get_endpoint()
+        self.jiff_server_ip = jiff_server_ip
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.name = "conclave-{0}-{1}".format(compute_id, str(pid))
         self.config_map_name = "conclave-{0}-{1}-map".format(compute_id, str(pid))
 
         self.protocol = protocol
-        self.protocol_for_policy = self.gen_protocol_for_policy(self.protocol)
-        self.protocol_main = self.gen_protocol_main(self.protocol)
+        self.protocol_main = self.gen_protocol_main()
+        self.protocol_for_policy = self.gen_protocol_for_policy()
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
 
-    def get_endpoints(self, data_source):
+    def set_mpc_backend(self):
 
-        if data_source == "swift":
-            return self.config["swift"]["endpoints"][self.pid - 1]
-        elif data_source == "dataverse":
-            return self.config["dataverse"]["endpoints"][self.pid - 1]
+        if len(self.config["data"]["endpoints"]) == 2:
+            self.app.logger.info("Using Obliv-C backend for MPC computation.\n")
+            return "obliv-c"
         else:
-            self.app.logger.info("Data source not recognized: {}\n".format(data_source))
-            sys.exit(1)
+            self.app.logger.info("Using JIFF backend for MPC computation.\n")
+            return "jiff"
+
+    def get_endpoint(self):
+
+        return self.config["data"]["endpoints"][self.pid - 1]
 
     @staticmethod
     def set_namespace(config):
@@ -60,15 +63,30 @@ class ComputeParty:
 
         return namespace
 
-    def gen_protocol_for_policy(self, protocol):
+    @staticmethod
+    def format_protocol(protocol):
+
+        ret = []
+
+        for line in protocol.split("\n"):
+            ret.append("\t" + line)
+
+        return "\n".join(ret)
+
+    def gen_protocol_for_policy(self):
         """
         Generate protocol code that gets passed to the policy engine.
 
         TODO: fetch policy and pass to template
         """
 
+        if self.config['protocol']['format'] == 'b64':
+            protocol_decoded = self.format_protocol(b64decode(self.protocol).decode())
+        else:
+            protocol_decoded = self.format_protocol(self.protocol)
+
         params = {
-            "PROTOCOL": protocol,
+            "PROTOCOL": protocol_decoded,
             "PID": int(self.pid),
             "POLICY": dict()
         }
@@ -77,29 +95,29 @@ class ComputeParty:
 
         rendered = pystache.render(data_template, params)
 
+        self.app.logger.info("CC protocol for policy engine: \n{}\n".format(rendered))
+
         return b64encode(rendered.encode()).decode()
 
-    def gen_protocol_main(self, protocol):
+    def gen_protocol_main(self):
         """
         Generate protocol code that will be executed if the workflow passes the policy engine.
         """
 
         if self.config['protocol']['format'] == 'b64':
-            protocol_decoded = b64decode(protocol).decode()
+            protocol_decoded = self.format_protocol(b64decode(self.protocol).decode())
         else:
-            protocol_decoded = protocol
+            protocol_decoded = self.format_protocol(self.protocol)
 
         params = {
-            "PROTOCOL": protocol_decoded
+            "PROTOCOL": protocol_decoded,
+            "MPC_FRAMEWORK": self.mpc_backend
         }
 
-        # TODO: change to different protocol template once we decide on how we want to pass workflows
-        # data_template = open("{}/protocol_main.tmpl".format(self.template_directory), 'r').read()
-        data_template = open("{}/protocol.tmpl".format(self.template_directory), 'r').read()
-
+        data_template = open("{}/protocol_main.tmpl".format(self.template_directory), 'r').read()
         rendered = pystache.render(data_template, params)
 
-        self.app.logger.info("CC protocol: \n{}".format(rendered))
+        self.app.logger.info("CC protocol: \n{}\n".format(rendered))
 
         return b64encode(rendered.encode()).decode()
 
@@ -159,6 +177,16 @@ class ComputeParty:
 
         return params
 
+    def set_oc_conf(self):
+
+        if self.mpc_backend == "obliv-c":
+            if self.pid == 1:
+                return "conclave-{0}-2-service:5000".format(self.compute_id)
+            else:
+                return "conclave-{0}-1-service:5000".format(self.compute_id)
+        else:
+            return "N/A"
+
     def gen_conclave_config(self):
         """
         Generate CC Config JSON.
@@ -167,6 +195,7 @@ class ComputeParty:
         net_list = self.gen_net_config()
         swift_params = self.gen_swift_conf()
         dv_params = self.gen_dv_conf()
+        oc_conf = self.set_oc_conf()
 
         params = \
             {
@@ -176,9 +205,9 @@ class ComputeParty:
                 "NET_CONFIG": net_list,
                 "SPARK_AVAIL": 0,
                 "SPARK_IP_PORT": "N/A",
-                "OC_AVAIL": 0,
-                "OC_IP_PORT": "N/A",
-                "JIFF_AVAIL": 1,
+                "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
+                "OC_IP_PORT": oc_conf,
+                "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip,
                 "DATA_BACKEND": self.data_source,
@@ -261,7 +290,9 @@ class ComputeParty:
                 "POD_NAME": self.name,
                 "CONFIGMAP_NAME": self.config_map_name,
                 "NAMESPACE": self.namespace,
-                "COMPUTE_ID": self.compute_id
+                "COMPUTE_ID": self.compute_id,
+                "IMAGE": "docker.io/bengetch/conclave-jiff:latest" if self.mpc_backend == "jiff"
+                else "docker.io/bengetch/conclave-oc:latest"
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()

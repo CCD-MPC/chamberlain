@@ -148,17 +148,8 @@ def submit():
             handle_parallel(config)
 
         else:
-
-            if len(config['swift']['endpoints']) == 2:
-                cc_manager = ConclaveManager(config, app, "obliv-c")
-                cc_manager.run()
-
-            elif len(config['swift']['endpoints']) > 2:
-                cc_manager = ConclaveManager(config, app, "jiff")
-                cc_manager.run()
-
-            else:
-                app.logger.error("Error: You must pass two or more endpoints.\n")
+            cc_manager = ConclaveManager(config, app)
+            cc_manager.run()
 
         response = \
             {

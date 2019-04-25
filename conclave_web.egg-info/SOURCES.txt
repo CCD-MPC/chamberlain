@@ -1,0 +1,13 @@
+README.md
+setup.py
+conclave_web.egg-info/PKG-INFO
+conclave_web.egg-info/SOURCES.txt
+conclave_web.egg-info/dependency_links.txt
+conclave_web.egg-info/top_level.txt
+install/__init__.py
+install/install_script.py
+src/__init__.py
+src/conclave_manager/__init__.py
+src/conclave_manager/compute_party.py
+src/conclave_manager/jiff_server.py
+src/conclave_manager/status.py

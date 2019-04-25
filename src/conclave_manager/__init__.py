@@ -11,17 +11,25 @@ class ConclaveManager:
     Generates and launches JiffServer & ComputeParty objects
     """
 
-    def __init__(self, json_data, app, backend):
+    def __init__(self, json_data, app):
 
         self.app = app
         self.protocol_config = json_data
-        self.mpc_backend = backend
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.compute_id = json_data["config"]["ID"]
-        self.jiff_server = JiffServer(app, self.compute_id, json_data)
+        self.jiff_server = self.build_jiff_server()
         self.protocol = self.load_protocol()
         self.compute_parties = self.create_compute_parties()
+
+    def build_jiff_server(self):
+
+        if len(self.protocol_config["data"]) == 2:
+            return "N/A"
+        elif len(self.protocol_config["data"]) > 2:
+            return JiffServer(self.app, self.compute_id, self.protocol_config)
+        else:
+            self.app.logger.error("You must pass at least two endpoints. \n")
 
     def query_jiff_server(self):
         """
@@ -60,30 +68,24 @@ class ConclaveManager:
         Init all compute parties.
         """
 
-        server_ip = self.query_jiff_server()
-
-        self.app.logger.info("Server IP for Job {0}: {1}".format(self.compute_id, server_ip))
-
-        # TODO: try/except here
-        if self.protocol_config["config"]["backend"] == "swift":
-            self.app.logger.info("Using Swift as storage backend. \n")
-            data_backend = 'swift'
-            all_pids = list(range(1, len(self.protocol_config['swift']['endpoints']) + 1))
-
-        elif self.protocol_config["config"]["backend"] == "dataverse":
-            self.app.logger.info("Using Dataverse as storage backend. \n")
-            data_backend = 'dataverse'
-            all_pids = list(range(1, len(self.protocol_config["dataverse"]['endpoints']) + 1))
-
+        if self.jiff_server != "N/A":
+            server_ip = self.query_jiff_server()
+            self.app.logger.info("Server IP for Job {0}: {1}".format(self.compute_id, server_ip))
         else:
+            server_ip = "N/A"
+
+        data_backend = ''
+        try:
+            data_backend = self.protocol_config["config"]["backend"]
+        except KeyError:
             self.app.logger.error("No input data endpoints passed. \n\n")
-            return None
+
+        all_pids = list(range(1, len(self.protocol_config['data']['endpoints']) + 1))
 
         compute_parties = []
 
-        self.app.logger.info(
-            "Creating Conclave Pod templates for {} parties"
-                .format(str(len(all_pids))))
+        self.app.logger.info("Creating Conclave Pod templates for {} parties"
+                             .format(str(len(all_pids))))
 
         '''
         TODO: will need to resolve ownership between datasets, and 
@@ -94,36 +96,18 @@ class ConclaveManager:
         DV endpoints.
         '''
 
-        if data_backend == 'swift':
-            for i in all_pids:
-                compute_parties.append(
-                    ComputeParty(
-                        i,
-                        all_pids,
-                        self.compute_id,
-                        self.protocol,
-                        self.app,
-                        self.protocol_config,
-                        server_ip,
-                        "swift")
+        for i in all_pids:
+            compute_parties.append(
+                ComputeParty(
+                    i,
+                    all_pids,
+                    self.compute_id,
+                    self.protocol,
+                    self.app,
+                    self.protocol_config,
+                    server_ip,
+                    data_backend)
                 )
-
-        elif data_backend == 'dataverse':
-            for i in all_pids:
-                compute_parties.append(
-                    ComputeParty(
-                        i,
-                        all_pids,
-                        self.compute_id,
-                        self.protocol,
-                        self.app,
-                        self.protocol_config,
-                        server_ip,
-                    )
-                )
-
-        else:
-            return None
 
         return compute_parties
 
