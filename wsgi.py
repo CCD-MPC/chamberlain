@@ -14,7 +14,8 @@ from src.conclave_manager.status import check_pod_status
 from src.swift import SwiftData
 from src.demo_hacks.mean import MeanHandler
 
-app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
+# app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
+app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 
@@ -24,7 +25,7 @@ def catch_all(path):
     """
     Redirect arbitrary pages to homepage.
     """
-    return render_template("index.html")
+    return "welcome to conclave-web lol"
 
 
 def pull_swift_data(compute_id, cfg):
@@ -142,8 +143,17 @@ def submit():
             handle_parallel(config)
 
         else:
-            cc_manager = ConclaveManager(config, app)
-            cc_manager.run()
+
+            if len(config['swift']['endpoints']) == 2:
+                cc_manager = ConclaveManager(config, app, "obliv-c")
+                cc_manager.run()
+
+            elif len(config['swift']['endpoints']) > 2:
+                cc_manager = ConclaveManager(config, app, "jiff")
+                cc_manager.run()
+
+            else:
+                app.logger.error("Error: You must pass two or more endpoints.\n")
 
         response = \
             {

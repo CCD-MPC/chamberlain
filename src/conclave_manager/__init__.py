@@ -11,10 +11,11 @@ class ConclaveManager:
     Generates and launches JiffServer & ComputeParty objects
     """
 
-    def __init__(self, json_data, app):
+    def __init__(self, json_data, app, backend):
 
         self.app = app
         self.protocol_config = json_data
+        self.mpc_backend = backend
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.compute_id = json_data["config"]["ID"]
