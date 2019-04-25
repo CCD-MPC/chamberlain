@@ -28,6 +28,13 @@ def catch_all(path):
     return "welcome to conclave-web lol"
 
 
+@app.route('/')
+@app.route('index')
+def index():
+
+    return "welcome to conclave-web lol"
+
+
 def pull_swift_data(compute_id, cfg):
     """
     pull data from an associated swift container, b64 encode, and return it
