@@ -27,7 +27,7 @@ def catch_all(path):
 
 
 @app.route('/')
-@app.route('index')
+@app.route('/index')
 def index():
 
     return "welcome to conclave-web lol"
