@@ -4,7 +4,6 @@ import shutil
 
 from flask import Flask
 from flask import request
-from flask import render_template
 from flask import jsonify
 from flask_cors import CORS
 from base64 import b64encode
@@ -14,7 +13,6 @@ from src.conclave_manager.status import check_pod_status
 from src.swift import SwiftData
 from src.demo_hacks.mean import MeanHandler
 
-# app = Flask(__name__, static_folder="./dist/static", template_folder="./dist")
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
