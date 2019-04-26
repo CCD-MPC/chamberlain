@@ -38,7 +38,8 @@ class ComputeParty:
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
-        self.service_body = self.define_service()
+        self.service_body = self.define_service(5000, "{}-service".format(self.name))
+        self.oc_service_body = self.define_service(5001, "{}-oc-service".format(self.name))
 
     def set_mpc_backend(self):
 
@@ -180,10 +181,7 @@ class ComputeParty:
     def set_oc_conf(self):
 
         if self.mpc_backend == "obliv-c":
-            if self.pid == 1:
-                return "conclave-{0}-2-service:443".format(self.compute_id)
-            else:
-                return "conclave-{0}-1-service:443".format(self.compute_id)
+            return "{}-oc-service:5001".format(self.name)
         else:
             return "N/A"
 
@@ -301,17 +299,14 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
-    def define_service(self):
+    def define_service(self, port, svc_name):
         """
         Populate Service template for CC Pods and MPC backends.
         """
 
-        svc = "{}-service".format(self.name)
-        port = 5000
-
         params = \
             {
-                "SERVICE_NAME": svc,
+                "SERVICE_NAME": svc_name,
                 "APP_NAME": self.name,
                 "PORT": port,
                 "COMPUTE_ID": self.compute_id
@@ -345,6 +340,16 @@ class ComputeParty:
             api_response = kube_client.create_namespaced_service(self.namespace, body=self.service_body, pretty='true')
             self.app.logger.info(
                 "Service created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Service: \n{}\n"
+                    .format(e))
+
+        try:
+            api_response = kube_client.create_namespaced_service(self.namespace, body=self.oc_service_body, pretty='true')
+            self.app.logger.info(
+                "OC Service created successfully with response: \n{}\n"
                     .format(api_response))
         except ApiException as e:
             self.app.logger.error(
