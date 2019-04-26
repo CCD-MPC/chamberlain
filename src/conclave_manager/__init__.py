@@ -24,9 +24,9 @@ class ConclaveManager:
 
     def build_jiff_server(self):
 
-        if len(self.protocol_config["data"]) == 2:
+        if len(self.protocol_config["data"]["endpoints"]) == 2:
             return "N/A"
-        elif len(self.protocol_config["data"]) > 2:
+        elif len(self.protocol_config["data"]["endpoints"]) > 2:
             return JiffServer(self.app, self.compute_id, self.protocol_config)
         else:
             self.app.logger.error("You must pass at least two endpoints. \n")
