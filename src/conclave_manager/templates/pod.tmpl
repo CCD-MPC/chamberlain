@@ -25,7 +25,12 @@
                 "ports":
                 [
                     {
-                        "containerPort": 5000
+                        "containerPort": 5000,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "containerPort": 443,
+                        "protocol": "TCP"
                     }
                 ],
                 "imagePullPolicy": "Always",
