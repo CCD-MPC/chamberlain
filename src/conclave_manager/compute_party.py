@@ -38,7 +38,7 @@ class ComputeParty:
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
-        self.service_body = self.define_service(5000, "{}-service".format(self.name))
+        self.service_body = self.define_service("{}-service".format(self.name))
         # self.oc_service_body = self.define_service(5001, "{}-oc-service".format(self.name))
 
     def set_mpc_backend(self):
@@ -196,7 +196,7 @@ class ComputeParty:
                 "SPARK_AVAIL": 0,
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
-                "OC_IP_PORT": "{}-oc-service:5001".format(self.name),
+                "OC_IP_PORT": "{}-service:5001".format(self.name),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip,
@@ -291,7 +291,7 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
-    def define_service(self, port, svc_name):
+    def define_service(self, svc_name):
         """
         Populate Service template for CC Pods and MPC backends.
         """
@@ -300,7 +300,6 @@ class ComputeParty:
             {
                 "SERVICE_NAME": svc_name,
                 "APP_NAME": self.name,
-                "PORT": port,
                 "COMPUTE_ID": self.compute_id
             }
 
@@ -337,16 +336,6 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
-
-        # try:
-        #     api_response = kube_client.create_namespaced_service(self.namespace, body=self.oc_service_body, pretty='true')
-        #     self.app.logger.info(
-        #         "OC Service created successfully with response: \n{}\n"
-        #             .format(api_response))
-        # except ApiException as e:
-        #     self.app.logger.error(
-        #         "Error creating Service: \n{}\n"
-        #             .format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
