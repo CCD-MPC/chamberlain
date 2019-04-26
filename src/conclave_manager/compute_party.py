@@ -181,9 +181,9 @@ class ComputeParty:
 
         if self.mpc_backend == "obliv-c":
             if self.pid == 1:
-                return "conclave-{0}-2-service:5000".format(self.compute_id)
+                return "conclave-{0}-2-service:443".format(self.compute_id)
             else:
-                return "conclave-{0}-1-service:5000".format(self.compute_id)
+                return "conclave-{0}-1-service:443".format(self.compute_id)
         else:
             return "N/A"
 
