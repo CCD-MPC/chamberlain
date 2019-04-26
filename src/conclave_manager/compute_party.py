@@ -39,7 +39,6 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service("{}-service".format(self.name))
-        # self.oc_service_body = self.define_service(5001, "{}-oc-service".format(self.name))
 
     def set_mpc_backend(self):
 
@@ -187,6 +186,8 @@ class ComputeParty:
         swift_params = self.gen_swift_conf()
         dv_params = self.gen_dv_conf()
 
+        "0.0.0.0:5001 if self.pid == 1 else "
+
         params = \
             {
                 "PID": self.pid,
@@ -196,7 +197,8 @@ class ComputeParty:
                 "SPARK_AVAIL": 0,
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
-                "OC_IP_PORT": "{}-service:5001".format(self.name),
+                "OC_IP_PORT":
+                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service:5001".format(self.compute_id),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip,
