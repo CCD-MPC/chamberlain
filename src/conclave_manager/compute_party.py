@@ -287,7 +287,7 @@ class ComputeParty:
                 else "docker.io/bengetch/conclave-oc:latest"
             }
 
-        data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
+        data_template = open("{}/pod_with_policy.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, params)
 

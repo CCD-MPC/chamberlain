@@ -6,7 +6,8 @@
         "name": "{{{POD_NAME}}}",
         "labels":
         {
-            "app": "{{{POD_NAME}}}"
+            "app": "{{{POD_NAME}}}",
+            "job_id": "{{{COMPUTE_ID}}}"
         }
     },
     "spec":
@@ -20,11 +21,16 @@
         [
             {
                 "name": "{{{POD_NAME}}}",
-                "image": "docker.io/bengetch/conclave:latest",
+                "image": "{{{IMAGE}}}",
                 "ports":
                 [
                     {
-                        "containerPort": 5000
+                        "containerPort": 5000,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "containerPort": 5001,
+                        "protocol": "TCP"
                     }
                 ],
                 "imagePullPolicy": "Always",
