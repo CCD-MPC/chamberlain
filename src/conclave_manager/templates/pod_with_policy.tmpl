@@ -71,6 +71,28 @@
                 "command":
                 [
                     "./run.sh"
+                ],
+                "volumeMounts":
+                [
+                    {
+                        "name": "config-volume",
+                        "mountPath": "/etc/init-config"
+                    },
+                    {
+                        "name": "data-volume",
+                        "mountPath": "/data"
+                    }
+                ],
+                "env":
+                [
+                    {
+                        "name": "KUBECFG_PATH",
+                        "value": "/tmp/.kube/config"
+                    },
+                    {
+                        "name": "OPENSHIFTMGR_PROJECT",
+                        "value": "{{{NAMESPACE}}}"
+                    }
                 ]
             }
         ],
