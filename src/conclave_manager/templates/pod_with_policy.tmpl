@@ -52,7 +52,7 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-volume",
+                        "name": "config-volume-main",
                         "mountPath": "/etc/config"
                     },
                     {
@@ -75,12 +75,8 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-volume",
+                        "name": "config-volume-policy",
                         "mountPath": "/etc/init-config"
-                    },
-                    {
-                        "name": "data-volume",
-                        "mountPath": "/data"
                     }
                 ],
                 "env":
@@ -99,7 +95,7 @@
         "volumes":
         [
             {
-                "name": "config-volume",
+                "name": "config-volume-main",
                 "configMap":
                 {
                     "name": "{{{CONFIGMAP_NAME}}}",
@@ -110,16 +106,26 @@
                             "path": "protocol"
                         },
                         {
-                            "key": "protocol_policy_encoded",
-                            "path": "protocol_policy"
-                        },
-                        {
                             "key": "conf_encoded",
                             "path": "conf"
                         }
                     ]
                 }
             },
+            {
+                "name": "config-volume-policy",
+                "configMap":
+                {
+                    "name": "{{{CONFIGMAP_NAME}}}",
+                    "items":
+                    [
+                        {
+                            "key": "protocol_policy_encoded",
+                            "path": "protocol_policy"
+                        }
+                    ]
+                }
+            }
             {
                 "name": "data-volume",
                 "emptyDir": {}
