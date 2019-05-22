@@ -15,7 +15,9 @@ class ComputeParty:
     Generates all Kubernetes objects.
     """
 
-    def __init__(self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"):
+    def __init__(
+            self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"
+    ):
 
         self.pid = pid
         self.all_pids = all_pids
@@ -287,7 +289,7 @@ class ComputeParty:
                 else "docker.io/bengetch/conclave-oc:latest"
             }
 
-        data_template = open("{}/pod_with_policy.tmpl".format(self.template_directory), 'r').read()
+        data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, params)
 

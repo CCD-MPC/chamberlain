@@ -1,0 +1,32 @@
+{
+    "source":
+    {
+        "name": "{{{OBJ_STORE_NAME}}}",
+        "source":
+        {
+            "project":
+            {
+                "osProjectDomain": "{{{PROJ_DOMAIN}}}",
+                "osProjectName": "{{{PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{SOURCE_CONTAINER_NAME}}}",
+                "files": {{{SWIFT_FILES}}},
+                "filename": "{{{FILENAME}}}"
+            }
+        },
+        "dest":
+        {
+            "project":
+            {
+                "osProjectDomain": "{{{DEST_PROJ_DOMAIN}}}",
+                "osProjectName": "{{{DEST_PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+            }
+        }
+    }
+}

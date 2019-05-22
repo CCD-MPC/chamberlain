@@ -94,6 +94,8 @@ class ConclaveManager:
         
         Might be able to resolve via aliases in the metadata for
         DV endpoints.
+        
+        For Swift, we'll need a DB that maps authURL's to openshift clusters/namespaces
         '''
 
         for i in all_pids:
