@@ -52,7 +52,7 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-volume",
+                        "name": "config-volume-main",
                         "mountPath": "/etc/config"
                     },
                     {
@@ -62,10 +62,40 @@
                 ]
             }
         ],
+        "initContainers":
+        [
+            {
+                "name": "init-{{{POD_NAME}}}",
+                "image": "docker.io/bengetch/policy-engine:latest",
+                "imagePullPolicy": "Always",
+                "command":
+                [
+                    "./run.sh"
+                ],
+                "volumeMounts":
+                [
+                    {
+                        "name": "config-volume-policy",
+                        "mountPath": "/etc/init-config"
+                    }
+                ],
+                "env":
+                [
+                    {
+                        "name": "KUBECFG_PATH",
+                        "value": "/tmp/.kube/config"
+                    },
+                    {
+                        "name": "OPENSHIFTMGR_PROJECT",
+                        "value": "{{{NAMESPACE}}}"
+                    }
+                ]
+            }
+        ],
         "volumes":
         [
             {
-                "name": "config-volume",
+                "name": "config-volume-main",
                 "configMap":
                 {
                     "name": "{{{CONFIGMAP_NAME}}}",
@@ -76,12 +106,22 @@
                             "path": "protocol"
                         },
                         {
-                            "key": "protocol_policy_encoded",
-                            "path": "protocol_policy"
-                        },
-                        {
                             "key": "conf_encoded",
                             "path": "conf"
+                        }
+                    ]
+                }
+            },
+            {
+                "name": "config-volume-policy",
+                "configMap":
+                {
+                    "name": "{{{CONFIGMAP_NAME}}}",
+                    "items":
+                    [
+                        {
+                            "key": "protocol_policy_encoded",
+                            "path": "protocol_policy"
                         }
                     ]
                 }

@@ -4,8 +4,8 @@ backend/venv
 frontend/node_modules
 dist/
 .vscode
-dist/
 .idea/
 __pycache__
+conclave_web.egg-info/
 
 install/conf/conf.json
