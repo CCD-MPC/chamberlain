@@ -1,7 +1,7 @@
 {
     "source":
     {
-        "name": "{{{OBJ_STORE_NAME}}}",
+        "name": "dataverse",
         "source":
         {
             "alias": "{{{SOURCE_ALIAS}}}",
@@ -10,8 +10,15 @@
         },
         "dest":
         {
-            "author": "{{{OUTPUT_AUTHOR}}}",
-            "alias": "{{{DEST_ALIAS}}}"
+            "project":
+            {
+                "osProjectDomain": "default",
+                "osProjectName": "ccs-musketeer-demo"
+            },
+            "data":
+            {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+            }
         }
     }
 }

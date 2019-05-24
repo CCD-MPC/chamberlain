@@ -123,61 +123,78 @@ class ComputeParty:
 
         return b64encode(rendered.encode()).decode()
 
-    def gen_swift_conf(self):
+    # def gen_dv_conf(self):
+    #     """
+    #     Load DV config using my credentials mounted on the pod via a ConfigMap.
+    #     Will need to be generalized in the future.
+    #     """
+    #
+    #     params = dict()
+    #
+    #     params['dv_host'] = \
+    #         open("/etc/config/dv_host", "r").read() if self.data_source == "dataverse" else "N/A"
+    #     params['dv_token'] = \
+    #         open("/etc/config/dv_token", "r").read() if self.data_source == "dataverse" else "N/A"
+    #
+    #     return params
+
+    def gen_swift_output_conf(self):
         """
         Loads Swift config using either default configuration data
         or from config passed via config.swift_config, if present in the JSON.
         """
 
-        params = dict()
+        data_template = open("{}/swift_output_config.tmpl".format(self.template_directory), 'r').read()
 
-        try:
-            party_id = self.endpoints["partyId"]
-        except KeyError:
-            party_id = "mine"
+        params = \
+            {
+                "AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
+                "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
+                "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
+                "USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
+                "PASS": open("/etc/swift-config/mine/pass", "r").read()
+            }
 
-        self.app.logger.info(
-            "Loading Swift credentials for user {}.\n".format(party_id)
-        )
-        params["auth_url"] = \
-            open("/etc/swift-config/{}/auth_url".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
-        params["proj_domain"] = \
-            open("/etc/swift-config/{}/proj_domain".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
-        params["proj_name"] = \
-            open("/etc/swift-config/{}/proj_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
-        params["user_name"] = \
-            open("/etc/swift-config/{}/user_name".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
-        params["pass"] = \
-            open("/etc/swift-config/{}/pass".format(party_id), "r").read() if self.data_source == 'swift' else 'N/A'
+        rendered = pystache.render(data_template, params)
 
-        params["container_name"] = \
-            self.endpoints["containerName"] if self.data_source == 'swift' else "N/A"
-        params["swift_files"] = \
-            self.endpoints["files"] if self.data_source == 'swift' else 'N/A'
-        params["filename"] = self.endpoints["fileName"] if self.data_source == 'swift' else 'N/A'
+        return b64encode(rendered.encode()).decode()
 
-        return params
+    def gen_data_conf(self):
 
-    def gen_dv_conf(self):
-        """
-        Load DV config using my credentials mounted on the pod via a ConfigMap.
-        Will need to be generalized in the future.
-        """
+        if self.data_source == "dataverse":
 
-        params = dict()
+            data_template = open("{}/dv_config.tmpl".format(self.template_directory), 'r').read()
 
-        params['dv_host'] = \
-            open("/etc/config/dv_host", "r").read() if self.data_source == "dataverse" else "N/A"
-        params['dv_token'] = \
-            open("/etc/config/dv_token", "r").read() if self.data_source == "dataverse" else "N/A"
-        params['dv_alias'] = \
-            self.endpoints['alias'] if self.data_source == "dataverse" else "N/A"
-        params["doi"] = \
-            self.endpoints["doi"] if self.data_source == "dataverse" else "N/A"
-        params['dv_file'] = \
-            self.endpoints["files"] if self.data_source == "dataverse" else "N/A"
+            params = \
+                {
+                    "SOURCE_ALIAS": self.endpoints['alias'],
+                    "DEST_ALIAS": self.endpoints['alias'],
+                    "SOURCE_DOI": self.endpoints['doi'],
+                    "DV_FILE": self.endpoints['files']
+                }
 
-        return params
+            rendered = pystache.render(data_template, params)
+
+            return b64encode(rendered.encode()).decode()
+
+        elif self.data_source == "swift":
+
+            data_template = open("{}/swift_config.tmpl".format(self.template_directory), 'r').read()
+
+            params = \
+                {
+                    "PROJ_NAME": self.endpoints["projName"],
+                    "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
+                    "DEST_CONTAINER_NAME": self.compute_id
+                }
+
+            rendered = pystache.render(data_template, params)
+
+            return b64encode(rendered.encode()).decode()
+
+        else:
+
+            self.app.logger.warn("Data source not recognized: {}\n".format(self.data_source))
 
     def gen_conclave_config(self):
         """
@@ -185,10 +202,6 @@ class ComputeParty:
         """
 
         net_list = self.gen_net_config()
-        swift_params = self.gen_swift_conf()
-        dv_params = self.gen_dv_conf()
-
-        "0.0.0.0:5001 if self.pid == 1 else "
 
         params = \
             {
@@ -203,24 +216,7 @@ class ComputeParty:
                     "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service:5001".format(self.compute_id),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
-                "SERVER_SERVICE": self.jiff_server_ip,
-                "DATA_BACKEND": self.data_source,
-                "OS_AUTH": swift_params["auth_url"],
-                "USERNAME": swift_params["user_name"],
-                "PASSWORD": swift_params["pass"],
-                "PROJ_DOMAIN": swift_params["proj_domain"],
-                "PROJ_NAME": swift_params["proj_name"],
-                "SOURCE_CONTAINER_NAME": swift_params["container_name"],
-                "SWIFT_FILES": swift_params["swift_files"],
-                "FILENAME": swift_params["filename"],
-                "DEST_CONTAINER_NAME": self.compute_id,
-                "DV_HOST": dv_params["dv_host"],
-                "DV_TOKEN": dv_params["dv_token"],
-                "SOURCE_ALIAS": dv_params["dv_alias"],
-                "SOURCE_DOI": dv_params["doi"],
-                "DV_FILE": dv_params["dv_file"],
-                "OUTPUT_AUTHOR": "test author",
-                "DEST_ALIAS": dv_params["dv_alias"]
+                "SERVER_SERVICE": self.jiff_server_ip
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
@@ -265,7 +261,9 @@ class ComputeParty:
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),
-                "CONF": self.conclave_config
+                "CC-CONF": self.conclave_config,
+                "IN-CONF": self.gen_data_conf(),
+                "OUT-CONF": self.gen_swift_output_conf()
             }
 
         data_template = open("{}configmap.tmpl".format(self.template_directory), 'r').read()
