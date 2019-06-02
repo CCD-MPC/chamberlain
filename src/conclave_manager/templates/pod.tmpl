@@ -58,6 +58,10 @@
                     {
                         "name": "data-volume",
                         "mountPath": "/data"
+                    },
+                    {
+                        "name": "swift-auth",
+                        "mountPath": "/etc/swift-auth"
                     }
                 ]
             }
@@ -138,6 +142,28 @@
                     ]
                 }
             },
+            {
+                "name": "swift-auth",
+                "configMap":
+                {
+                    "name": "swift-auth",
+                    "items":
+                    [
+                        {
+                            "key": "osAuthUrl",
+                            "path": "auth_url"
+                        },
+                        {
+                            "key": "username",
+                            "path": "username"
+                        },
+                        {
+                            "key": "password",
+                            "path": "password"
+                        }
+                    ]
+                }
+            }
             {
                 "name": "data-volume",
                 "emptyDir": {}

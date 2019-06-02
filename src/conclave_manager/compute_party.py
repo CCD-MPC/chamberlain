@@ -152,7 +152,8 @@ class ComputeParty:
                 "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
                 "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
                 "USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
-                "PASS": open("/etc/swift-config/mine/pass", "r").read()
+                "PASS": open("/etc/swift-config/mine/pass", "r").read(),
+                "DEST_CONTAINER_NAME": self.compute_id
             }
 
         rendered = pystache.render(data_template, params)
@@ -179,13 +180,17 @@ class ComputeParty:
 
         elif self.data_source == "swift":
 
-            data_template = open("{}/swift_config.tmpl".format(self.template_directory), 'r').read()
+            """
+            TODO: PROJ_NAME needs to be configurable, hardcoded now
+            """
+
+            data_template = open("{}/swift_input_config.tmpl".format(self.template_directory), 'r').read()
 
             params = \
                 {
-                    "PROJ_NAME": self.endpoints["projName"],
+                    "PROJ_NAME": "ccs-musketeer-demo",
                     "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
-                    "DEST_CONTAINER_NAME": self.compute_id
+                    "FILENAME": self.endpoints["fileName"]
                 }
 
             rendered = pystache.render(data_template, params)

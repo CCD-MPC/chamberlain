@@ -1,7 +1,21 @@
 {
-    "osAuthUrl": "{{{AUTH_URL}}}",
-    "projDomain": "{{{PROJ_DOMAIN}}}",
-    "projName": "{{{PROJ_NAME}}}",
-    "userName": "{{{USER_NAME}}}",
-    "pass": "{{{PASS}}}"
+    "dest":
+    {
+        "name": "swift",
+        "project":
+        {
+            "osProjectDomain": "{{{PROJ_DOMAIN}}}",
+            "osProjectName": "{{{PROJ_NAME}}}"
+        },
+        "data":
+        {
+            "container_name": ""{{{DEST_CONTAINER_NAME}}}""
+        },
+        "auth":
+        {
+            "osAuthUrl": "{{{AUTH_URL}}}",
+            "username": "{{{USER_NAME}}}",
+            "password": "{{{PASS}}}"
+        }
+    }
 }
