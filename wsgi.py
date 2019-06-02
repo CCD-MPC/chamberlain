@@ -11,7 +11,6 @@ from base64 import b64encode
 from src.conclave_manager import ConclaveManager
 from src.conclave_manager.status import check_pod_status
 from src.swift import SwiftData
-from src.demo_hacks.mean import MeanHandler
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
@@ -117,16 +116,6 @@ def job_status():
     return jsonify(response)
 
 
-def handle_parallel(config):
-
-    handler = MeanHandler(config, app)
-    jobs = handler.generate_workflows()
-
-    for i in range(5):
-        cc_manager = ConclaveManager(jobs[i], app)
-        cc_manager.run()
-
-
 @app.route('/api/submit', methods=['POST'])
 def submit():
     """
@@ -139,17 +128,8 @@ def submit():
 
         app.logger.info("JSON received: {}".format(config))
 
-        try:
-            method = config["config"]["compute"]
-        except KeyError:
-            method = "single-thread"
-
-        if method == "parallel":
-            handle_parallel(config)
-
-        else:
-            cc_manager = ConclaveManager(config, app)
-            cc_manager.run()
+        cc_manager = ConclaveManager(config, app)
+        cc_manager.run()
 
         response = \
             {
