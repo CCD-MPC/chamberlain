@@ -148,6 +148,7 @@ class ComputeParty:
 
         params = \
             {
+                "PID": self.pid,
                 "AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
                 "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
                 "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
@@ -168,6 +169,7 @@ class ComputeParty:
 
             params = \
                 {
+                    "PID": self.pid,
                     "SOURCE_ALIAS": self.endpoints['alias'],
                     "DEST_ALIAS": self.endpoints['alias'],
                     "SOURCE_DOI": self.endpoints['doi'],
@@ -188,6 +190,7 @@ class ComputeParty:
 
             params = \
                 {
+                    "PID": self.pid,
                     "PROJ_NAME": "ccs-musketeer-demo",
                     "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
                     "FILENAME": self.endpoints["fileName"]
