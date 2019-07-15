@@ -145,7 +145,8 @@ class ConclaveWebInstaller:
                     "{}/deployments/with_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_config_swift_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_db/deployment_config_swift_only.tmpl"
+                    .format(self.template_directory), 'r').read()
             elif self.with_dv:
                 data_template = open(
                     "{}/deployments/with_db/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
@@ -157,10 +158,12 @@ class ConclaveWebInstaller:
                     "{}/deployments/without_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config_swift_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/without_db/deployment_config_swift_only.tmpl"
+                    .format(self.template_directory), 'r').read()
             elif self.with_dv:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/without_db/deployment_config_dv_only.tmpl"
+                    .format(self.template_directory), 'r').read()
             else:
                 raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
         rendered = pystache.render(data_template, data_params)
@@ -188,6 +191,7 @@ class ConclaveWebInstaller:
         try:
             sa = os_client.resources.get(api_version='v1', kind="ServiceAccount")
             api_response = sa.create(namespace=self.config['namespace'], body=self.sa_body)
+            call(["/bin/bash", 'configure_sa.sh', self.config['namespace']])
             print("Created Service Account: \n{} \n".format(api_response))
         except DynamicApiError as e:
             print("Error creating Service Account: \n{} \n".format(e))
