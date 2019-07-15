@@ -247,7 +247,7 @@ class ComputeParty:
 
     def resolve_other_party(self, i):
 
-        file_data = self.config["data"]["endpoints"][i]
+        file_data = self.config["data"]["endpoints"][i - 1]
 
         try:
             namespace_key = self.namespace_map["{0}_{1}".format(file_data["containerName"], file_data["fileName"])]
