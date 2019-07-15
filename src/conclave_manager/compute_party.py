@@ -26,8 +26,13 @@ class ComputeParty:
         self.data_source = data_source
         self.config = protocol_config
         self.mpc_backend = self.set_mpc_backend()
-        self.namespace = self.set_namespace(protocol_config)
+        # TODO needs to be replaced with a DB
+        self.namespace_map = {
+            "ccd-one_in1.csv": "ccd-one",
+            "ccd-two_in2.csv": "ccd-two"
+        }
         self.endpoints = self.get_endpoint()
+        self.namespace = self.set_namespace()
         self.jiff_server_ip = jiff_server_ip
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
@@ -55,13 +60,17 @@ class ComputeParty:
 
         return self.config["data"]["endpoints"][self.pid - 1]
 
-    @staticmethod
-    def set_namespace(config):
+    def set_namespace(self):
+        """
+        TODO: this is a hack lookup for resolving namespaces. need to replace
+        it with a DB call to resolve dataset ownership to openshift projects
+        """
 
         try:
-            namespace = config["namespace"]
+            namespace = \
+                self.namespace_map["{0}_{1}".format(self.endpoints["containerName"], self.endpoints["fileName"])]
         except KeyError:
-            namespace = 'cici'
+            namespace = "cici"
 
         return namespace
 
@@ -221,7 +230,8 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service:5001".format(self.compute_id),
+                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service.{1}:5001"
+                    .format(self.compute_id, self.resolve_other_party(2)),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
@@ -235,6 +245,17 @@ class ComputeParty:
 
         return b64encode(rendered.encode()).decode()
 
+    def resolve_other_party(self, i):
+
+        file_data = self.config["data"]["endpoints"][i]
+
+        try:
+            namespace_key = self.namespace_map["{0}_{1}".format(file_data["containerName"], file_data["fileName"])]
+        except KeyError:
+            namespace_key = "cici"
+
+        return namespace_key
+
     def gen_net_config(self):
         """
         Generate CC Net Config string that gets inserted into CC Config JSON.
@@ -244,9 +265,14 @@ class ComputeParty:
 
         for i in self.all_pids:
             if i == self.pid:
-                ret_net.append({"host": "0.0.0.0", "port": 5000})
+                ret_net.append(
+                    {"host": "0.0.0.0", "port": 5000}
+                )
             else:
-                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.compute_id, str(i)), "port": 5000})
+                ret_net.append(
+                    {"host": "conclave-{0}-{1}-service.{2}"
+                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 5000}
+                )
 
         return json.dumps(ret_net)
 

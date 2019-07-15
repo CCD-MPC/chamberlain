@@ -29,6 +29,9 @@ class JiffServer:
 
     @staticmethod
     def set_namespace(config):
+        # TODO: this parameter shouldn't come from the analyst
+        # Defaulting to cici might be fine, since all traffic through the server is encrypted
+        # Might cause problems with resource allocation though
 
         try:
             namespace = config["namespace"]
