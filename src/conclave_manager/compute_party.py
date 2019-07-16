@@ -234,7 +234,7 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-2-route:5001".format(self.compute_id),
+                    "0.0.0.0:80" if self.pid == 1 else "conclave-{0}-2-route:80".format(self.compute_id),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
@@ -269,12 +269,12 @@ class ComputeParty:
         for i in self.all_pids:
             if i == self.pid:
                 ret_net.append(
-                    {"host": "0.0.0.0", "port": 5000}
+                    {"host": "0.0.0.0", "port": 80}
                 )
             else:
                 ret_net.append(
-                    {"host": "conclave-{0}-{1}-route"
-                        .format(self.compute_id, str(i)), "port": 5000}
+                    {"host": "conclave-{0}-1-route"
+                        .format(self.compute_id), "port": 80}
                 )
 
         return json.dumps(ret_net)
@@ -340,7 +340,7 @@ class ComputeParty:
                 "SERVICE_NAME": "{}-service".format(self.name),
                 "APP_NAME": self.name,
                 "COMPUTE_ID": self.compute_id,
-                "PORT": 5000
+                "PORT": 80
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
@@ -359,7 +359,7 @@ class ComputeParty:
                 "SERVICE_NAME": "{}-oc-service".format(self.name),
                 "APP_NAME": self.name,
                 "COMPUTE_ID": self.compute_id,
-                "PORT": 5001
+                "PORT": 80
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
