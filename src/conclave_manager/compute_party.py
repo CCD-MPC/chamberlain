@@ -393,7 +393,7 @@ class ComputeParty:
                 "Error creating Service: \n{}\n"
                     .format(e))
 
-        os_client = DynamicClient(k_config)
+        os_client = DynamicClient(k_client)
 
         try:
             route = os_client.resources.get(api_version='v1', kind="Route")
