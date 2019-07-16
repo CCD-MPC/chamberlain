@@ -39,11 +39,6 @@
                     {
                         "volumeMounts":[
                             {
-                                "name":"kubecfg-volume",
-                                "mountPath":"/tmp/.kube/",
-                                "readOnly": True
-                            },
-                            {
                                 "name": "db-vol",
                                 "mountPath": "/data/"
                             },
@@ -75,10 +70,6 @@
                         "terminationMessagePath":"/dev/termination-log",
                         "env":[
                             {
-                                "name":"KUBECFG_PATH",
-                                "value":"/tmp/.kube/config"
-                            },
-                            {
                                 "name":"OPENSHIFTMGR_PROJECT",
                                 "value":"{{{NAMESPACE}}}"
                             },
@@ -94,12 +85,6 @@
                         "name": "db-vol",
                         "persistentVolumeClaim":{
                             "claimName": "conclave-web-db"
-                        }
-                    },
-                    {
-                        "name":"kubecfg-volume",
-                        "secret":{
-                            "secretName":"kube-config"
                         }
                     },
                     {

@@ -44,13 +44,6 @@ class ConclaveWebInstaller:
 
         return conf
 
-    def create_secret(self):
-        """
-        Create generic secret from Kube config file
-        """
-
-        call(["/bin/bash", 'create_secret.sh', self.config['namespace']])
-
     @staticmethod
     def define_service_account():
         """
@@ -175,8 +168,6 @@ class ConclaveWebInstaller:
         Launch all objects
         """
 
-        self.create_secret()
-
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
 
@@ -191,8 +182,8 @@ class ConclaveWebInstaller:
         try:
             sa = os_client.resources.get(api_version='v1', kind="ServiceAccount")
             api_response = sa.create(namespace=self.config['namespace'], body=self.sa_body)
-            call(["/bin/bash", 'configure_sa.sh', self.config['namespace']])
             print("Created Service Account: \n{} \n".format(api_response))
+            call(["/bin/bash", 'configure_sa.sh', self.config['namespace']])
         except DynamicApiError as e:
             print("Error creating Service Account: \n{} \n".format(e))
 

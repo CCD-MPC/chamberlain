@@ -39,11 +39,6 @@
                     {
                         "volumeMounts":[
                             {
-                                "name":"kubecfg-volume",
-                                "mountPath":"/tmp/.kube/",
-                                "readOnly": True
-                            },
-                            {
                                 "name":"swift-vol",
                                 "mountPath":"/etc/swift-cfg/mine/",
                                 "readOnly": True
@@ -76,10 +71,6 @@
                         "terminationMessagePath":"/dev/termination-log",
                         "env":[
                             {
-                                "name":"KUBECFG_PATH",
-                                "value":"/tmp/.kube/config"
-                            },
-                            {
                                 "name":"OPENSHIFTMGR_PROJECT",
                                 "value":"{{{NAMESPACE}}}"
                             },
@@ -91,12 +82,6 @@
                     }
                 ],
                 "volumes":[
-                    {
-                        "name":"kubecfg-volume",
-                        "secret":{
-                            "secretName":"kube-config"
-                        }
-                    },
                     {
                         "name":"swift-vol",
                         "configMap":{
