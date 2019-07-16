@@ -6,8 +6,6 @@ import json
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import DynamicApiError
 from base64 import b64encode, b64decode
 
 
@@ -48,6 +46,7 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+        self.oc_service_body = self.define_oc_service()
         self.route_body = self.define_route()
 
     def set_mpc_backend(self):
@@ -235,8 +234,7 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:5000" if self.pid == 1 else "conclave-{0}-1-route:5000"
-                    .format(self.compute_id, self.resolve_other_party(2)),
+                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-2-route:5001".format(self.compute_id),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
@@ -276,7 +274,7 @@ class ComputeParty:
             else:
                 ret_net.append(
                     {"host": "conclave-{0}-{1}-route"
-                        .format(self.compute_id, str(i))}
+                        .format(self.compute_id, str(i)), "port": 5000}
                 )
 
         return json.dumps(ret_net)
@@ -341,7 +339,27 @@ class ComputeParty:
             {
                 "SERVICE_NAME": "{}-service".format(self.name),
                 "APP_NAME": self.name,
-                "COMPUTE_ID": self.compute_id
+                "COMPUTE_ID": self.compute_id,
+                "PORT": 5000
+            }
+
+        data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return ast.literal_eval(rendered)
+
+    def define_oc_service(self):
+        """
+        Populate Service template for CC Pods and MPC backends.
+        """
+
+        params = \
+            {
+                "SERVICE_NAME": "{}-oc-service".format(self.name),
+                "APP_NAME": self.name,
+                "COMPUTE_ID": self.compute_id,
+                "PORT": 5001
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
@@ -355,6 +373,7 @@ class ComputeParty:
         params = {
             "ROUTE_NAME": "{}-route".format(self.name),
             "SERVICE_NAME": "{}-service".format(self.name),
+            "OC_SERVICE_NAME": "{}-oc-service".format(self.name),
             "COMPUTE_ID": self.compute_id
 
         }
@@ -372,9 +391,11 @@ class ComputeParty:
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
+        kube_extensions = k_client.ExtensionsV1beta1Api()
 
         try:
-            api_response = kube_client.create_namespaced_config_map(self.namespace, self.config_map_body, pretty='true')
+            api_response = \
+                kube_client.create_namespaced_config_map(self.namespace, self.config_map_body, pretty='true')
             self.app.logger.info(
                 "ConfigMap created successfully with response: \n{}\n"
                     .format(api_response))
@@ -384,7 +405,8 @@ class ComputeParty:
                     .format(e))
 
         try:
-            api_response = kube_client.create_namespaced_service(self.namespace, body=self.service_body, pretty='true')
+            api_response = \
+                kube_client.create_namespaced_service(self.namespace, body=self.service_body, pretty='true')
             self.app.logger.info(
                 "Service created successfully with response: \n{}\n"
                     .format(api_response))
@@ -393,14 +415,27 @@ class ComputeParty:
                 "Error creating Service: \n{}\n"
                     .format(e))
 
-        os_client = DynamicClient(k_client)
+        try:
+            api_response = \
+                kube_client.create_namespaced_service(self.namespace, body=self.oc_service_body, pretty='true')
+            self.app.logger.info(
+                "Service created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Service: \n{}\n"
+                    .format(e))
 
         try:
-            route = os_client.resources.get(api_version='v1', kind="Route")
-            api_response = route.create(namespace=self.namespace, body=self.route_body)
-            print("Created Route: \n{} \n".format(api_response))
-        except DynamicApiError as e:
-            print("Error creating Route: \n{} \n".format(e))
+            api_response = \
+                kube_extensions.create_namespaced_ingress(self.namespace, body=self.route_body, pretty='true')
+            self.app.logger.info(
+                "Route created successfully with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating Route: \n{}\n"
+                    .format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')

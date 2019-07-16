@@ -20,16 +20,10 @@
         "ports":
         [
             {
-                "name": "5000-tcp",
+                "name": "tcp",
                 "protocol": "TCP",
-                "port": 5000,
-                "targetPort": 5000
-            },
-            {
-                "name": "5001-tcp",
-                "protocol": "TCP",
-                "port": 5001,
-                "targetPort": 5001
+                "port": {{{PORT}}},
+                "targetPort": {{{PORT}}}
             }
         ]
     }

@@ -1,23 +1,48 @@
 {
-    "apiVersion":"v1",
-    "kind":"Route",
-    "metadata":{
+    "apiVersion":"extensions/v1beta1",
+    "kind":"Ingress",
+    "metadata":
+    {
         "name": "{{{ROUTE_NAME}}}",
-        "labels":{
+        "labels":
+        {
             "job_id": "{{{COMPUTE_ID}}}"
-            },
-        "annotations":{
-            "openshift.io/host.generated":"true"
-        },
-    },
-    "spec":{
-        "port":{
-            "targetPort":"5000-tcp"
-        },
-        "to":{
-            "kind":"Service",
-            "name":"{{{SERVICE_NAME}}}",
-            "weight":100
         }
+    },
+    "spec":
+    {
+        "rules":
+        [
+            {
+                "http":
+                {
+                    "paths":
+                    [
+                        {
+                            "backend":
+                            {
+                                "serviceName": "{{{SERVICE_NAME}}}",
+                                "servicePort": 5000
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "http":
+                {
+                    "paths":
+                    [
+                        {
+                            "backend":
+                            {
+                                "serviceName": "{{{OC_SERVICE_NAME}}}",
+                                "servicePort": 5001
+                            }
+                        }
+                    ]
+                }
+            }
+        ]
     }
 }
