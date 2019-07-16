@@ -6,6 +6,8 @@ import json
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
+from openshift.dynamic import DynamicClient
+from openshift.dynamic.exceptions import DynamicApiError
 from base64 import b64encode, b64decode
 
 
@@ -26,7 +28,7 @@ class ComputeParty:
         self.data_source = data_source
         self.config = protocol_config
         self.mpc_backend = self.set_mpc_backend()
-        # TODO needs to be replaced with a DB
+        # TODO hack that needs to be replaced with a DB
         self.namespace_map = {
             "ccd-one_in1.csv": "ccd-one",
             "ccd-two_in2.csv": "ccd-two"
@@ -45,7 +47,8 @@ class ComputeParty:
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
-        self.service_body = self.define_service("{}-service".format(self.name))
+        self.service_body = self.define_service()
+        self.route_body = self.define_route()
 
     def set_mpc_backend(self):
 
@@ -68,7 +71,9 @@ class ComputeParty:
 
         try:
             namespace = \
-                self.namespace_map["{0}_{1}".format(self.endpoints["containerName"], self.endpoints["fileName"])]
+                self.namespace_map[
+                    "{0}_{1}"
+                    .format(self.endpoints["containerName"], self.endpoints["fileName"])]
         except KeyError:
             namespace = "cici"
 
@@ -230,7 +235,7 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service.{1}:5001"
+                    "0.0.0.0:5000" if self.pid == 1 else "conclave-{0}-1-route:5000"
                     .format(self.compute_id, self.resolve_other_party(2)),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
@@ -270,8 +275,8 @@ class ComputeParty:
                 )
             else:
                 ret_net.append(
-                    {"host": "conclave-{0}-{1}-service.{2}"
-                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 5000}
+                    {"host": "conclave-{0}-{1}-route"
+                        .format(self.compute_id, str(i))}
                 )
 
         return json.dumps(ret_net)
@@ -327,19 +332,34 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
-    def define_service(self, svc_name):
+    def define_service(self):
         """
         Populate Service template for CC Pods and MPC backends.
         """
 
         params = \
             {
-                "SERVICE_NAME": svc_name,
+                "SERVICE_NAME": "{}-service".format(self.name),
                 "APP_NAME": self.name,
                 "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return ast.literal_eval(rendered)
+
+    def define_route(self):
+
+        params = {
+            "ROUTE_NAME": "{}-route".format(self.name),
+            "SERVICE_NAME": "{}-service".format(self.name),
+            "COMPUTE_ID": self.compute_id
+
+        }
+
+        data_template = open("{}/route.tmpl".format(self.template_directory), 'r').read()
 
         rendered = pystache.render(data_template, params)
 
@@ -372,6 +392,15 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
+
+        os_client = DynamicClient(kube_client)
+
+        try:
+            route = os_client.resources.get(api_version='v1', kind="Route")
+            api_response = route.create(namespace=self.namespace, body=self.route_body)
+            print("Created Route: \n{} \n".format(api_response))
+        except DynamicApiError as e:
+            print("Error creating Route: \n{} \n".format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')

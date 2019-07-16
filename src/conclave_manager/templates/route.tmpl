@@ -1,0 +1,23 @@
+{
+    "apiVersion":"v1",
+    "kind":"Route",
+    "metadata":{
+        "name": "{{{ROUTE_NAME}}}",
+        "labels":{
+            "job_id": "{{{COMPUTE_ID}}}"
+            },
+        "annotations":{
+            "openshift.io/host.generated":"true"
+        },
+    },
+    "spec":{
+        "port":{
+            "targetPort":"5000-tcp"
+        },
+        "to":{
+            "kind":"Service",
+            "name":"{{{SERVICE_NAME}}}",
+            "weight":100
+        }
+    }
+}
