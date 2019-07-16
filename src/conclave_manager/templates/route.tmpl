@@ -19,21 +19,15 @@
                     "paths":
                     [
                         {
+                            "path": "/",
                             "backend":
                             {
                                 "serviceName": "{{{SERVICE_NAME}}}",
                                 "servicePort": 5000
                             }
-                        }
-                    ]
-                }
-            },
-            {
-                "http":
-                {
-                    "paths":
-                    [
+                        },
                         {
+                            "path": "/oc",
                             "backend":
                             {
                                 "serviceName": "{{{OC_SERVICE_NAME}}}",
