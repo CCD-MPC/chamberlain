@@ -443,7 +443,7 @@ class ComputeParty:
 
         try:
             route = os_client.resources.get(api_version='v1', kind="Route")
-            api_response = route.create(namespace=self.config['namespace'], body=self.route_body)
+            api_response = route.create(namespace=self.namespace, body=self.route_body)
             print("Created Route: \n{} \n".format(api_response))
         except DynamicApiError as e:
             print("Error creating Route: \n{} \n".format(e))
