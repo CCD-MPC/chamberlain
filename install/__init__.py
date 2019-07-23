@@ -44,6 +44,13 @@ class ConclaveWebInstaller:
 
         return conf
 
+    def create_secret(self):
+        """
+        Create generic secret from Kube config file
+        """
+
+        call(["/bin/bash", 'create_secret.sh', self.config['namespace']])
+
     @staticmethod
     def define_service_account():
         """
@@ -105,7 +112,7 @@ class ConclaveWebInstaller:
         """
 
         data_params = {
-            "API_VERSION": "apps.openshift.io/v1" if self.minishift else "v1"
+            "API_VERSION": "route.openshift.io/v1" if self.minishift else "v1"
         }
 
         data_template = open("{}route.tmpl".format(self.template_directory), 'r').read()
@@ -168,6 +175,7 @@ class ConclaveWebInstaller:
         Launch all objects
         """
 
+        self.create_secret()
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
 
