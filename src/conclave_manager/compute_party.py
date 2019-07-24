@@ -7,8 +7,6 @@ import urllib3
 from kubernetes import client as k_client
 from kubernetes import config as k_config
 from kubernetes.client.rest import ApiException
-from openshift.dynamic import DynamicClient
-from openshift.dynamic.exceptions import DynamicApiError
 from base64 import b64encode, b64decode
 
 urllib3.disable_warnings()
@@ -21,7 +19,7 @@ class ComputeParty:
     """
 
     def __init__(
-            self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="dataverse"
+            self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="swift"
     ):
 
         self.pid = pid
@@ -51,8 +49,6 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
-        self.oc_service_body = self.define_oc_service()
-        self.route_body = self.define_route()
 
     def set_mpc_backend(self):
 
@@ -339,8 +335,7 @@ class ComputeParty:
             {
                 "SERVICE_NAME": "{}-service".format(self.name),
                 "APP_NAME": self.name,
-                "COMPUTE_ID": self.compute_id,
-                "PORT": 8080
+                "COMPUTE_ID": self.compute_id
             }
 
         data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
@@ -348,69 +343,11 @@ class ComputeParty:
         rendered = pystache.render(data_template, params)
 
         return ast.literal_eval(rendered)
-
-    def define_oc_service(self):
-        """
-        Populate Service template for CC Pods and MPC backends.
-        """
-
-        params = \
-            {
-                "SERVICE_NAME": "{}-oc-service".format(self.name),
-                "APP_NAME": self.name,
-                "COMPUTE_ID": self.compute_id,
-                "PORT": 5001
-            }
-
-        data_template = open("{}/service.tmpl".format(self.template_directory), 'r').read()
-
-        rendered = pystache.render(data_template, params)
-
-        return ast.literal_eval(rendered)
-
-    def define_route(self):
-
-        params = {
-            "ROUTE_NAME": "{}-route".format(self.name),
-            "SERVICE_NAME": "{}-service".format(self.name),
-            "COMPUTE_ID": self.compute_id
-
-        }
-
-        data_template = open("{}/route.tmpl".format(self.template_directory), 'r').read()
-
-        rendered = pystache.render(data_template, params)
-
-        return ast.literal_eval(rendered)
-
-    @staticmethod
-    def get_client(**kwargs):
-
-        conf = k_client.Configuration()
-
-        for k, v in kwargs.items():
-            setattr(conf, k, v)
-
-        k_client.Configuration.set_default(conf)
-
-        k8s_client = k_client.ApiClient(conf)
-
-        return DynamicClient(k8s_client)
 
     def launch(self):
         """
         Launch all Kubernetes objects.
         """
-
-        tok = open("/var/run/secrets/kubernetes.io/serviceaccount/token", 'r').read()
-
-        token_auth = dict(
-            api_key={'authorization': 'Bearer {}'.format(tok)},
-            host='https://192.168.64.2:8443',
-            verify_ssl=False
-        )
-
-        os_client = self.get_client(**token_auth)
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
@@ -436,24 +373,6 @@ class ComputeParty:
             self.app.logger.error(
                 "Error creating Service: \n{}\n"
                     .format(e))
-
-        # try:
-        #     api_response = \
-        #         kube_client.create_namespaced_service(self.namespace, body=self.oc_service_body, pretty='true')
-        #     self.app.logger.info(
-        #         "Service created successfully with response: \n{}\n"
-        #             .format(api_response))
-        # except ApiException as e:
-        #     self.app.logger.error(
-        #         "Error creating Service: \n{}\n"
-        #             .format(e))
-
-        # try:
-        #     route = os_client.resources.get(api_version='route.openshift.io/v1', kind="Route")
-        #     api_response = route.create(namespace=self.namespace, body=self.route_body)
-        #     self.app.logger.info("Created Route: \n{} \n".format(api_response))
-        # except DynamicApiError as e:
-        #     self.app.logger.info("Error creating Route: \n{} \n".format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
