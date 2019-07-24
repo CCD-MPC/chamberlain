@@ -239,7 +239,7 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:8080" if self.pid == 1 else "conclave-{0}-2-route:8080".format(self.compute_id),
+                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service:5001".format(self.compute_id),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
@@ -273,14 +273,9 @@ class ComputeParty:
 
         for i in self.all_pids:
             if i == self.pid:
-                ret_net.append(
-                    {"host": "0.0.0.0", "port": 8080}
-                )
+                ret_net.append({"host": "0.0.0.0", "port": 5000})
             else:
-                ret_net.append(
-                    {"host": "conclave-{0}-{1}-{2}.192.168.64.2.nip.io"
-                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 8080}
-                )
+                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.compute_id, str(i)), "port": 5000})
 
         return json.dumps(ret_net)
 
@@ -451,12 +446,12 @@ class ComputeParty:
         #         "Error creating Service: \n{}\n"
         #             .format(e))
 
-        try:
-            route = os_client.resources.get(api_version='route.openshift.io/v1', kind="Route")
-            api_response = route.create(namespace=self.namespace, body=self.route_body)
-            self.app.logger.info("Created Route: \n{} \n".format(api_response))
-        except DynamicApiError as e:
-            self.app.logger.info("Error creating Route: \n{} \n".format(e))
+        # try:
+        #     route = os_client.resources.get(api_version='route.openshift.io/v1', kind="Route")
+        #     api_response = route.create(namespace=self.namespace, body=self.route_body)
+        #     self.app.logger.info("Created Route: \n{} \n".format(api_response))
+        # except DynamicApiError as e:
+        #     self.app.logger.info("Error creating Route: \n{} \n".format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
