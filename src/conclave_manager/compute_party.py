@@ -2,6 +2,7 @@ import os
 import ast
 import pystache
 import json
+import urllib3
 
 from kubernetes import client as k_client
 from kubernetes import config as k_config
@@ -9,6 +10,8 @@ from kubernetes.client.rest import ApiException
 from openshift.dynamic import DynamicClient
 from openshift.dynamic.exceptions import DynamicApiError
 from base64 import b64encode, b64decode
+
+urllib3.disable_warnings()
 
 
 class ComputeParty:
@@ -465,9 +468,9 @@ class ComputeParty:
         try:
             route = os_client.resources.get(api_version='v1', kind="Route")
             api_response = route.create(namespace=self.namespace, body=self.route_body)
-            print("Created Route: \n{} \n".format(api_response))
+            self.app.logger.info("Created Route: \n{} \n".format(api_response))
         except DynamicApiError as e:
-            print("Error creating Route: \n{} \n".format(e))
+            self.app.logger.info("Error creating Route: \n{} \n".format(e))
 
         try:
             api_response = kube_client.create_namespaced_pod(self.namespace, body=self.pod_body, pretty='true')
