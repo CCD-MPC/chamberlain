@@ -240,7 +240,7 @@ class ComputeParty:
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
                     "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service.{1}.svc.cluster.local:5001"
-                        .format(self.compute_id, self.resolve_other_party(2)),
+                    .format(self.compute_id, self.resolve_other_party(1)),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
