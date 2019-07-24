@@ -454,7 +454,7 @@ class ComputeParty:
         #             .format(e))
 
         try:
-            route = os_client.resources.get(api_version='v1', kind="Route")
+            route = os_client.resources.get(api_version='route.openshift.io/v1', kind="Route")
             api_response = route.create(namespace=self.namespace, body=self.route_body)
             self.app.logger.info("Created Route: \n{} \n".format(api_response))
         except DynamicApiError as e:
