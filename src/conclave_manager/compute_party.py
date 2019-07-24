@@ -274,12 +274,12 @@ class ComputeParty:
         for i in self.all_pids:
             if i == self.pid:
                 ret_net.append(
-                    {"host": "0.0.0.0", "port": 80}
+                    {"host": "0.0.0.0", "port": 8080}
                 )
             else:
                 ret_net.append(
                     {"host": "conclave-{0}-{1}-{2}.192.168.64.2.nip.io"
-                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 80}
+                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 8080}
                 )
 
         return json.dumps(ret_net)
