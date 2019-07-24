@@ -411,7 +411,7 @@ class ComputeParty:
 
         token_auth = dict(
             api_key={'authorization': 'Bearer {}'.format(tok)},
-            host='https://k-openshift.osh.massopen.cloud:8443',
+            host='https://192.168.64.2:8443',
             verify_ssl=False
         )
 
@@ -419,7 +419,6 @@ class ComputeParty:
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
-        kube_extensions = k_client.ExtensionsV1beta1Api()
 
         try:
             api_response = \
@@ -452,17 +451,6 @@ class ComputeParty:
         # except ApiException as e:
         #     self.app.logger.error(
         #         "Error creating Service: \n{}\n"
-        #             .format(e))
-
-        # try:
-        #     api_response = \
-        #         kube_extensions.create_namespaced_ingress(self.namespace, body=self.route_body, pretty='true')
-        #     self.app.logger.info(
-        #         "Route created successfully with response: \n{}\n"
-        #             .format(api_response))
-        # except ApiException as e:
-        #     self.app.logger.error(
-        #         "Error creating Route: \n{}\n"
         #             .format(e))
 
         try:
