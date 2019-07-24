@@ -274,12 +274,12 @@ class ComputeParty:
         for i in self.all_pids:
             if i == self.pid:
                 ret_net.append(
-                    {"host": "0.0.0.0", "port": 8080}
+                    {"host": "0.0.0.0", "port": 80}
                 )
             else:
                 ret_net.append(
-                    {"host": "conclave-{0}-{1}-route/"
-                        .format(self.compute_id, str(i)), "port": 8080}
+                    {"host": "conclave-{0}-{1}-{2}.192.168.64.2.nip.io"
+                        .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 80}
                 )
 
         return json.dumps(ret_net)
@@ -289,8 +289,6 @@ class ComputeParty:
         Populate ConfigMap template.
         """
 
-        name = "conclave-{0}-{1}-map".format(self.compute_id, str(self.pid))
-
         try:
             in_file = self.endpoints["fileName"]
         except KeyError:
@@ -298,7 +296,7 @@ class ComputeParty:
 
         data_params = \
             {
-                "NAME": name,
+                "NAME": "conclave-{0}-{1}-map".format(self.compute_id, str(self.pid)),
                 "FILENAME": in_file,
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
