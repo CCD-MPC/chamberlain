@@ -239,7 +239,8 @@ class ComputeParty:
                 "SPARK_IP_PORT": "N/A",
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
-                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service:5001".format(self.compute_id),
+                    "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service.{1}.svc.cluster.local:5001"
+                        .format(self.compute_id, self.resolve_other_party(2)),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip
@@ -275,7 +276,8 @@ class ComputeParty:
             if i == self.pid:
                 ret_net.append({"host": "0.0.0.0", "port": 5000})
             else:
-                ret_net.append({"host": "conclave-{0}-{1}-service".format(self.compute_id, str(i)), "port": 5000})
+                ret_net.append({"host": "conclave-{0}-{1}-service.{2}.svc.cluster.local"
+                               .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 5000})
 
         return json.dumps(ret_net)
 
