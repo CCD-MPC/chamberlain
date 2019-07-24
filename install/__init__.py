@@ -44,13 +44,6 @@ class ConclaveWebInstaller:
 
         return conf
 
-    def create_secret(self):
-        """
-        Create generic secret from Kube config file
-        """
-
-        call(["/bin/bash", 'create_secret.sh', self.config['namespace']])
-
     @staticmethod
     def define_service_account():
         """
@@ -175,7 +168,6 @@ class ConclaveWebInstaller:
         Launch all objects
         """
 
-        self.create_secret()
         kube_client = k_config.new_client_from_config()
         os_client = DynamicClient(kube_client)
 
