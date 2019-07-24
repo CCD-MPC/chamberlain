@@ -385,13 +385,34 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
+    @staticmethod
+    def get_client(**kwargs):
+
+        conf = k_client.Configuration()
+
+        for k, v in kwargs.items():
+            setattr(conf, k, v)
+
+        k_client.Configuration.set_default(conf)
+
+        k8s_client = k_client.ApiClient(conf)
+
+        return DynamicClient(k8s_client)
+
     def launch(self):
         """
         Launch all Kubernetes objects.
         """
 
-        os_conf = k_config.new_client_from_config()
-        os_client = DynamicClient(os_conf)
+        tok = open("/var/run/secrets/kubernetes.io/serviceaccount/token", 'r').read()
+
+        token_auth = dict(
+            api_key={'authorization': 'Bearer {}'.format(tok)},
+            host='https://k-openshift.osh.massopen.cloud:8443',
+            verify_ssl=False
+        )
+
+        os_client = self.get_client(**token_auth)
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
