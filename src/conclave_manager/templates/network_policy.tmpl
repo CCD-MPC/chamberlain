@@ -1,0 +1,42 @@
+{
+    "apiVersion": "extensions/v1beta1",
+    "kind": "NetworkPolicy",
+    "metadata":
+    {
+        "name": "{{{NAME}}}"
+    },
+    "spec":
+    {
+        "podSelector":
+        {
+            "matchLabels":
+            {
+                "app": "{{{POD_NAME}}}"
+            }
+        },
+        "ingress": [
+            {
+                "from": [
+                    "podSelector":
+                    {
+                        "matchLabels":
+                        {
+                            "job_id": "{{{COMPUTE_ID}}}"
+                        }
+                    }
+                ],
+                "ports": [
+                    {
+                        "protocol": "TCP",
+                        "port": 5000
+                    },
+                    {
+                        "protocol": "TCP",
+                        "port": 5001
+                    }
+                ]
+            }
+        ]
+    }
+
+}

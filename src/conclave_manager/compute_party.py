@@ -49,6 +49,7 @@ class ComputeParty:
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
         self.service_body = self.define_service()
+        self.network_policy_body = self.define_network_policy()
 
     def set_mpc_backend(self):
 
@@ -344,6 +345,21 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
+    def define_network_policy(self):
+
+        params = \
+            {
+                "NAME": self.name,
+                "POD_NAME": self.name,
+                "COMPUTE_ID": self.compute_id
+            }
+
+        data_template = open("{}/network_policy.tmpl".format(self.template_directory), 'r').read()
+
+        rendered = pystache.render(data_template, params)
+
+        return ast.literal_eval(rendered)
+
     def launch(self):
         """
         Launch all Kubernetes objects.
@@ -351,6 +367,7 @@ class ComputeParty:
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
+        kube_client_networking = k_client.NetworkingV1Api()
 
         try:
             api_response = \
@@ -382,6 +399,17 @@ class ComputeParty:
         except ApiException as e:
             self.app.logger.error(
                 "Error creating Pod: \n{}\n"
+                    .format(e))
+
+        try:
+            api_response = kube_client_networking.create_namespaced_network_policy(
+                self.namespace, body=self.network_policy_body, pretty='true')
+            self.app.logger.info(
+                "NetworkPolicy successfully created with response: \n{}\n"
+                    .format(api_response))
+        except ApiException as e:
+            self.app.logger.error(
+                "Error creating NetworkPolicy: \n{}\n"
                     .format(e))
 
         return
