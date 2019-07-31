@@ -17,11 +17,13 @@
         "ingress": [
             {
                 "from": [
-                    "podSelector":
                     {
-                        "matchLabels":
+                        "podSelector":
                         {
-                            "job_id": "{{{COMPUTE_ID}}}"
+                            "matchLabels":
+                            {
+                                "job_id": "{{{COMPUTE_ID}}}"
+                            }
                         }
                     }
                 ],
