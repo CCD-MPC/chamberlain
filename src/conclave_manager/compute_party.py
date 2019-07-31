@@ -351,7 +351,7 @@ class ComputeParty:
             {
                 "NAME": self.name,
                 "POD_NAME": self.name,
-                "COMPUTE_ID": self.compute_id
+                "OTHER_PROJECT": "ccd-two" if self.namespace == "ccd-one" else "ccd-one"
             }
 
         data_template = open("{}/network_policy.tmpl".format(self.template_directory), 'r').read()
