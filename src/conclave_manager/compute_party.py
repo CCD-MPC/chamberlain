@@ -401,15 +401,15 @@ class ComputeParty:
                 "Error creating Pod: \n{}\n"
                     .format(e))
 
-        try:
-            api_response = kube_client_networking.create_namespaced_network_policy(
-                self.namespace, body=self.network_policy_body, pretty='true')
-            self.app.logger.info(
-                "NetworkPolicy successfully created with response: \n{}\n"
-                    .format(api_response))
-        except ApiException as e:
-            self.app.logger.error(
-                "Error creating NetworkPolicy: \n{}\n"
-                    .format(e))
+        # try:
+        #     api_response = kube_client_networking.create_namespaced_network_policy(
+        #         self.namespace, body=self.network_policy_body, pretty='true')
+        #     self.app.logger.info(
+        #         "NetworkPolicy successfully created with response: \n{}\n"
+        #             .format(api_response))
+        # except ApiException as e:
+        #     self.app.logger.error(
+        #         "Error creating NetworkPolicy: \n{}\n"
+        #             .format(e))
 
         return
