@@ -4,7 +4,7 @@ sys.path.append("/app/conclave/")
 
 import conclave.lang as cc
 from conclave.utils import *
-import policy_engine.verify as policy
+from policy_engine.verify import Verify
 
 def protocol():
 
@@ -12,5 +12,10 @@ def protocol():
 
 if __name__ == "__main__":
 
-    verifier = policy.Verify(protocol, {{{POLICY}}}, {{{PID}}})
+    with open(sys.argv[1], 'r') as c:
+        conf = json.load(c)
+    with open(sys.argv[2], 'r') as p:
+        policy = json.load(p)
+
+    verifier = Verify(protocol, policy, conf)
     verifier.verify()

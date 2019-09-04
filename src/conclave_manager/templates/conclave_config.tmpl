@@ -38,6 +38,83 @@
 			"server_ip": "{{{SERVER_SERVICE}}}",
 			"server_pid": 0,
 			"server_port": 9000
-		}
+		},
+		"data": "{{{DATA_BACKEND}}}"
+	},
+	"swift":
+	{
+        "source":
+        {
+            "name": "swift",
+            "pid": {{{PID}}},
+            "project":
+            {
+                "osProjectDomain": "default",
+                "osProjectName": "{{{PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{SOURCE_CONTAINER_NAME}}}",
+                "file_name": "{{{FILENAME}}}"
+            },
+            "auth":
+            {
+                "osAuthUrl": "",
+                "username": "",
+                "password": ""
+            }
+        },
+        "dest":
+        {
+            "name": "swift",
+            "pid": {{{PID}}},
+            "project":
+            {
+                "osProjectDomain": "{{{OUTPUT_PROJ_DOMAIN}}}",
+                "osProjectName": "{{{OUTPUT_PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+            },
+            "auth":
+            {
+                "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
+                "username": "{{{OUTPUT_USER_NAME}}}",
+                "password": "{{{OUTPUT_PASS}}}"
+            }
+        }
+	},
+	"dataverse":
+	{
+        "source":
+        {
+            "name": "dataverse",
+            "pid": {{{PID}}},
+            "source":
+            {
+                "alias": "{{{SOURCE_ALIAS}}}",
+                "doi": "{{{SOURCE_DOI}}}",
+                "files": "{{{DV_FILE}}}"
+            },
+            "dest":
+            {
+                "project":
+                {
+                    "osProjectDomain": "default",
+                    "osProjectName": "ccs-musketeer-demo"
+                },
+                "data":
+                {
+                    "container_name": "{{{DEST_CONTAINER_NAME}}}"
+                },
+                "auth":
+                {
+                    "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
+                    "username": "{{{OUTPUT_USER_NAME}}}",
+                    "password": "{{{OUTPUT_PASS}}}"
+                }
+            }
+        }
 	}
 }

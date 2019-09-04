@@ -93,8 +93,6 @@ class ComputeParty:
     def gen_protocol_for_policy(self):
         """
         Generate protocol code that gets passed to the policy engine.
-
-        TODO: fetch policy and pass to template
         """
 
         if self.config['protocol']['format'] == 'b64':
@@ -153,75 +151,73 @@ class ComputeParty:
     #
     #     return params
 
-    def gen_swift_output_conf(self):
-        """
-        Loads Swift config using either default configuration data
-        or from config passed via config.swift_config, if present in the JSON.
-        """
+    # def gen_swift_output_conf(self):
+    #     """
+    #     Loads Swift config using either default configuration data
+    #     or from config passed via config.swift_config, if present in the JSON.
+    #     """
+    #
+    #     data_template = open("{}/swift_output_config.tmpl".format(self.template_directory), 'r').read()
+    #
+    #     params = \
+    #         {
+    #             "PID": self.pid,
+    #             "AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
+    #             "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
+    #             "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
+    #             "USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
+    #             "PASS": open("/etc/swift-config/mine/pass", "r").read(),
+    #             "DEST_CONTAINER_NAME": self.compute_id
+    #         }
+    #
+    #     rendered = pystache.render(data_template, params)
+    #
+    #     return b64encode(rendered.encode()).decode()
 
-        data_template = open("{}/swift_output_config.tmpl".format(self.template_directory), 'r').read()
-
-        params = \
-            {
-                "PID": self.pid,
-                "AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
-                "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
-                "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
-                "USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
-                "PASS": open("/etc/swift-config/mine/pass", "r").read(),
-                "DEST_CONTAINER_NAME": self.compute_id
-            }
-
-        rendered = pystache.render(data_template, params)
-
-        return b64encode(rendered.encode()).decode()
-
-    def gen_data_conf(self):
-
-        if self.data_source == "dataverse":
-
-            data_template = open("{}/dv_config.tmpl".format(self.template_directory), 'r').read()
-
-            params = \
-                {
-                    "PID": self.pid,
-                    "SOURCE_ALIAS": self.endpoints['alias'],
-                    "DEST_ALIAS": self.endpoints['alias'],
-                    "SOURCE_DOI": self.endpoints['doi'],
-                    "DV_FILE": self.endpoints['files']
-                }
-
-            rendered = pystache.render(data_template, params)
-
-            return b64encode(rendered.encode()).decode()
-
-        elif self.data_source == "swift":
-
-            """
-            TODO: PROJ_NAME needs to be configurable, hardcoded now
-            """
-
-            data_template = open("{}/swift_input_config.tmpl".format(self.template_directory), 'r').read()
-
-            params = \
-                {
-                    "PID": self.pid,
-                    "PROJ_NAME": "ccs-musketeer-demo",
-                    "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
-                    "FILENAME": self.endpoints["fileName"]
-                }
-
-            rendered = pystache.render(data_template, params)
-
-            return b64encode(rendered.encode()).decode()
-
-        else:
-
-            self.app.logger.warn("Data source not recognized: {}\n".format(self.data_source))
+    # def gen_data_conf(self):
+    #
+    #     if self.data_source == "dataverse":
+    #
+    #         data_template = open("{}/dv_config.tmpl".format(self.template_directory), 'r').read()
+    #
+    #         params = \
+    #             {
+    #                 "PID": self.pid,
+    #                 "SOURCE_ALIAS": self.endpoints['alias'],
+    #                 "DEST_ALIAS": self.endpoints['alias'],
+    #                 "SOURCE_DOI": self.endpoints['doi'],
+    #                 "DV_FILE": self.endpoints['files']
+    #             }
+    #
+    #         rendered = pystache.render(data_template, params)
+    #
+    #         return b64encode(rendered.encode()).decode()
+    #
+    #     elif self.data_source == "swift":
+    #
+    #         data_template = open("{}/swift_input_config.tmpl".format(self.template_directory), 'r').read()
+    #
+    #         params = \
+    #             {
+    #                 "PID": self.pid,
+    #                 "PROJ_NAME": "ccs-musketeer-demo",
+    #                 "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
+    #                 "FILENAME": self.endpoints["fileName"]
+    #             }
+    #
+    #         rendered = pystache.render(data_template, params)
+    #
+    #         return b64encode(rendered.encode()).decode()
+    #
+    #     else:
+    #
+    #         self.app.logger.warn("Data source not recognized: {}\n".format(self.data_source))
 
     def gen_conclave_config(self):
         """
         Generate CC Config JSON.
+
+        TODO: configurable PROJ_NAME
         """
 
         net_list = self.gen_net_config()
@@ -240,7 +236,22 @@ class ComputeParty:
                     .format(self.compute_id, self.resolve_other_party(1)),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
-                "SERVER_SERVICE": self.jiff_server_ip
+                "SERVER_SERVICE": self.jiff_server_ip,
+                "DATA_BACKEND": self.data_source,
+                "PROJ_NAME": "ccs-musketeer-demo",
+                "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
+                "FILENAME": self.endpoints["fileName"],
+                "OUTPUT_AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
+                "OUTPUT_PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
+                "OUTPUT_PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
+                "OUTPUT_USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
+                "OUTPUT_PASS": open("/etc/swift-config/mine/pass", "r").read(),
+                "DEST_CONTAINER_NAME": self.compute_id,
+                "SOURCE_ALIAS": "",
+                "SOURCE_DOI": "",
+                "DV_FILE": "",
+
+
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
@@ -295,9 +306,7 @@ class ComputeParty:
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),
-                "CC-CONF": self.conclave_config,
-                "IN-CONF": self.gen_data_conf(),
-                "OUT-CONF": self.gen_swift_output_conf()
+                "CC-CONF": self.conclave_config
             }
 
         data_template = open("{}configmap.tmpl".format(self.template_directory), 'r').read()
