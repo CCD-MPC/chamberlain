@@ -3,9 +3,9 @@
     "kind":"Service",
     "metadata":{
         "labels":{
-            "app":"conclave-web"
+            "app":"chamberlain"
         },
-        "name":"conclave-web"
+        "name":"chamberlain"
     },
     "spec":{
         "ports":[
@@ -17,8 +17,8 @@
             }
         ],
         "selector":{
-            "app":"conclave-web",
-            "deploymentconfig":"conclave-web"
+            "app":"chamberlain",
+            "deploymentconfig":"chamberlain"
         },
         "sessionAffinity":"None",
         "type":"ClusterIP"

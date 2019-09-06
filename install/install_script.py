@@ -1,6 +1,6 @@
 import argparse
 
-from install import ConclaveWebInstaller
+from install import ChamberlainInstaller
 
 
 if __name__ == "__main__":
@@ -13,5 +13,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    installer = ConclaveWebInstaller(with_swift=args.swift, with_dv=args.dv, with_vol=args.vol, minishift=args.mini)
+    installer = ChamberlainInstaller(with_swift=args.swift, with_dv=args.dv, with_vol=args.vol, minishift=args.mini)
     installer.launch_all()

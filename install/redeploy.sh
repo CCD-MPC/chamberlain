@@ -1,6 +1,6 @@
 #!/bin/bash
 
-oc delete all -l app=conclave-web
+oc delete all -l app=chamberlain
 oc delete cm swift-cfg-mine
 oc delete sa cw-svc
 

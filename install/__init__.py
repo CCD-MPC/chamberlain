@@ -10,7 +10,7 @@ from openshift.dynamic.exceptions import DynamicApiError
 from subprocess import call
 
 
-class ConclaveWebInstaller:
+class ChamberlainInstaller:
     """
     Defines and launches all objects associated with C2D.
     """
@@ -50,7 +50,7 @@ class ConclaveWebInstaller:
         Create Service Account body
         """
 
-        sa_body = k_client.V1ServiceAccount(metadata={"name": "cw-svc", "labels": {"app": "conclave-web"}})
+        sa_body = k_client.V1ServiceAccount(metadata={"name": "cw-svc", "labels": {"app": "chamberlain"}})
 
         return sa_body
 

@@ -3,17 +3,17 @@
     "kind":"Route",
     "metadata":{
         "labels":{
-            "app":"conclave-web"
+            "app":"chamberlain"
             },
         "annotations":{
             "openshift.io/host.generated":"true"
         },
-        "name":"conclave-web"
+        "name":"chamberlain"
     },
     "spec":{
         "to":{
             "kind":"Service",
-            "name":"conclave-web",
+            "name":"chamberlain",
             "weight":100
         }
     }

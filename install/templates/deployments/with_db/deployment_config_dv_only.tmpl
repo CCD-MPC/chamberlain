@@ -4,15 +4,15 @@
     "metadata":{
         "generation":1,
         "labels":{
-            "app":"conclave-web"
+            "app":"chamberlain"
         },
-        "name":"conclave-web"
+        "name":"chamberlain"
     },
     "spec":{
         "replicas":1,
         "selector":{
-            "app":"conclave-web",
-            "deploymentconfig":"conclave-web"
+            "app":"chamberlain",
+            "deploymentconfig":"chamberlain"
         },
         "strategy":{
             "activeDeadlineSeconds":21600,
@@ -28,8 +28,8 @@
         "template":{
             "metadata":{
                 "labels":{
-                    "app":"conclave-web",
-                    "deploymentconfig":"conclave-web"
+                    "app":"chamberlain",
+                    "deploymentconfig":"chamberlain"
                 }
             },
             "spec":{
@@ -48,9 +48,9 @@
                                 "readOnly": True
                             }
                         ],
-                        "image":"docker.io/bengetch/conclave-web:latest",
+                        "image":"docker.io/bengetch/chamberlain:latest",
                         "imagePullPolicy":"Always",
-                        "name":"conclave-web",
+                        "name":"chamberlain",
                         "ports":[
                             {
                                 "containerPort":8080,
@@ -84,7 +84,7 @@
                     {
                         "name": "db-vol",
                         "persistentVolumeClaim":{
-                            "claimName": "conclave-web-db"
+                            "claimName": "chamberlain-db"
                         }
                     },
                     {
