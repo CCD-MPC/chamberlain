@@ -96,25 +96,25 @@
                 "alias": "{{{SOURCE_ALIAS}}}",
                 "doi": "{{{SOURCE_DOI}}}",
                 "files": "{{{DV_FILE}}}"
-            },
-            "dest":
-            {
-                "project":
-                {
-                    "osProjectDomain": "default",
-                    "osProjectName": "ccs-musketeer-demo"
-                },
-                "data":
-                {
-                    "container_name": "{{{DEST_CONTAINER_NAME}}}"
-                },
-                "auth":
-                {
-                    "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
-                    "username": "{{{OUTPUT_USER_NAME}}}",
-                    "password": "{{{OUTPUT_PASS}}}"
-                }
             }
         }
-	}
+        "dest":
+        {
+            "project":
+             {
+                "osProjectDomain": "default",
+                "osProjectName": "ccs-musketeer-demo"
+              },
+            "data":
+              {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+              },
+              "auth":
+              {
+                 "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
+                 "username": "{{{OUTPUT_USER_NAME}}}",
+                 "password": "{{{OUTPUT_PASS}}}"
+               }
+        }
+    }
 }

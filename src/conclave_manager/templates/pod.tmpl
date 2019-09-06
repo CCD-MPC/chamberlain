@@ -52,8 +52,12 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-volume-main",
-                        "mountPath": "/etc/config"
+                        "name": "config-shared",
+                        "mountPath": "/conf"
+                    },
+                    {
+                        "name": "cc-config-volume",
+                        "mountPath": "/conf/workflow"
                     },
                     {
                         "name": "data-volume",
@@ -62,10 +66,6 @@
                     {
                         "name": "swift-auth",
                         "mountPath": "/etc/swift-auth"
-                    },
-                    {
-                        "name": "config-volume",
-                        "mountPath": "conf_vol"
                     }
                 ]
             }
@@ -83,12 +83,16 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-volume-policy",
-                        "mountPath": "/etc/init-config"
+                        "name": "config-shared",
+                        "mountPath": "/conf"
                     },
                     {
-                        "name": "config-volume",
-                        "mountPath": "/conf_vol"
+                        "name": "cc-config-volume",
+                        "mountPath": "/conf/workflow"
+                    },
+                    {
+                        "name": "swift-auth",
+                        "mountPath": "/etc/swift-auth"
                     }
                 ],
                 "env":
@@ -107,7 +111,7 @@
         "volumes":
         [
             {
-                "name": "config-volume-main",
+                "name": "cc-config-volume",
                 "configMap":
                 {
                     "name": "{{{CONFIGMAP_NAME}}}",
@@ -118,34 +122,12 @@
                             "path": "protocol"
                         },
                         {
-                            "key": "conf_encoded",
-                            "path": "conf"
-                        },
-                        {
-                            "key": "in_conf_encoded",
-                            "path": "in_conf"
-                        },
-                        {
-                            "key": "out_conf_encoded",
-                            "path": "out_conf"
-                        }
-                    ]
-                }
-            },
-            {
-                "name": "config-volume-policy",
-                "configMap":
-                {
-                    "name": "{{{CONFIGMAP_NAME}}}",
-                    "items":
-                    [
-                        {
                             "key": "protocol_policy_encoded",
                             "path": "protocol_policy"
                         },
                         {
-                            "key": "in_conf_encoded",
-                            "path": "in_conf"
+                            "key": "conf_encoded",
+                            "path": "conf"
                         }
                     ]
                 }
@@ -177,7 +159,7 @@
                 "emptyDir": {}
             },
             {
-                "name": "config-volume",
+                "name": "config-shared",
                 "emptyDir": {}
             }
         ]

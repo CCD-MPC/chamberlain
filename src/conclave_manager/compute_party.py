@@ -249,9 +249,7 @@ class ComputeParty:
                 "DEST_CONTAINER_NAME": self.compute_id,
                 "SOURCE_ALIAS": "",
                 "SOURCE_DOI": "",
-                "DV_FILE": "",
-
-
+                "DV_FILE": ""
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
@@ -294,15 +292,9 @@ class ComputeParty:
         Populate ConfigMap template.
         """
 
-        try:
-            in_file = self.endpoints["fileName"]
-        except KeyError:
-            in_file = ""
-
         data_params = \
             {
                 "NAME": "conclave-{0}-{1}-map".format(self.compute_id, str(self.pid)),
-                "FILENAME": in_file,
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
                 "PROTOCOL_POLICY": str(self.protocol_for_policy),
