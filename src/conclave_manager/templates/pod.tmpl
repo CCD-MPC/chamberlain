@@ -52,12 +52,8 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-shared",
-                        "mountPath": "/conf"
-                    },
-                    {
                         "name": "cc-config-volume",
-                        "mountPath": "/conf/workflow"
+                        "mountPath": "/etc/workflow"
                     },
                     {
                         "name": "data-volume",
@@ -83,12 +79,8 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "config-shared",
-                        "mountPath": "/conf"
-                    },
-                    {
                         "name": "cc-config-volume",
-                        "mountPath": "/conf/workflow"
+                        "mountPath": "/etc/workflow"
                     },
                     {
                         "name": "swift-auth",
@@ -156,10 +148,6 @@
             },
             {
                 "name": "data-volume",
-                "emptyDir": {}
-            },
-            {
-                "name": "config-shared",
                 "emptyDir": {}
             }
         ]
