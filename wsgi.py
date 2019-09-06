@@ -22,14 +22,14 @@ def catch_all(path):
     """
     Redirect arbitrary pages to homepage.
     """
-    return "welcome to conclave-web lol"
+    return "we gotta help the pope"
 
 
 @app.route('/')
 @app.route('/index')
 def index():
 
-    return "welcome to conclave-web lol"
+    return "we gotta help the pope"
 
 
 def pull_swift_data(compute_id, cfg):
