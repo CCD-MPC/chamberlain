@@ -86,7 +86,7 @@ def return_output():
     response = \
         {
             "job_id": msg["ID"],
-            "files": [data]
+            "files": data
         }
 
     return jsonify(response)
