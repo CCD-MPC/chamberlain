@@ -52,16 +52,8 @@
                 "volumeMounts":
                 [
                     {
-                        "name": "cc-config-volume",
-                        "mountPath": "/etc/workflow"
-                    },
-                    {
                         "name": "data-volume",
                         "mountPath": "/data"
-                    },
-                    {
-                        "name": "swift-auth",
-                        "mountPath": "/etc/swift-auth"
                     }
                 ]
             }
@@ -72,13 +64,6 @@
                 "name": "init-{{{POD_NAME}}}",
                 "image": "docker.io/bengetch/policy-engine:latest",
                 "imagePullPolicy": "Always",
-                "ports":
-                [
-                    {
-                        "containerPort": 5000,
-                        "protocol": "TCP"
-                    }
-                ],
                 "command":
                 [
                     "./run.sh"
