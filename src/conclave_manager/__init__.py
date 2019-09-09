@@ -74,12 +74,6 @@ class ConclaveManager:
         else:
             server_ip = "N/A"
 
-        data_backend = ''
-        try:
-            data_backend = self.protocol_config["config"]["backend"]
-        except KeyError:
-            self.app.logger.error("No input data endpoints passed. \n\n")
-
         all_pids = list(range(1, len(self.protocol_config['data']['endpoints']) + 1))
 
         compute_parties = []
@@ -107,8 +101,7 @@ class ConclaveManager:
                     self.protocol,
                     self.app,
                     self.protocol_config,
-                    server_ip,
-                    data_backend)
+                    server_ip)
                 )
 
         return compute_parties

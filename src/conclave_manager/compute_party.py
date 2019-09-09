@@ -34,7 +34,8 @@ class ComputeParty:
             "ccd-one_in1.csv": "ccd-one",
             "ccd-two_in2.csv": "ccd-two"
         }
-        self.endpoints = self.get_endpoint()
+        self.endpoint = self.get_endpoint()
+        self.data_source = self.resolve_data_source()
         self.namespace = self.set_namespace()
         self.jiff_server_ip = jiff_server_ip
 
@@ -63,17 +64,30 @@ class ComputeParty:
 
         return self.config["data"]["endpoints"][self.pid - 1]
 
+    def resolve_data_source(self):
+
+        if self.endpoint["backend"].lower() == "swift":
+            return "swift"
+        elif self.endpoint["backend"].lower() == "dataverse":
+            return "dataverse"
+        else:
+            raise Exception("Data backend not recognized: {}\n".format(self.endpoint["backend"]))
+
     def set_namespace(self):
         """
         TODO: this is a hack lookup for resolving namespaces. need to replace
         it with a DB call to resolve dataset ownership to openshift projects
         """
 
+        if self.data_source == "swift":
+            map_key = "{0}_{1}".format(self.endpoint["containerName"], self.endpoint["fileName"])
+        elif self.data_source == "dataverse":
+            map_key = "{0}_{1}".format(self.endpoint["alias"], self.endpoint["fileName"])
+        else:
+            raise Exception("Data backend not recognized: {}\n".format(self.endpoint["backend"]))
+
         try:
-            namespace = \
-                self.namespace_map[
-                    "{0}_{1}"
-                    .format(self.endpoints["containerName"], self.endpoints["fileName"])]
+            namespace = self.namespace_map[map_key]
         except KeyError:
             namespace = "cici"
 
@@ -175,17 +189,16 @@ class ComputeParty:
                 "SERVER_SERVICE": self.jiff_server_ip,
                 "DATA_BACKEND": self.data_source,
                 "PROJ_NAME": "ccs-musketeer-demo",
-                "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
-                "FILENAME": self.endpoints["fileName"],
+                "SOURCE_CONTAINER_NAME": self.endpoint["containerName"] if self.data_source == "swift" else "",
+                "FILENAME": self.endpoint["fileName"],
                 "OUTPUT_AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
                 "OUTPUT_PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
                 "OUTPUT_PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
                 "OUTPUT_USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
                 "OUTPUT_PASS": open("/etc/swift-config/mine/pass", "r").read(),
                 "DEST_CONTAINER_NAME": self.compute_id,
-                "SOURCE_ALIAS": "",
-                "SOURCE_DOI": "",
-                "DV_FILE": ""
+                "SOURCE_ALIAS": self.endpoint["alias"] if self.data_source == "dataverse" else "",
+                "SOURCE_DOI": self.endpoint["doi"] if self.data_source == "dataverse" else ""
             }
 
         data_template = open("{}/conclave_config.tmpl".format(self.template_directory), 'r').read()
