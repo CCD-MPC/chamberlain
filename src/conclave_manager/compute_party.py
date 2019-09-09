@@ -44,7 +44,6 @@ class ComputeParty:
 
         self.protocol = protocol
         self.protocol_main = self.gen_protocol_main()
-        self.protocol_for_policy = self.gen_protocol_for_policy()
         self.conclave_config = self.gen_conclave_config()
         self.config_map_body = self.define_config_map()
         self.pod_body = self.define_pod()
@@ -90,33 +89,9 @@ class ComputeParty:
 
         return "\n".join(ret)
 
-    def gen_protocol_for_policy(self):
-        """
-        Generate protocol code that gets passed to the policy engine.
-        """
-
-        if self.config['protocol']['format'] == 'b64':
-            protocol_decoded = self.format_protocol(b64decode(self.protocol).decode())
-        else:
-            protocol_decoded = self.format_protocol(self.protocol)
-
-        params = {
-            "PROTOCOL": protocol_decoded,
-            "PID": int(self.pid),
-            "POLICY": dict()
-        }
-
-        data_template = open("{}/protocol_for_policy.tmpl".format(self.template_directory), 'r').read()
-
-        rendered = pystache.render(data_template, params)
-
-        self.app.logger.info("CC protocol for policy engine: \n{}\n".format(rendered))
-
-        return b64encode(rendered.encode()).decode()
-
     def gen_protocol_main(self):
         """
-        Generate protocol code that will be executed if the workflow passes the policy engine.
+        Generate protocol code.
         """
 
         if self.config['protocol']['format'] == 'b64':
@@ -151,29 +126,6 @@ class ComputeParty:
     #
     #     return params
 
-    # def gen_swift_output_conf(self):
-    #     """
-    #     Loads Swift config using either default configuration data
-    #     or from config passed via config.swift_config, if present in the JSON.
-    #     """
-    #
-    #     data_template = open("{}/swift_output_config.tmpl".format(self.template_directory), 'r').read()
-    #
-    #     params = \
-    #         {
-    #             "PID": self.pid,
-    #             "AUTH_URL": open("/etc/swift-config/mine/auth_url", "r").read(),
-    #             "PROJ_DOMAIN": open("/etc/swift-config/mine/proj_domain", "r").read(),
-    #             "PROJ_NAME": open("/etc/swift-config/mine/proj_name", "r").read(),
-    #             "USER_NAME": open("/etc/swift-config/mine/user_name", "r").read(),
-    #             "PASS": open("/etc/swift-config/mine/pass", "r").read(),
-    #             "DEST_CONTAINER_NAME": self.compute_id
-    #         }
-    #
-    #     rendered = pystache.render(data_template, params)
-    #
-    #     return b64encode(rendered.encode()).decode()
-
     # def gen_data_conf(self):
     #
     #     if self.data_source == "dataverse":
@@ -187,22 +139,6 @@ class ComputeParty:
     #                 "DEST_ALIAS": self.endpoints['alias'],
     #                 "SOURCE_DOI": self.endpoints['doi'],
     #                 "DV_FILE": self.endpoints['files']
-    #             }
-    #
-    #         rendered = pystache.render(data_template, params)
-    #
-    #         return b64encode(rendered.encode()).decode()
-    #
-    #     elif self.data_source == "swift":
-    #
-    #         data_template = open("{}/swift_input_config.tmpl".format(self.template_directory), 'r').read()
-    #
-    #         params = \
-    #             {
-    #                 "PID": self.pid,
-    #                 "PROJ_NAME": "ccs-musketeer-demo",
-    #                 "SOURCE_CONTAINER_NAME": self.endpoints["containerName"],
-    #                 "FILENAME": self.endpoints["fileName"]
     #             }
     #
     #         rendered = pystache.render(data_template, params)
@@ -297,7 +233,6 @@ class ComputeParty:
                 "NAME": "conclave-{0}-{1}-map".format(self.compute_id, str(self.pid)),
                 "NAMESPACE": self.namespace,
                 "PROTOCOL_MAIN": str(self.protocol_main),
-                "PROTOCOL_POLICY": str(self.protocol_for_policy),
                 "CC-CONF": self.conclave_config
             }
 
@@ -368,7 +303,7 @@ class ComputeParty:
 
         k_config.load_incluster_config()
         kube_client = k_client.CoreV1Api()
-        kube_client_networking = k_client.NetworkingV1Api()
+        # kube_client_networking = k_client.NetworkingV1Api()
 
         try:
             api_response = \
