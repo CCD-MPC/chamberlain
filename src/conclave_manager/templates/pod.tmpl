@@ -72,6 +72,17 @@
                 "name": "init-{{{POD_NAME}}}",
                 "image": "docker.io/bengetch/policy-engine:latest",
                 "imagePullPolicy": "Always",
+                "ports":
+                [
+                    {
+                        "containerPort": 5000,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "containerPort": 5001,
+                        "protocol": "TCP"
+                    }
+                ],
                 "command":
                 [
                     "./run.sh"
