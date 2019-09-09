@@ -16,9 +16,12 @@ if __name__ == "__main__":
     print("\nRUNNING POLICY ENGINE\n")
 
     with open(sys.argv[1], 'r') as c:
-        conf = json.load(c)
+        c = json.load(c)
     with open(sys.argv[2], 'r') as p:
         policy = json.load(p)
 
-    verifier = Verify(protocol, policy, conf)
-    verifier.verify()
+    verifier = Verify(protocol, policy, c)
+    v = verifier.verify()
+
+    if v:
+        print("Success")
