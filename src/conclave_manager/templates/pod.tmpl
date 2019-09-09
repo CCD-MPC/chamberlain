@@ -75,8 +75,8 @@
                         "mountPath": "/etc/workflow"
                     },
                     {
-                        "name": "swift-auth",
-                        "mountPath": "/etc/swift-auth"
+                        "name": "{{{BACKEND}}}-auth",
+                        "mountPath": "/etc/{{{BACKEND}}}-auth"
                     },
                     {
                         "name": "data-volume",
@@ -117,25 +117,11 @@
                 }
             },
             {
-                "name": "swift-auth",
+                "name": "{{{BACKEND}}}-auth",
                 "configMap":
                 {
-                    "name": "swift-auth",
-                    "items":
-                    [
-                        {
-                            "key": "osAuthUrl",
-                            "path": "auth_url"
-                        },
-                        {
-                            "key": "username",
-                            "path": "username"
-                        },
-                        {
-                            "key": "password",
-                            "path": "password"
-                        }
-                    ]
+                    "name": "{{{BACKEND}}}-auth",
+                    "items": {{{BACKEND_PARAMS}}}
                 }
             },
             {

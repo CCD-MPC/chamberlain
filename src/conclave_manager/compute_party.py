@@ -260,6 +260,21 @@ class ComputeParty:
         Populate Pod template.
         """
 
+        params = [
+            {
+                "key": "osAuthUrl",
+                "path": "auth_url"
+            },
+            {
+                "key": "username",
+                "path": "username"
+            },
+            {
+                "key": "password",
+                "path": "password"
+            }
+        ]
+
         params = \
             {
                 "POD_NAME": self.name,
@@ -267,7 +282,9 @@ class ComputeParty:
                 "NAMESPACE": self.namespace,
                 "COMPUTE_ID": self.compute_id,
                 "IMAGE": "docker.io/bengetch/conclave-jiff:latest" if self.mpc_backend == "jiff"
-                else "docker.io/bengetch/conclave-oc:latest"
+                else "docker.io/bengetch/conclave-oc:latest",
+                "BACKEND": self.data_source,
+                "BACKEND_PARAMS": params
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
