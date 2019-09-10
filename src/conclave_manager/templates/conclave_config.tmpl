@@ -45,8 +45,6 @@
 	{
         "source":
         {
-            "name": "swift",
-            "pid": {{{PID}}},
             "project":
             {
                 "osProjectDomain": "default",
@@ -66,8 +64,6 @@
         },
         "dest":
         {
-            "name": "swift",
-            "pid": {{{PID}}},
             "project":
             {
                 "osProjectDomain": "{{{OUTPUT_PROJ_DOMAIN}}}",
@@ -89,13 +85,16 @@
 	{
         "source":
         {
-            "name": "dataverse",
-            "pid": {{{PID}}},
-            "source":
+            "data":
             {
                 "alias": "{{{SOURCE_ALIAS}}}",
                 "doi": "{{{SOURCE_DOI}}}",
-                "file": "{{{FILENAME}}}"
+                "file_name": "{{{FILENAME}}}"
+            },
+            "auth":
+            {
+                "host": "",
+                "token": ""
             }
         },
         "dest":
