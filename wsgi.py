@@ -22,12 +22,16 @@ def catch_all(path):
     """
     Redirect arbitrary pages to homepage.
     """
+
     return "we gotta help the pope"
 
 
 @app.route('/')
 @app.route('/index')
 def index():
+    """
+    homepage
+    """
 
     return "we gotta help the pope"
 

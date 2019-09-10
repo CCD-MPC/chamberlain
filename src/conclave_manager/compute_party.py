@@ -125,44 +125,6 @@ class ComputeParty:
 
         return b64encode(rendered.encode()).decode()
 
-    # def gen_dv_conf(self):
-    #     """
-    #     Load DV config using my credentials mounted on the pod via a ConfigMap.
-    #     Will need to be generalized in the future.
-    #     """
-    #
-    #     params = dict()
-    #
-    #     params['dv_host'] = \
-    #         open("/etc/config/dv_host", "r").read() if self.data_source == "dataverse" else "N/A"
-    #     params['dv_token'] = \
-    #         open("/etc/config/dv_token", "r").read() if self.data_source == "dataverse" else "N/A"
-    #
-    #     return params
-
-    # def gen_data_conf(self):
-    #
-    #     if self.data_source == "dataverse":
-    #
-    #         data_template = open("{}/dv_config.tmpl".format(self.template_directory), 'r').read()
-    #
-    #         params = \
-    #             {
-    #                 "PID": self.pid,
-    #                 "SOURCE_ALIAS": self.endpoints['alias'],
-    #                 "DEST_ALIAS": self.endpoints['alias'],
-    #                 "SOURCE_DOI": self.endpoints['doi'],
-    #                 "DV_FILE": self.endpoints['files']
-    #             }
-    #
-    #         rendered = pystache.render(data_template, params)
-    #
-    #         return b64encode(rendered.encode()).decode()
-    #
-    #     else:
-    #
-    #         self.app.logger.warn("Data source not recognized: {}\n".format(self.data_source))
-
     def gen_conclave_config(self):
         """
         Generate CC Config JSON.

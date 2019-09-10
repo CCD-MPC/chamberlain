@@ -1,7 +1,3 @@
-"""
-Helper class for get_data and put_data
-Establishes swift connection and returns a connection object
-"""
 import os
 
 from keystoneauth1.identity import v3
