@@ -277,15 +277,3 @@ class ChamberlainInstaller:
             print("Created Route: \n{} \n".format(api_response))
         except DynamicApiError as e:
             print("Error creating Route: \n{} \n".format(e))
-
-        return
-
-
-
-
-
-
-
-
-
-

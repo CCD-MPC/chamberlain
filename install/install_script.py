@@ -19,4 +19,4 @@ if __name__ == "__main__":
     if not args.client_install:
         installer.build_chamberlain_server()
     else:
-        pass
+        installer.build_chamberlain_client()
