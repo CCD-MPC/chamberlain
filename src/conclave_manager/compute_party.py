@@ -132,7 +132,7 @@ class ComputeParty:
         """
         Generate CC Config JSON.
 
-        TODO: configurable PROJ_NAME
+        TODO: configurable PROJ_NAME (will probably need to resolve with a db call to the input data)
         """
 
         net_list = self.gen_net_config()
