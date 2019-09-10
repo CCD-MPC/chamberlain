@@ -95,6 +95,9 @@ class ComputeParty:
 
     @staticmethod
     def format_protocol(protocol):
+        """
+        Format protocol code with tabs before injecting into template.
+        """
 
         ret = []
 
@@ -172,6 +175,10 @@ class ComputeParty:
         return b64encode(rendered.encode()).decode()
 
     def resolve_other_party(self, i):
+        """
+        Hack to resolve namespaces for testing.
+        TODO: update once net policy objects work.
+        """
 
         file_data = self.config["data"]["endpoints"][i - 1]
 
@@ -217,25 +224,30 @@ class ComputeParty:
 
         return ast.literal_eval(rendered)
 
+    def setup_data_params(self):
+        """
+        Construct key/path values for input data configmap on pod.
+        """
+
+        if self.data_source == "swift":
+            return [
+                {"key": "osAuthUrl", "path": "auth_url"},
+                {"key": "username", "path": "username"},
+                {"key": "password", "path": "password"}
+            ]
+
+        elif self.data_source == "dataverse":
+            return [
+                {"key": "host", "path": "dv_host"},
+                {"key": "token", "path": "dv_token"}
+            ]
+        else:
+            raise Exception("Data backend not recognized: {}\n".format(self.data_source))
+
     def define_pod(self):
         """
         Populate Pod template.
         """
-
-        params = [
-            {
-                "key": "osAuthUrl",
-                "path": "auth_url"
-            },
-            {
-                "key": "username",
-                "path": "username"
-            },
-            {
-                "key": "password",
-                "path": "password"
-            }
-        ]
 
         params = \
             {
@@ -246,7 +258,7 @@ class ComputeParty:
                 "IMAGE": "docker.io/bengetch/conclave-jiff:latest" if self.mpc_backend == "jiff"
                 else "docker.io/bengetch/conclave-oc:latest",
                 "BACKEND": self.data_source,
-                "BACKEND_PARAMS": params
+                "BACKEND_PARAMS": self.setup_data_params()
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
