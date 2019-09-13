@@ -255,8 +255,8 @@ class ComputeParty:
                 "CONFIGMAP_NAME": self.config_map_name,
                 "NAMESPACE": self.namespace,
                 "COMPUTE_ID": self.compute_id,
-                "IMAGE": "docker.io/bengetch/conclave-jiff:latest" if self.mpc_backend == "jiff"
-                else "docker.io/bengetch/conclave-oc:latest",
+                "IMAGE": "docker.io/bengetch/conclave:jiff" if self.mpc_backend == "jiff"
+                else "docker.io/bengetch/conclave:oc",
                 "BACKEND": self.data_source,
                 "BACKEND_PARAMS": self.setup_data_params()
             }
