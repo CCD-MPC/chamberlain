@@ -31,8 +31,8 @@ class ComputeParty:
         self.mpc_backend = self.set_mpc_backend()
         # TODO hack that needs to be replaced with a DB
         self.namespace_map = {
-            "ccd-one_in1.csv": "ccd-one",
-            "ccd-two_in2.csv": "ccd-two"
+            "p-test-one_in1.csv": "ccd-one",
+            "p-test-two_in2.csv": "ccd-two"
         }
         self.endpoint = self.get_endpoint()
         self.data_source = self.resolve_data_source()
