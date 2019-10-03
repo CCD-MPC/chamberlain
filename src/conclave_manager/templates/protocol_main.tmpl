@@ -1,0 +1,27 @@
+import sys
+import json
+sys.path.append("/app/dogma/")
+sys.path.append("/app/conclave/")
+
+from conclave.lang import *
+from conclave.utils import *
+from conclave import workflow
+
+from dogma.verify import Verify
+
+def protocol():
+
+{{{PROTOCOL}}}
+
+if __name__ == "__main__":
+
+    with open(sys.argv[1], 'r') as c:
+        c = json.load(c)
+    with open(sys.argv[2], 'r') as p:
+        policy = json.load(p)
+
+    verifier = Verify(protocol, policy, c)
+    v = verifier.verify()
+
+    if v:
+        workflow.run(protocol, c, mpc_framework="{{{MPC_FRAMEWORK}}}", apply_optimisations=True)

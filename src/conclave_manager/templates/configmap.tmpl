@@ -1,0 +1,18 @@
+{
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata":
+    {
+        "name": "{{{NAME}}}",
+        "namespace": "{{{NAMESPACE}}}",
+        "labels":
+        {
+            "app": "chamberlain"
+        }
+    },
+    "data":
+    {
+        "protocol_encoded": "{{{PROTOCOL_MAIN}}}",
+        "conf_encoded": "{{{CC-CONF}}}"
+    }
+}

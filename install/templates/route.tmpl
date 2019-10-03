@@ -1,0 +1,20 @@
+{
+    "apiVersion":"{{{API_VERSION}}}",
+    "kind":"Route",
+    "metadata":{
+        "labels":{
+            "app":"chamberlain"
+            },
+        "annotations":{
+            "openshift.io/host.generated":"true"
+        },
+        "name":"chamberlain"
+    },
+    "spec":{
+        "to":{
+            "kind":"Service",
+            "name":"chamberlain",
+            "weight":100
+        }
+    }
+}

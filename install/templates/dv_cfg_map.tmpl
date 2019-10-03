@@ -1,0 +1,17 @@
+{
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata":
+    {
+        "labels":{
+            "app":"chamberlain"
+        },
+        "name": "dataverse-auth",
+        "namespace": "{{{NAMESPACE}}}"
+    },
+    "data":
+    {
+        "host": "{{{HOST}}}",
+        "token": "{{{TOKEN}}}"
+    }
+}

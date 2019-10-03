@@ -1,0 +1,119 @@
+{
+	"user_config":
+	{
+		"pid": {{{PID}}},
+		"all_pids": {{{ALL_PIDS}}},
+		"leaky_ops": 0,
+		"workflow_name": "{{{WORKFLOW_NAME}}}",
+		"use_floats": 1,
+		"paths":
+		{
+			"input_path": "/data/",
+			"output_path": "/data/",
+			"code_path": "/app/code"
+		}
+	},
+	"net":
+	{
+		"parties": {{{NET_CONFIG}}}
+	},
+	"backends":
+	{
+		"spark":
+		{
+			"available": {{{SPARK_AVAIL}}},
+			"master_url": "{{{SPARK_IP_PORT}}}"
+		},
+		"oblivc":
+		{
+			"available": {{{OC_AVAIL}}},
+			"oc_path": "/app/obliv-c/bin/oblivcc",
+			"ip_port": "{{{OC_IP_PORT}}}"
+		},
+		"jiff":
+		{
+			"available": {{{JIFF_AVAIL}}},
+			"jiff_path": "/app/jiff/",
+			"party_count": "{{{PARTY_COUNT}}}",
+			"server_ip": "{{{SERVER_SERVICE}}}",
+			"server_pid": 0,
+			"server_port": 9000
+		},
+		"data": "{{{DATA_BACKEND}}}"
+	},
+	"swift":
+	{
+        "source":
+        {
+            "project":
+            {
+                "osProjectDomain": "default",
+                "osProjectName": "{{{PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{SOURCE_CONTAINER_NAME}}}",
+                "file_name": "{{{FILENAME}}}"
+            },
+            "auth":
+            {
+                "osAuthUrl": "",
+                "username": "",
+                "password": ""
+            }
+        },
+        "dest":
+        {
+            "project":
+            {
+                "osProjectDomain": "{{{OUTPUT_PROJ_DOMAIN}}}",
+                "osProjectName": "{{{OUTPUT_PROJ_NAME}}}"
+            },
+            "data":
+            {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+            },
+            "auth":
+            {
+                "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
+                "username": "{{{OUTPUT_USER_NAME}}}",
+                "password": "{{{OUTPUT_PASS}}}"
+            }
+        }
+	},
+	"dataverse":
+	{
+        "source":
+        {
+            "data":
+            {
+                "alias": "{{{SOURCE_ALIAS}}}",
+                "doi": "{{{SOURCE_DOI}}}",
+                "file_name": "{{{FILENAME}}}"
+            },
+            "auth":
+            {
+                "host": "",
+                "token": ""
+            }
+        },
+        "dest":
+        {
+            "project":
+             {
+                "osProjectDomain": "default",
+                "osProjectName": "ccs-musketeer-demo"
+              },
+            "data":
+              {
+                "container_name": "{{{DEST_CONTAINER_NAME}}}"
+              },
+              "auth":
+              {
+                 "osAuthUrl": "{{{OUTPUT_AUTH_URL}}}",
+                 "username": "{{{OUTPUT_USER_NAME}}}",
+                 "password": "{{{OUTPUT_PASS}}}"
+               }
+        }
+    }
+}

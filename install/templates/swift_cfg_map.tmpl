@@ -1,0 +1,21 @@
+{
+    "apiVersion": "v1",
+    "kind": "ConfigMap",
+    "metadata":
+    {
+        "name": "swift-auth",
+        "namespace": "{{{NAMESPACE}}}",
+        "labels":
+        {
+            "app": "chamberlain"
+        }
+    },
+    "data":
+    {
+        "osAuthUrl": "{{{OSAUTHURL}}}",
+        "osProjectDomain": "{{{OSPROJDOMAIN}}}",
+        "osProjectName": "{{{OSPROJNAME}}}",
+        "username": "{{{USERNAME}}}",
+        "password": "{{{PASSWORD}}}"
+    }
+}
