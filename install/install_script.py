@@ -1,6 +1,6 @@
 import argparse
 
-from install import ChamberlainInstaller
+from chamberlain.install import ChamberlainInstaller
 
 
 if __name__ == "__main__":

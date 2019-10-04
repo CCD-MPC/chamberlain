@@ -2,8 +2,8 @@ import os
 
 from time import sleep
 
-from src.conclave_manager.jiff_server import JiffServer
-from src.conclave_manager.compute_party import ComputeParty
+from chamberlain.src import JiffServer
+from chamberlain.src.conclave_manager.compute_party import ComputeParty
 
 
 class ConclaveManager:
