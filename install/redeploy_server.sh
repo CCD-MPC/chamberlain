@@ -5,4 +5,4 @@ oc delete cm swift-auth
 oc delete cm dataverse-auth
 oc delete sa cw-svc
 
-python3 install_script.py --swift=True --dv=True
+python3 install_script.py --swift=True --dv=True --vol=True

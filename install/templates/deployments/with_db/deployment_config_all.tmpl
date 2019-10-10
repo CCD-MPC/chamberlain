@@ -40,18 +40,17 @@
                         "volumeMounts":[
                             {
                                 "name":"swift-vol",
-                                "mountPath":"/etc/swift-
-                                config/mine/",
+                                "mountPath":"/etc/swift-auth/",
+                                "readOnly": True
+                            },
+                            {
+                                "name":"dv-vol",
+                                "mountPath":"/etc/dv-auth/",
                                 "readOnly": True
                             },
                             {
                                 "name": "db-vol",
-                                "mountPath": "/data/"
-                            },
-                            {
-                                "name":"dv-vol",
-                                "mountPath":"/etc/dv_cfg",
-                                "readOnly": True
+                                "mountPath": "/db/"
                             }
                         ],
                         "image":"docker.io/bengetch/chamberlain:latest",
