@@ -19,7 +19,8 @@ class ComputeParty:
     """
 
     def __init__(
-            self, pid, all_pids, compute_id, protocol, app, protocol_config, jiff_server_ip, data_source="swift"
+            self, pid, all_pids, compute_id, protocol, app, protocol_config,
+            jiff_server_ip, namespace_map, data_source="swift"
     ):
 
         self.pid = pid
@@ -29,14 +30,10 @@ class ComputeParty:
         self.data_source = data_source
         self.config = protocol_config
         self.mpc_backend = self.set_mpc_backend()
-        # TODO hack that needs to be replaced with a DB
-        self.namespace_map = {
-            "p-test-one_in1.csv": "ccd-one",
-            "p-test-two_in2.csv": "ccd-two"
-        }
         self.endpoint = self.get_endpoint()
         self.data_source = self.resolve_data_source()
-        self.namespace = self.set_namespace()
+        self.namespace_map = namespace_map
+        self.namespace = namespace_map[int(pid) - 1]
         self.jiff_server_ip = jiff_server_ip
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
@@ -72,26 +69,6 @@ class ComputeParty:
             return "dataverse"
         else:
             raise Exception("Data backend not recognized: {}\n".format(self.endpoint["backend"]))
-
-    def set_namespace(self):
-        """
-        TODO: this is a hack lookup for resolving namespaces. need to replace
-        it with a DB call to resolve dataset ownership to openshift projects
-        """
-
-        if self.data_source == "swift":
-            map_key = "{0}_{1}".format(self.endpoint["containerName"], self.endpoint["fileName"])
-        elif self.data_source == "dataverse":
-            map_key = "{0}_{1}".format(self.endpoint["alias"], self.endpoint["fileName"])
-        else:
-            raise Exception("Data backend not recognized: {}\n".format(self.endpoint["backend"]))
-
-        try:
-            namespace = self.namespace_map[map_key]
-        except KeyError:
-            namespace = "cici"
-
-        return namespace
 
     @staticmethod
     def format_protocol(protocol):
@@ -148,7 +125,7 @@ class ComputeParty:
                 "OC_AVAIL": int(self.mpc_backend == "obliv-c"),
                 "OC_IP_PORT":
                     "0.0.0.0:5001" if self.pid == 1 else "conclave-{0}-1-service.{1}.svc.cluster.local:5001"
-                    .format(self.compute_id, self.resolve_other_party(1)),
+                    .format(self.compute_id, self.namespace_map[1]),
                 "JIFF_AVAIL": int(self.mpc_backend == "jiff"),
                 "PARTY_COUNT": len(self.all_pids),
                 "SERVER_SERVICE": self.jiff_server_ip,
@@ -174,21 +151,6 @@ class ComputeParty:
 
         return b64encode(rendered.encode()).decode()
 
-    def resolve_other_party(self, i):
-        """
-        Hack to resolve namespaces for testing.
-        TODO: update once net policy objects work.
-        """
-
-        file_data = self.config["data"]["endpoints"][i - 1]
-
-        try:
-            namespace_key = self.namespace_map["{0}_{1}".format(file_data["containerName"], file_data["fileName"])]
-        except KeyError:
-            namespace_key = "cici"
-
-        return namespace_key
-
     def gen_net_config(self):
         """
         Generate CC Net Config string that gets inserted into CC Config JSON.
@@ -201,7 +163,7 @@ class ComputeParty:
                 ret_net.append({"host": "0.0.0.0", "port": 5000})
             else:
                 ret_net.append({"host": "conclave-{0}-{1}-service.{2}.svc.cluster.local"
-                               .format(self.compute_id, str(i), self.resolve_other_party(i)), "port": 5000})
+                               .format(self.compute_id, str(i), self.namespace_map[i-1]), "port": 5000})
 
         return json.dumps(ret_net)
 

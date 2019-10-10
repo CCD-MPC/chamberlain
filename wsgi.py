@@ -5,6 +5,7 @@ import shutil
 from flask import Flask
 from flask import request
 from flask import jsonify
+from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from base64 import b64encode
 
@@ -14,6 +15,28 @@ from src.swift import SwiftData
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/CCD_DB.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/db.db"
+app.config["SQLALCHEMY_ECHO"] = False
+app.config["SECRET_KEY"] = 'secret key'
+app.config["DEBUG"] = True
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db = SQLAlchemy(app)
+
+
+class Dataset(db.Model):
+
+    id = db.Column(db.Integer, primary_key=True)
+    dataset_id = db.Column(db.String(120), unique=True)
+    namespace = db.Column(db.String(120), unique=False)
+
+    def __init__(self, dataset_id, namespace):
+        self.dataset_id = dataset_id
+        self.namespace = namespace
+
+    def __repr__(self):
+        return '<Dataset {0} in namespace {1}'.format(self.dataset_id, self.namespace)
 
 
 @app.route('/', defaults={'path': ''})
@@ -132,7 +155,10 @@ def submit():
 
         app.logger.info("JSON received: {}".format(config))
 
-        cc_manager = ConclaveManager(config, app)
+        a = Dataset.query.all()
+        print(len(a))
+
+        cc_manager = ConclaveManager(config, app, Dataset)
         cc_manager.run()
 
         response = \
@@ -141,6 +167,41 @@ def submit():
             }
 
         return jsonify(response)
+
+
+@app.route('/api/create', methods=['POST'])
+def add_dataset():
+    """
+    Insert dataset mappings into db.
+    """
+
+    if request.method == 'POST':
+
+        ds = request.get_json(force=True)
+
+        datasets = ds["datasets"]
+        for data in datasets:
+            dataset_id = "{0}_{1}".format(data["containerName"], data["fileName"])
+            namespace = data["namespace"]
+
+            d = Dataset(dataset_id, namespace)
+            db.session.add(d)
+            db.session.commit()
+
+        response = \
+            {
+                "MSG": "Inserted {} in database".format(len(datasets))
+            }
+
+        return jsonify(response)
+
+
+@app.before_first_request
+def init_db():
+
+    app.logger.info("\nCreating DB\n")
+
+    db.create_all()
 
 
 if __name__ != "__main__":

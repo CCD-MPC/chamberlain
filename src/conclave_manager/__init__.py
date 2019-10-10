@@ -11,10 +11,11 @@ class ConclaveManager:
     Generates and launches JiffServer & ComputeParty objects
     """
 
-    def __init__(self, json_data, app):
+    def __init__(self, json_data, app, db_model):
 
         self.app = app
         self.protocol_config = json_data
+        self.db_model = db_model
 
         self.template_directory = "{}/templates/".format(os.path.dirname(os.path.realpath(__file__)))
         self.compute_id = json_data["config"]["ID"]
@@ -41,9 +42,7 @@ class ConclaveManager:
         ip = None
 
         while not ready:
-
             ip = self.jiff_server.query_server_ip()
-
             if ip is not None:
                 ready = True
             else:
@@ -54,14 +53,32 @@ class ConclaveManager:
     def load_protocol(self):
         """
         Load protocol from protocol_config and log result.
-
-        # TODO implement b64 encoded form for protocol
         """
 
         protocol = self.protocol_config['protocol']["data"]
         self.app.logger.info("CC Protocol:\n{}".format(protocol))
 
         return protocol
+
+    def resolve_namespaces(self):
+
+        ret = []
+
+        datasets = self.protocol_config['data']['endpoints']
+
+        for d in datasets:
+
+            dset_id = "{0}_{1}".format(d["containerName"], d["fileName"])
+            lookup = self.db_model.query.filter_by(dataset_id=dset_id).first()
+
+            if lookup is not None:
+                ret.append(lookup.namespace)
+            else:
+                ret.append("cici")
+
+        self.app.logger.info("Namespace map for workflow {0}: {1}".format(self.compute_id, ret))
+
+        return ret
 
     def create_compute_parties(self):
         """
@@ -75,22 +92,12 @@ class ConclaveManager:
             server_ip = "N/A"
 
         all_pids = list(range(1, len(self.protocol_config['data']['endpoints']) + 1))
+        namespace_lookups = self.resolve_namespaces()
 
         compute_parties = []
 
         self.app.logger.info("Creating Conclave Pod templates for {} parties"
                              .format(str(len(all_pids))))
-
-        '''
-        TODO: will need to resolve ownership between datasets, and 
-        create a compute party for each unique data owner (i.e. - 
-        case when a single party stores more than one dataset).
-        
-        Might be able to resolve via aliases in the metadata for
-        DV endpoints.
-        
-        For Swift, we'll need a DB that maps authURL's to openshift clusters/namespaces
-        '''
 
         for i in all_pids:
             compute_parties.append(
@@ -101,6 +108,7 @@ class ConclaveManager:
                     self.protocol,
                     self.app,
                     self.protocol_config,
+                    namespace_lookups,
                     server_ip)
                 )
 
