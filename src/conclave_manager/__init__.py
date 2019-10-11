@@ -61,6 +61,9 @@ class ConclaveManager:
         return protocol
 
     def resolve_namespaces(self):
+        """
+        For each dataset in the computation, resolve the namespace that it belongs to.
+        """
 
         ret = []
 
@@ -76,7 +79,7 @@ class ConclaveManager:
             else:
                 ret.append("cici")
 
-        self.app.logger.info("Namespace map for workflow {0}: {1}".format(self.compute_id, ret))
+        self.app.logger.info("\n\nNamespace map for workflow {0}: {1}\n\n".format(self.compute_id, ret))
 
         return ret
 

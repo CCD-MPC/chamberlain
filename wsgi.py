@@ -16,8 +16,7 @@ from src.swift import SwiftData
 app = Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/CCD_DB.db"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////tmp/db.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:////db/CCD_DB.db"
 app.config["SQLALCHEMY_ECHO"] = False
 app.config["SECRET_KEY"] = 'secret key'
 app.config["DEBUG"] = True
@@ -155,9 +154,6 @@ def submit():
 
         app.logger.info("JSON received: {}".format(config))
 
-        a = Dataset.query.all()
-        print(len(a))
-
         cc_manager = ConclaveManager(config, app, Dataset)
         cc_manager.run()
 
@@ -190,7 +186,7 @@ def add_dataset():
 
         response = \
             {
-                "MSG": "Inserted {} in database".format(len(datasets))
+                "MSG": "Inserted {} records into database".format(len(datasets))
             }
 
         return jsonify(response)
