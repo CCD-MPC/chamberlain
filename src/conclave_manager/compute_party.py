@@ -221,7 +221,8 @@ class ComputeParty:
                 else "docker.io/bengetch/conclave:oc",
                 "BACKEND": self.data_source,
                 "BACKEND_PARAMS": self.setup_data_params(),
-                "FILENAME": self.endpoint["fileName"]
+                "FILENAME": self.endpoint["fileName"],
+                "UID": self.config["uid"]
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()

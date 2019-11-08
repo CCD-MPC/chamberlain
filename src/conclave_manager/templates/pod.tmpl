@@ -7,14 +7,16 @@
         "labels":
         {
             "app": "{{{POD_NAME}}}",
-            "job_id": "{{{COMPUTE_ID}}}"
+            "job_id": "{{{COMPUTE_ID}}}",
+            "massopen.cloud/bill-project-0.1.0": "{{{UID}}}"
         }
     },
     "spec":
     {
         "selector":
         {
-            "app": "{{{POD_NAME}}}"
+            "app": "{{{POD_NAME}}}",
+            "massopen.cloud/bill-project-0.1.0": "{{{UID}}}"
         },
         "restartPolicy": "Never",
         "containers":
