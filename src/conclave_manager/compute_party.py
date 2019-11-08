@@ -20,7 +20,7 @@ class ComputeParty:
 
     def __init__(
             self, pid, all_pids, compute_id, protocol, app, protocol_config,
-            jiff_server_ip, namespace_map, data_source="swift"
+            namespace_map, jiff_server_ip, data_source="swift"
     ):
 
         self.pid = pid
