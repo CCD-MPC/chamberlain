@@ -161,27 +161,27 @@ class ChamberlainInstaller:
         if self.with_vol:
             if self.with_swift and self.with_dv:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_vol/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_config_swift_only.tmpl"
+                    "{}/deployments/with_vol/deployment_config_swift_only.tmpl"
                     .format(self.template_directory), 'r').read()
             elif self.with_dv:
                 data_template = open(
-                    "{}/deployments/with_db/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/with_vol/deployment_config_dv_only.tmpl".format(self.template_directory), 'r').read()
             else:
                 raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
         else:
             if self.with_swift and self.with_dv:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
+                    "{}/deployments/without_vol/deployment_config_all.tmpl".format(self.template_directory), 'r').read()
             elif self.with_swift:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config_swift_only.tmpl"
+                    "{}/deployments/without_vol/deployment_config_swift_only.tmpl"
                     .format(self.template_directory), 'r').read()
             elif self.with_dv:
                 data_template = open(
-                    "{}/deployments/without_db/deployment_config_dv_only.tmpl"
+                    "{}/deployments/without_vol/deployment_config_dv_only.tmpl"
                     .format(self.template_directory), 'r').read()
             else:
                 raise Exception("No backend storage data provided. Please provide either Swift or Dataverse config.\n")
