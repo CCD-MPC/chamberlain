@@ -79,6 +79,10 @@
                         "mountPath": "/etc/{{{BACKEND}}}-auth"
                     },
                     {
+                        "name": "enc-auth",
+                        "mountPath": "/etc/enc-conf"
+                    },
+                    {
                         "name": "data-volume",
                         "mountPath": "/data"
                     }
@@ -122,6 +126,24 @@
                 {
                     "name": "{{{BACKEND}}}-auth",
                     "items": {{{BACKEND_PARAMS}}}
+                }
+            },
+            {
+                "name": "enc-auth",
+                "configMap":
+                {
+                    "name": "enc-auth",
+                    "items":
+                    [
+                        {
+                            "key": "k",
+                            "path": "k"
+                        },
+                        {
+                            "key": "nonce",
+                            "path": "nonce"
+                        }
+                    ]
                 }
             },
             {
