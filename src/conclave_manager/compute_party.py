@@ -220,7 +220,8 @@ class ComputeParty:
                 "IMAGE": "docker.io/bengetch/conclave:jiff" if self.mpc_backend == "jiff"
                 else "docker.io/bengetch/conclave:oc",
                 "BACKEND": self.data_source,
-                "BACKEND_PARAMS": self.setup_data_params()
+                "BACKEND_PARAMS": self.setup_data_params(),
+                "FILENAME": self.endpoint["fileName"]
             }
 
         data_template = open("{}/pod.tmpl".format(self.template_directory), 'r').read()
