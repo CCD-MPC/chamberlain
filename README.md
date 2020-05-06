@@ -1,4 +1,4 @@
-This library provides a simple web interface to launch Conclave containers on OpenShift.
+This library provides a simple API to launch Conclave (https://github.com/multiparty/conclave) containers on OpenShift.
 
 To run (in a cluster):
 
