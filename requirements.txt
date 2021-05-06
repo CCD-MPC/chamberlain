@@ -4,7 +4,7 @@ chardet==3.0.4
 click==6.7
 dictdiffer==0.7.1
 Flask==1.0.2
-Flask-Cors==3.0.4
+Flask-Cors==3.0.9
 Flask-SQLAlchemy==2.3.2
 google-auth==1.4.2
 gunicorn==19.8.1
